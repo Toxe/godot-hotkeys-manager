@@ -12,9 +12,13 @@ config_version=5
 
 config/name="Hotkeys Manager"
 config/tags=PackedStringArray("gui", "program")
-run/main_scene="uid://b2csr7tbxjl3k"
+run/main_scene="uid://bk5u647v5tpng"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Events="*res://autoload/events.gd"
 
 [debug]
 

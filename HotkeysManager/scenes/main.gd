@@ -1,19 +1,40 @@
 extends Control
 
+const error_screen_scene = preload("res://ui/screens/error_screen/error_screen.tscn")
+const main_screen_scene = preload("res://ui/screens/main_screen/main_screen.tscn")
+const commands_screen_scene = preload("res://ui/screens/commands_screen/commands_screen.tscn")
+const hotkeys_screen_scene = preload("res://ui/screens/hotkeys_screen/hotkeys_screen.tscn")
+
 var db: SQLite = null
 
 
 func _ready() -> void:
+    Events.switch_to_main_screen.connect(_on_switch_to_main_screen)
+    Events.switch_to_commands_screen.connect(_on_switch_to_commands_screen)
+    Events.switch_to_hotkeys_screen.connect(_on_switch_to_hotkeys_screen)
+
     db = open_database("user://hotkeys.sqlite")
+
+    if db:
+        switch_screen(load_screen(main_screen_scene))
+
+
+func load_screen(scene: PackedScene) -> Control:
+    return scene.instantiate()
+
+
+func switch_screen(screen: Control) -> void:
+    for child in get_children():
+        remove_child(child)
+        child.queue_free()
+    add_child(screen)
 
 
 func show_error(text: String, message: String) -> void:
-    printerr(text)
-    printerr(message)
-    ($ErrorView/ErrorText as Label).text = "Error: %s" % text
-    ($ErrorView/ErrorMessage as Label).text = message
-    ($Content as Control).visible = false
-    ($ErrorView as Control).visible = true
+    var error_screen: ErrorScreen = load_screen(error_screen_scene)
+    error_screen.error_text = text
+    error_screen.error_message = message
+    switch_screen(error_screen)
 
 
 func open_database(db_name: String) -> SQLite:
@@ -56,3 +77,15 @@ func close_and_delete_database(local_db: SQLite, db_name: String) -> void:
 
     if FileAccess.file_exists(db_name):
         DirAccess.remove_absolute(db_name)
+
+
+func _on_switch_to_main_screen() -> void:
+    switch_screen(load_screen(main_screen_scene))
+
+
+func _on_switch_to_commands_screen() -> void:
+    switch_screen(load_screen(commands_screen_scene))
+
+
+func _on_switch_to_hotkeys_screen() -> void:
+    switch_screen(load_screen(hotkeys_screen_scene))
