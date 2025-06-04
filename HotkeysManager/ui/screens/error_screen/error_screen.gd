@@ -1,11 +1,16 @@
 class_name ErrorScreen extends Control
 
-@export var error_text := ""
-@export var error_message := ""
+var _error_text := ""
+var _error_message := ""
 
 
 func _ready() -> void:
-    printerr(error_text)
-    printerr(error_message)
-    ($ErrorView/ErrorText as Label).text = "Error: %s" % error_text
-    ($ErrorView/ErrorMessage as Label).text = error_message
+    printerr(_error_text)
+    printerr(_error_message)
+    ($ErrorView/ErrorText as Label).text = "Error: %s" % _error_text
+    ($ErrorView/ErrorMessage as Label).text = _error_message
+
+
+func setup(text: String, message: String) -> void:
+    _error_text = text
+    _error_message = message

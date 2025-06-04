@@ -5,5 +5,6 @@ extends Node
 signal switch_to_main_screen
 signal switch_to_commands_screen
 signal switch_to_hotkeys_screen
+signal error(text: String, message: String)
 
 @warning_ignore_restore("unused_signal")

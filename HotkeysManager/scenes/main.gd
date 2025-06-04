@@ -5,18 +5,17 @@ const main_screen_scene = preload("res://ui/screens/main_screen/main_screen.tscn
 const commands_screen_scene = preload("res://ui/screens/commands_screen/commands_screen.tscn")
 const hotkeys_screen_scene = preload("res://ui/screens/hotkeys_screen/hotkeys_screen.tscn")
 
-var db: SQLite = null
+var db: Database = Database.new()
 
 
 func _ready() -> void:
-    Events.switch_to_main_screen.connect(_on_switch_to_main_screen)
-    Events.switch_to_commands_screen.connect(_on_switch_to_commands_screen)
-    Events.switch_to_hotkeys_screen.connect(_on_switch_to_hotkeys_screen)
+    Events.switch_to_main_screen.connect(switch_to_main_screen)
+    Events.switch_to_commands_screen.connect(switch_to_commands_screen)
+    Events.switch_to_hotkeys_screen.connect(switch_to_hotkeys_screen)
+    Events.error.connect(switch_to_error_screen)
 
-    db = open_database("user://hotkeys.sqlite")
-
-    if db:
-        switch_screen(load_screen(main_screen_scene))
+    if db.open("user://hotkeys.sqlite"):
+        switch_to_main_screen()
 
 
 func load_screen(scene: PackedScene) -> Control:
@@ -30,62 +29,25 @@ func switch_screen(screen: Control) -> void:
     add_child(screen)
 
 
-func show_error(text: String, message: String) -> void:
-    var error_screen: ErrorScreen = load_screen(error_screen_scene)
-    error_screen.error_text = text
-    error_screen.error_message = message
-    switch_screen(error_screen)
+func switch_to_main_screen() -> void:
+    var screen: MainScreen = load_screen(main_screen_scene)
+    screen.setup(db)
+    switch_screen(screen)
 
 
-func open_database(db_name: String) -> SQLite:
-    var db_needs_to_be_created := !FileAccess.file_exists(db_name)
-    var local_db := SQLite.new()
-    local_db.path = db_name
-    local_db.foreign_keys = true
-    local_db.verbosity_level = SQLite.VerbosityLevel.NORMAL
-
-    if !local_db.open_db():
-        show_error("Unable to open database.", local_db.error_message)
-        close_and_delete_database(local_db, db_name)
-        return null
-
-    if db_needs_to_be_created:
-        if !create_database_structure(local_db):
-            close_and_delete_database(local_db, db_name)
-            return null
-
-    return local_db
+func switch_to_commands_screen() -> void:
+    var screen: CommandsScreen = load_screen(commands_screen_scene)
+    screen.setup(db)
+    switch_screen(screen)
 
 
-func create_database_structure(local_db: SQLite) -> bool:
-    var sql := FileAccess.get_file_as_string("res://database.sql")
-
-    if sql.is_empty():
-        show_error("Unable to create database.", "File open error: %d" % FileAccess.get_open_error())
-        return false
-
-    if !local_db.query(sql):
-        show_error("Unable to create database.", local_db.error_message)
-        return false
-
-    return true
+func switch_to_hotkeys_screen() -> void:
+    var screen: HotkeysScreen = load_screen(hotkeys_screen_scene)
+    screen.setup(db)
+    switch_screen(screen)
 
 
-func close_and_delete_database(local_db: SQLite, db_name: String) -> void:
-    if local_db:
-        local_db.close_db()
-
-    if FileAccess.file_exists(db_name):
-        DirAccess.remove_absolute(db_name)
-
-
-func _on_switch_to_main_screen() -> void:
-    switch_screen(load_screen(main_screen_scene))
-
-
-func _on_switch_to_commands_screen() -> void:
-    switch_screen(load_screen(commands_screen_scene))
-
-
-func _on_switch_to_hotkeys_screen() -> void:
-    switch_screen(load_screen(hotkeys_screen_scene))
+func switch_to_error_screen(text: String, message: String) -> void:
+    var screen: ErrorScreen = load_screen(error_screen_scene)
+    screen.setup(text, message)
+    switch_screen(screen)
