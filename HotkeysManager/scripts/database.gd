@@ -2,6 +2,10 @@ class_name Database
 
 var db: SQLite = null
 
+class QueryResult:
+    var ok: bool
+    var rows: Array = []
+
 
 func open(db_name: String) -> bool:
     var db_needs_to_be_created := !FileAccess.file_exists(db_name)
@@ -62,3 +66,18 @@ func create_database_structure() -> bool:
 
 func show_error(text: String, message: String) -> void:
     Events.error.emit(text, message)
+
+
+func query(sql: String, bindings: Array = []) -> QueryResult:
+    assert(is_open())
+
+    var res := QueryResult.new()
+
+    if !db.query_with_bindings(sql, bindings):
+        show_error("Database query error.", db.error_message)
+        res.ok = false
+        return res
+
+    res.ok = true
+    res.rows = db.query_result
+    return res
