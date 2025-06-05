@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://ctfylvylgevof"]
+[gd_scene load_steps=3 format=3 uid="uid://ctfylvylgevof"]
 
 [ext_resource type="Script" uid="uid://dh2wwarhajmlw" path="res://ui/screens/main_screen/ui/programgroup.gd" id="1_756ef"]
+[ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_a2sbu"]
 
 [node name="Programgroup" type="VBoxContainer"]
 offset_right = 239.0
@@ -47,4 +48,11 @@ text = "Rename Group"
 layout_mode = 2
 text = "Delete Group"
 
+[node name="RenameGroupDialog" parent="." instance=ExtResource("2_a2sbu")]
+auto_translate_mode = 2
+title = "Rename Group"
+label_text = "Please enter the new Group name."
+
 [connection signal="item_selected" from="HBoxContainer/ItemList" to="." method="_on_item_list_item_selected"]
+[connection signal="pressed" from="HBoxContainer2/RenameGroupButton" to="." method="_on_rename_group_button_pressed"]
+[connection signal="submitted" from="RenameGroupDialog" to="." method="_on_rename_group_dialog_submitted"]

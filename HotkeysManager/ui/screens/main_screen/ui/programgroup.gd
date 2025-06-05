@@ -39,3 +39,14 @@ func add_program(row: Dictionary) -> void:
 func _on_item_list_item_selected(index: int) -> void:
     var program_id: int = item_list.get_item_metadata(index)
     prints(index, program_id)
+
+
+func _on_rename_group_button_pressed() -> void:
+    var rename_group_dialog: EnterTextDialog = $RenameGroupDialog
+    rename_group_dialog.get_text_field().text = ($TitleLabel as Label).text
+    rename_group_dialog.show()
+
+
+func _on_rename_group_dialog_submitted(text: String) -> void:
+    if _db.update_single_value("programgroup", _programgroup_id, "name", text):
+        ($TitleLabel as Label).text = text

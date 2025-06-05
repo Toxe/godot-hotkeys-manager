@@ -92,3 +92,11 @@ func query_single_value(sql: String, bindings: Array = []) -> Variant:
     var dict: Dictionary = res.rows[0]
     assert(dict.size() == 1)
     return dict.values().get(0)
+
+
+func update_single_value(table: String, id: int, field: String, value: Variant) -> bool:
+    if !db.update_rows(table, "id = '%d'" % id, {field: value}):
+        show_error("Database query error.", db.error_message)
+        return false
+
+    return true
