@@ -4,7 +4,11 @@ var db: SQLite = null
 
 class QueryResult:
     var ok: bool
-    var rows: Array = []
+    var rows: Array
+
+    func _init(is_ok: bool = false, result_rows: Array = []) -> void:
+        ok = is_ok
+        rows = result_rows
 
 
 func open(db_name: String) -> bool:
@@ -71,16 +75,11 @@ func show_error(text: String, message: String) -> void:
 func query(sql: String, bindings: Array = []) -> QueryResult:
     assert(is_open())
 
-    var res := QueryResult.new()
-
     if !db.query_with_bindings(sql, bindings):
         show_error("Database query error.", db.error_message)
-        res.ok = false
-        return res
+        return QueryResult.new(false)
 
-    res.ok = true
-    res.rows = db.query_result
-    return res
+    return QueryResult.new(true, db.query_result)
 
 
 func query_single_value(sql: String, bindings: Array = []) -> Variant:
