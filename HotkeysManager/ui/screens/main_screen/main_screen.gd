@@ -20,7 +20,6 @@ func _ready() -> void:
 
 func add_programgroup(row: Dictionary) -> void:
     var id: int = row.id
-    var programgroup_name: String = row.name
     var programgroup := programgroup_scene.instantiate() as Programgroup
-    programgroup.setup(_db, id, programgroup_name)
+    programgroup.setup(_db, id)
     $VBoxContainer/ProgramgroupList.add_child(programgroup)

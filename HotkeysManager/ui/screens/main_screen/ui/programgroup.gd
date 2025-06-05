@@ -2,19 +2,20 @@ class_name Programgroup extends Control
 
 var _db: Database = null
 var _programgroup_id: int = -1
-var _programgroup_name: String = ""
 
 @onready var item_list: ItemList = $HBoxContainer/ItemList
 
 
-func setup(db: Database, id: int, programgroup_name: String) -> void:
+func setup(db: Database, id: int) -> void:
     _db = db
     _programgroup_id = id
-    _programgroup_name = programgroup_name
 
 
 func _ready() -> void:
-    ($TitleLabel as Label).text = _programgroup_name
+    var programgroup_name: Variant = _db.query_single_value("SELECT name FROM programgroup WHERE id=?", [_programgroup_id])
+
+    if programgroup_name != null:
+        ($TitleLabel as Label).text = programgroup_name
 
     var sql := "SELECT pp.programgroup_id, pp.program_id, p.name
 FROM programgroup_program pp
