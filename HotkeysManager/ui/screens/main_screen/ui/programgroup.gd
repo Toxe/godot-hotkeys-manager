@@ -7,6 +7,12 @@ var _programgroup_name: String = ""
 @onready var item_list: ItemList = $HBoxContainer/ItemList
 
 
+func setup(db: Database, id: int, programgroup_name: String) -> void:
+    _db = db
+    _programgroup_id = id
+    _programgroup_name = programgroup_name
+
+
 func _ready() -> void:
     ($TitleLabel as Label).text = _programgroup_name
 
@@ -20,12 +26,6 @@ ORDER BY p.name"
     if res.ok:
         for row: Dictionary in res.rows:
             add_program(row)
-
-
-func setup(db: Database, id: int, programgroup_name: String) -> void:
-    _db = db
-    _programgroup_id = id
-    _programgroup_name = programgroup_name
 
 
 func add_program(row: Dictionary) -> void:

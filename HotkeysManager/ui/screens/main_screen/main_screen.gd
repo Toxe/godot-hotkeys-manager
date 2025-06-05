@@ -5,6 +5,10 @@ const programgroup_scene: PackedScene = preload("uid://ctfylvylgevof")
 var _db: Database = null
 
 
+func setup(db: Database) -> void:
+    _db = db
+
+
 func _ready() -> void:
     assert(_db.is_open())
 
@@ -12,10 +16,6 @@ func _ready() -> void:
     if res.ok:
         for row: Dictionary in res.rows:
             add_programgroup(row)
-
-
-func setup(db: Database) -> void:
-    _db = db
 
 
 func add_programgroup(row: Dictionary) -> void:
