@@ -12,7 +12,7 @@ func setup(db: Database, id: int) -> void:
 
 
 func _ready() -> void:
-    var programgroup_name: Variant = _db.query_single_value("SELECT name FROM programgroup WHERE id=?", [_programgroup_id])
+    var programgroup_name: Variant = _db.query_single_value("SELECT name FROM programgroup WHERE id=?;", [_programgroup_id])
 
     if programgroup_name != null:
         ($TitleLabel as Label).text = programgroup_name
@@ -21,7 +21,7 @@ func _ready() -> void:
 FROM programgroup_program pp
 INNER JOIN program p ON pp.program_id = p.id
 WHERE pp.programgroup_id = ?
-ORDER BY p.name"
+ORDER BY p.name;"
 
     var res := _db.query(sql, [_programgroup_id])
     if res.ok:

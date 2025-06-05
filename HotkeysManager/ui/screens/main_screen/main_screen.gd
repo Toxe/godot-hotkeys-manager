@@ -12,7 +12,7 @@ func setup(db: Database) -> void:
 func _ready() -> void:
     assert(_db.is_open())
 
-    var res := _db.query("SELECT id, name FROM programgroup ORDER BY name")
+    var res := _db.query("SELECT id, name FROM programgroup ORDER BY name;")
     if res.ok:
         for row: Dictionary in res.rows:
             add_programgroup(row)
