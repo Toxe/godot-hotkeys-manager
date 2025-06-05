@@ -81,3 +81,15 @@ func query(sql: String, bindings: Array = []) -> QueryResult:
     res.ok = true
     res.rows = db.query_result
     return res
+
+
+func query_single_value(sql: String, bindings: Array = []) -> Variant:
+    var res := query(sql, bindings)
+
+    if !res.ok:
+        return null
+
+    assert(res.rows.size() == 1)
+    var dict: Dictionary = res.rows[0]
+    assert(dict.size() == 1)
+    return dict.values().get(0)
