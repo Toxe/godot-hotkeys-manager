@@ -50,3 +50,13 @@ func _on_rename_group_button_pressed() -> void:
 func _on_rename_group_dialog_submitted(text: String) -> void:
     if _db.update_single_value("programgroup", _programgroup_id, "name", text):
         ($TitleLabel as Label).text = text
+
+
+func _on_delete_group_button_pressed() -> void:
+    ($DeleteGroupDialog as VerificationDialog).show()
+
+
+func _on_delete_group_dialog_confirmed() -> void:
+    var res := _db.query("DELETE FROM programgroup WHERE id = ?;", [_programgroup_id])
+    if res.ok:
+        Events.switch_to_main_screen.emit()
