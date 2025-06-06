@@ -36,4 +36,4 @@ func _on_new_group_button_pressed() -> void:
 func _on_new_group_dialog_submitted(text: String) -> void:
     var res := _db.query("INSERT into programgroup (name) VALUES (?);", [text])
     if res.ok:
-        Events.switch_to_main_screen.emit()
+        Events.switch_to_main_screen.emit.call_deferred()

@@ -59,4 +59,4 @@ func _on_delete_group_button_pressed() -> void:
 func _on_delete_group_dialog_confirmed() -> void:
     var res := _db.query("DELETE FROM programgroup WHERE id = ?;", [_programgroup_id])
     if res.ok:
-        Events.switch_to_main_screen.emit()
+        Events.switch_to_main_screen.emit.call_deferred()
