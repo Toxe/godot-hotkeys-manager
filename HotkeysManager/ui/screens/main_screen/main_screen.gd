@@ -23,3 +23,7 @@ func add_programgroup(row: Dictionary) -> void:
     var programgroup := programgroup_scene.instantiate() as Programgroup
     programgroup.setup(_db, id)
     $VBoxContainer/ProgramgroupList.add_child(programgroup)
+
+
+func _on_quit_button_pressed() -> void:
+    get_tree().quit()
