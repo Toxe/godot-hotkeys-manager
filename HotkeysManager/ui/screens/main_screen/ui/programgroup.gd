@@ -3,7 +3,7 @@ class_name Programgroup extends Control
 var _db: Database = null
 var _programgroup_id: int = -1
 
-@onready var item_list: ItemList = $HBoxContainer/ItemList
+@onready var program_list: ItemList = $HBoxContainer/ItemList
 
 
 func setup(db: Database, id: int) -> void:
@@ -32,13 +32,41 @@ ORDER BY p.name;"
 func add_program(row: Dictionary) -> void:
     var program_name: String = row.name
     var program_id: int = row.program_id
-    var index := item_list.add_item(program_name)
-    item_list.set_item_metadata(index, program_id)
+    var index := program_list.add_item(program_name)
+    program_list.set_item_metadata(index, program_id)
 
 
-func _on_item_list_item_selected(index: int) -> void:
-    var program_id: int = item_list.get_item_metadata(index)
+func _on_program_list_item_selected(index: int) -> void:
+    var program_id: int = program_list.get_item_metadata(index)
     prints(index, program_id)
+
+
+func _on_add_program_button_pressed() -> void:
+    var add_program_dialog: SelectionDialog = $AddProgramDialog
+    var list: ItemList = add_program_dialog.get_list()
+    list.clear()
+
+    var sql := "SELECT p.id, p.name
+FROM program p
+LEFT JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id = ?
+WHERE pp.program_id IS NULL
+ORDER BY p.name;"
+
+    var res := _db.query(sql, [_programgroup_id])
+    if res.ok:
+        for row: Dictionary in res.rows:
+            var program_name: String = row.name
+            var program_id: int = row.id
+            var index := list.add_item(program_name)
+            list.set_item_metadata(index, program_id)
+        add_program_dialog.show()
+
+
+func _on_add_program_dialog_submitted(selection: Array) -> void:
+    for id: Variant in selection:
+        if !_db.insert_row("programgroup_program", {"programgroup_id":_programgroup_id, "program_id": id}):
+            return
+    Events.switch_to_main_screen.emit.call_deferred()
 
 
 func _on_rename_group_button_pressed() -> void:

@@ -98,5 +98,10 @@ func update_single_value(table: String, id: int, field: String, value: Variant) 
     if !db.update_rows(table, "id = '%d'" % id, {field: value}):
         show_error("Database query error.", db.error_message)
         return false
+    return true
 
+func insert_row(table: String, values: Dictionary) -> bool:
+    if !db.insert_row(table, values):
+        show_error("Database query error.", db.error_message)
+        return false
     return true
