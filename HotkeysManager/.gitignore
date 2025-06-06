@@ -19,3 +19,5 @@ mono_crash.*.json
 /bin/*
 !/bin/*.gdextension
 !/bin/*.uid
+
+/addons/godot-sqlite/bin/~*.dll
