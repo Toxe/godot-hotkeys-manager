@@ -27,3 +27,13 @@ func add_programgroup(row: Dictionary) -> void:
 
 func _on_quit_button_pressed() -> void:
     get_tree().quit()
+
+
+func _on_new_group_button_pressed() -> void:
+    ($NewGroupDialog as EnterTextDialog).show()
+
+
+func _on_new_group_dialog_submitted(text: String) -> void:
+    var res := _db.query("INSERT into programgroup (name) VALUES (?);", [text])
+    if res.ok:
+        Events.switch_to_main_screen.emit()

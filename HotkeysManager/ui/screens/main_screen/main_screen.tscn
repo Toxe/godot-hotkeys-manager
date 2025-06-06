@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://b2csr7tbxjl3k"]
+[gd_scene load_steps=3 format=3 uid="uid://b2csr7tbxjl3k"]
 
 [ext_resource type="Script" uid="uid://bwew2enselr51" path="res://ui/screens/main_screen/main_screen.gd" id="1_eu54w"]
+[ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_nw5x1"]
 
 [node name="MainScreen" type="Control"]
 layout_mode = 3
@@ -31,4 +32,11 @@ text = "New Group"
 layout_mode = 2
 text = "Quit"
 
+[node name="NewGroupDialog" parent="." instance=ExtResource("2_nw5x1")]
+auto_translate_mode = 2
+title = "New Group"
+label_text = "Please enter the name of the new Program Group."
+
+[connection signal="pressed" from="VBoxContainer/NewGroupButton" to="." method="_on_new_group_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="submitted" from="NewGroupDialog" to="." method="_on_new_group_dialog_submitted"]
