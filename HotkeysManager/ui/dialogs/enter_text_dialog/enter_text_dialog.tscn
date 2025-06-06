@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://co46ghdhwct6x" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.gd" id="1_dbr4e"]
 
 [node name="EnterTextDialog" type="Window"]
-oversampling_override = 1.0
 title = "Title"
 initial_position = 2
 size = Vector2i(400, 100)
@@ -12,9 +11,6 @@ wrap_controls = true
 transient = true
 exclusive = true
 unresizable = true
-minimize_disabled = true
-maximize_disabled = true
-auto_translate = false
 script = ExtResource("1_dbr4e")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]

@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://beii72wu8pp6l" path="res://ui/dialogs/selection_dialog/selection_dialog.gd" id="1_ewbxm"]
 
 [node name="SelectionDialog" type="Window"]
-oversampling_override = 1.0
 title = "Title"
 initial_position = 2
 size = Vector2i(400, 362)
@@ -12,9 +11,6 @@ wrap_controls = true
 transient = true
 exclusive = true
 unresizable = true
-minimize_disabled = true
-maximize_disabled = true
-auto_translate = false
 script = ExtResource("1_ewbxm")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]

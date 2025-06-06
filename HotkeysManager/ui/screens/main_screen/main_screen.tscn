@@ -33,7 +33,6 @@ layout_mode = 2
 text = "Quit"
 
 [node name="NewGroupDialog" parent="." instance=ExtResource("2_nw5x1")]
-auto_translate_mode = 2
 title = "New Group"
 label_text = "Please enter the name of the new Program Group."
 

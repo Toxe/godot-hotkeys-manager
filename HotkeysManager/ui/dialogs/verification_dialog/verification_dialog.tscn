@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://0c1qbq57vima" path="res://ui/dialogs/verification_dialog/verification_dialog.gd" id="1_e16g0"]
 
 [node name="VerificationDialog" type="Window"]
-oversampling_override = 1.0
 title = "Title"
 initial_position = 2
 size = Vector2i(400, 100)
@@ -12,9 +11,6 @@ wrap_controls = true
 transient = true
 exclusive = true
 unresizable = true
-minimize_disabled = true
-maximize_disabled = true
-auto_translate = false
 script = ExtResource("1_e16g0")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
