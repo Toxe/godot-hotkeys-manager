@@ -3,7 +3,7 @@ class_name Programgroup extends Control
 var _db: Database = null
 var _programgroup_id: int = -1
 
-@onready var program_list: ItemList = $HBoxContainer/ItemList
+@onready var program_list: ItemList = $HBoxContainer/ProgramList
 
 
 func setup(db: Database, id: int) -> void:
@@ -36,9 +36,8 @@ func add_program(row: Dictionary) -> void:
     program_list.set_item_metadata(index, program_id)
 
 
-func _on_program_list_item_selected(index: int) -> void:
-    var program_id: int = program_list.get_item_metadata(index)
-    prints(index, program_id)
+func _on_program_list_item_selected(_index: int) -> void:
+    ($HBoxContainer/VBoxContainer/RemoveProgramButton as Button).disabled = !program_list.is_anything_selected()
 
 
 func _on_add_program_button_pressed() -> void:
@@ -64,9 +63,18 @@ ORDER BY p.name;"
 
 func _on_add_program_dialog_submitted(selection: Array) -> void:
     for id: Variant in selection:
-        if !_db.insert_row("programgroup_program", {"programgroup_id":_programgroup_id, "program_id": id}):
+        if !_db.insert_row("programgroup_program", {"programgroup_id": _programgroup_id, "program_id": id}):
             return
     Events.switch_to_main_screen.emit.call_deferred()
+
+
+func _on_remove_program_button_pressed() -> void:
+    assert(program_list.get_selected_items().size() == 1)
+    var index := program_list.get_selected_items().get(0)
+    var program_id: int = program_list.get_item_metadata(index)
+    var res := _db.query("DELETE FROM programgroup_program WHERE programgroup_id=? AND program_id=?;", [_programgroup_id, program_id])
+    if res.ok:
+        Events.switch_to_main_screen.emit.call_deferred()
 
 
 func _on_rename_group_button_pressed() -> void:

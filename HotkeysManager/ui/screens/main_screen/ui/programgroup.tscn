@@ -17,7 +17,7 @@ text = "???"
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="ItemList" type="ItemList" parent="HBoxContainer"]
+[node name="ProgramList" type="ItemList" parent="HBoxContainer"]
 layout_mode = 2
 auto_width = true
 auto_height = true
@@ -62,8 +62,9 @@ label_text = "Please enter the new Group name."
 title = "Delete Group"
 label_text = "Are you sure you want to delete this Group?"
 
-[connection signal="item_selected" from="HBoxContainer/ItemList" to="." method="_on_item_list_item_selected"]
+[connection signal="item_selected" from="HBoxContainer/ProgramList" to="." method="_on_program_list_item_selected"]
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/AddProgramButton" to="." method="_on_add_program_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/RemoveProgramButton" to="." method="_on_remove_program_button_pressed"]
 [connection signal="pressed" from="HBoxContainer2/RenameGroupButton" to="." method="_on_rename_group_button_pressed"]
 [connection signal="pressed" from="HBoxContainer2/DeleteGroupButton" to="." method="_on_delete_group_button_pressed"]
 [connection signal="submitted" from="AddProgramDialog" to="." method="_on_add_program_dialog_submitted"]
