@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3 uid="uid://1eqq02vc7slg"]
+
+[ext_resource type="Script" uid="uid://beii72wu8pp6l" path="res://ui/dialogs/selection_dialog/selection_dialog.gd" id="1_ewbxm"]
+
+[node name="SelectionDialog" type="Window"]
+oversampling_override = 1.0
+title = "Title"
+initial_position = 2
+size = Vector2i(400, 362)
+visible = false
+wrap_controls = true
+transient = true
+exclusive = true
+unresizable = true
+minimize_disabled = true
+maximize_disabled = true
+auto_translate = false
+script = ExtResource("1_ewbxm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+bbcode_enabled = true
+text = "Description"
+fit_content = true
+
+[node name="ItemList" type="ItemList" parent="VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
+select_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SubmitButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+disabled = true
+text = "OK"
+
+[node name="CancelButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Cancel"
+
+[connection signal="close_requested" from="." to="." method="hide"]
+[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
+[connection signal="multi_selected" from="VBoxContainer/VBoxContainer/ItemList" to="." method="_on_item_list_multi_selected"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/SubmitButton" to="." method="_on_submit_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
