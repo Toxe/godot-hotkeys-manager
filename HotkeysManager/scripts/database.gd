@@ -2,14 +2,6 @@ class_name Database
 
 var db: SQLite = null
 
-class QueryResult:
-    var ok: bool
-    var rows: Array
-
-    func _init(is_ok: bool = false, result_rows: Array = []) -> void:
-        ok = is_ok
-        rows = result_rows
-
 
 func open(db_name: String) -> bool:
     var db_needs_to_be_created := !FileAccess.file_exists(db_name)
@@ -72,36 +64,90 @@ func show_error(text: String, message: String) -> void:
     Events.error.emit(text, message)
 
 
-func query(sql: String, bindings: Array = []) -> QueryResult:
+func query_result() -> Array[Dictionary]:
+    return db.query_result
+
+
+func last_insert_rowid() -> int:
+    return db.last_insert_rowid
+
+
+func query(sql: String, bindings: Array = []) -> bool:
     assert(is_open())
 
     if !db.query_with_bindings(sql, bindings):
         show_error("Database query error.", db.error_message)
-        return QueryResult.new(false)
+        return false
+    return true
 
-    return QueryResult.new(true, db.query_result)
+
+## Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
+func select_rows(table: String, conditions: String, fields: Array) -> Variant:
+    assert(is_open())
+
+    var rows := db.select_rows(table, conditions, fields)
+    if db.error_message != "not an error":
+        show_error("Database query error.", db.error_message)
+        return false
+    return rows
 
 
-func query_single_value(sql: String, bindings: Array = []) -> Variant:
-    var res := query(sql, bindings)
+## Returns [code]false[/code] on a database error or a Dictionary with row values or [code]null[/code] (if the row doesn't exist).
+func select_row(table: String, conditions: String, fields: Array) -> Variant:
+    var result: Variant = select_rows(table, conditions, fields)
+    if !result:
+        return false
 
-    if !res.ok:
+    var rows: Array = result
+    if rows.is_empty():
         return null
+    elif rows.size() > 1:
+        show_error("select_row", "returned more than one row")
+        return false
+    else:
+        return rows[0]
 
-    assert(res.rows.size() == 1)
-    var dict: Dictionary = res.rows[0]
-    assert(dict.size() == 1)
-    return dict.values().get(0)
+
+## Returns [code]false[/code] on a database error or the value or [code]null[/code] (if the row doesn't exist).
+func select_value(table: String, conditions: String, field: String) -> Variant:
+    var result: Variant = select_row(table, conditions, [field])
+    if !result:
+        return result # can be false or null
+    var values: Dictionary = result
+    return values[field]
 
 
-func update_single_value(table: String, id: int, field: String, value: Variant) -> bool:
-    if !db.update_rows(table, "id = '%d'" % id, {field: value}):
+func insert_rows(table: String, rows: Array[Dictionary]) -> bool:
+    assert(is_open())
+
+    if !db.insert_rows(table, rows):
         show_error("Database query error.", db.error_message)
         return false
     return true
 
+
 func insert_row(table: String, values: Dictionary) -> bool:
+    assert(is_open())
+
     if !db.insert_row(table, values):
+        show_error("Database query error.", db.error_message)
+        return false
+    return true
+
+
+func update_rows(table: String, conditions: String, values: Dictionary) -> bool:
+    assert(is_open())
+
+    if !db.update_rows(table, conditions, values):
+        show_error("Database query error.", db.error_message)
+        return false
+    return true
+
+
+func delete_rows(table: String, conditions: String) -> bool:
+    assert(is_open())
+
+    if !db.delete_rows(table, conditions):
         show_error("Database query error.", db.error_message)
         return false
     return true

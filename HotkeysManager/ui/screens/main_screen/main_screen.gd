@@ -12,9 +12,9 @@ func setup(db: Database) -> void:
 func _ready() -> void:
     assert(_db.is_open())
 
-    var res := _db.query("SELECT id, name FROM programgroup ORDER BY name;")
-    if res.ok:
-        for row: Dictionary in res.rows:
+    var rows: Variant = _db.select_rows("programgroup", "", ["id", "name"])
+    if rows:
+        for row: Dictionary in rows:
             add_programgroup(row)
 
 
@@ -34,6 +34,5 @@ func _on_new_group_button_pressed() -> void:
 
 
 func _on_new_group_dialog_submitted(text: String) -> void:
-    var res := _db.query("INSERT into programgroup (name) VALUES (?);", [text])
-    if res.ok:
+    if _db.insert_row("programgroup", {"name": text}):
         Events.switch_to_main_screen.emit.call_deferred()
