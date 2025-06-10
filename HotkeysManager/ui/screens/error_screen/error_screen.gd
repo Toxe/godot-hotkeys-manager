@@ -10,7 +10,5 @@ func setup(text: String, message: String) -> void:
 
 
 func _ready() -> void:
-    printerr(_error_text)
-    printerr(_error_message)
-    ($ErrorView/ErrorText as Label).text = "Error: %s" % _error_text
+    ($ErrorView/ErrorText as Label).text = "%s" % _error_text
     ($ErrorView/ErrorMessage as Label).text = _error_message

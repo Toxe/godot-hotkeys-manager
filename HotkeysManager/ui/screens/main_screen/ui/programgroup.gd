@@ -22,7 +22,7 @@ INNER JOIN program p ON pp.program_id = p.id
 WHERE pp.programgroup_id = ?
 ORDER BY p.name;"
 
-    if _db.query(sql, [_programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             add_program(row)
@@ -50,7 +50,7 @@ LEFT JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id
 WHERE pp.program_id IS NULL
 ORDER BY p.name;"
 
-    if _db.query(sql, [_programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var program_name: String = row.name

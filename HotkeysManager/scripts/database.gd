@@ -72,24 +72,45 @@ func last_insert_rowid() -> int:
     return db.last_insert_rowid
 
 
-func query(sql: String, bindings: Array = []) -> bool:
+func exec_call(label: String, fn_query: Callable, fn_suffix: Callable = func() -> String: return "") -> bool:
     assert(is_open())
 
-    if !db.query_with_bindings(sql, bindings):
-        show_error("Database query error.", db.error_message)
-        return false
-    return true
+    var t0 := Time.get_ticks_usec()
+    fn_query.call()
+    var dur := Time.get_ticks_usec() - t0
+    var success: bool = db.error_message == "not an error"
+    var prefix: String = "%s #%d |" % [Time.get_time_string_from_system(), Engine.get_process_frames()]
+
+    if success:
+        print_rich("[color=darkgray]%s[/color] [color=green]%s:[/color] %.03f ms%s" % [prefix, label, dur / 1000.0, fn_suffix.call()])
+    else:
+        printerr("%s %s error: %s (%.03f ms)" % [prefix, label, db.error_message, dur / 1000.0])
+        show_error("Database error", db.error_message)
+    return success
+
+
+func insert_rows(table: String, rows: Array[Dictionary]) -> bool:
+    return exec_call("INSERT", func() -> void: db.insert_rows(table, rows))
+
+
+func insert_row(table: String, values: Dictionary) -> bool:
+    return exec_call("INSERT", func() -> void: db.insert_row(table, values))
+
+
+func update_rows(table: String, conditions: String, values: Dictionary) -> bool:
+    return exec_call("UPDATE", func() -> void: db.update_rows(table, conditions, values))
+
+
+func delete_rows(table: String, conditions: String) -> bool:
+    return exec_call("DELETE", func() -> void: db.delete_rows(table, conditions))
 
 
 ## Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
 func select_rows(table: String, conditions: String, fields: Array) -> Variant:
-    assert(is_open())
-
-    var rows := db.select_rows(table, conditions, fields)
-    if db.error_message != "not an error":
-        show_error("Database query error.", db.error_message)
+    if exec_call("SELECT", func() -> void: db.select_rows(table, conditions, fields), func() -> String: return " (%d rows)" % query_result().size()):
+        return query_result()
+    else:
         return false
-    return rows
 
 
 ## Returns [code]false[/code] on a database error or a Dictionary with row values or [code]null[/code] (if the row doesn't exist).
@@ -97,12 +118,12 @@ func select_row(table: String, conditions: String, fields: Array) -> Variant:
     var result: Variant = select_rows(table, conditions, fields)
     if !result:
         return false
-
     var rows: Array = result
     if rows.is_empty():
         return null
     elif rows.size() > 1:
-        show_error("select_row", "returned more than one row")
+        printerr("select_row() returned more than one row")
+        show_error("Database error", "select_row() returned more than one row")
         return false
     else:
         return rows[0]
@@ -117,37 +138,14 @@ func select_value(table: String, conditions: String, field: String) -> Variant:
     return values[field]
 
 
-func insert_rows(table: String, rows: Array[Dictionary]) -> bool:
-    assert(is_open())
-
-    if !db.insert_rows(table, rows):
-        show_error("Database query error.", db.error_message)
+## For complex SELECT queries that fit no other function. Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
+func select(sql: String, bindings: Array = []) -> Variant:
+    if exec_call("SELECT", func() -> void: db.query_with_bindings(sql, bindings), func() -> String: return " (%d rows)" % query_result().size()):
+        return query_result()
+    else:
         return false
-    return true
 
 
-func insert_row(table: String, values: Dictionary) -> bool:
-    assert(is_open())
-
-    if !db.insert_row(table, values):
-        show_error("Database query error.", db.error_message)
-        return false
-    return true
-
-
-func update_rows(table: String, conditions: String, values: Dictionary) -> bool:
-    assert(is_open())
-
-    if !db.update_rows(table, conditions, values):
-        show_error("Database query error.", db.error_message)
-        return false
-    return true
-
-
-func delete_rows(table: String, conditions: String) -> bool:
-    assert(is_open())
-
-    if !db.delete_rows(table, conditions):
-        show_error("Database query error.", db.error_message)
-        return false
-    return true
+## A general query function, when there is no better fit.
+func query(sql: String, bindings: Array = []) -> bool:
+    return exec_call("QUERY", func() -> void: db.query_with_bindings(sql, bindings))
