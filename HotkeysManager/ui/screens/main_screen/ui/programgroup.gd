@@ -12,8 +12,7 @@ func setup(db: Database, id: int) -> void:
 
 
 func _ready() -> void:
-    var programgroup_name: Variant = _db.query_single_value("SELECT name FROM programgroup WHERE id=?;", [_programgroup_id])
-
+    var programgroup_name: Variant = _db.select_value("programgroup", "id=%d" % _programgroup_id, "name")
     if programgroup_name != null:
         ($TitleLabel as Label).text = programgroup_name
 
@@ -23,9 +22,9 @@ INNER JOIN program p ON pp.program_id = p.id
 WHERE pp.programgroup_id = ?
 ORDER BY p.name;"
 
-    var res := _db.query(sql, [_programgroup_id])
-    if res.ok:
-        for row: Dictionary in res.rows:
+    if _db.query(sql, [_programgroup_id]):
+        var rows := _db.query_result()
+        for row: Dictionary in rows:
             add_program(row)
 
 
@@ -51,9 +50,9 @@ LEFT JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id
 WHERE pp.program_id IS NULL
 ORDER BY p.name;"
 
-    var res := _db.query(sql, [_programgroup_id])
-    if res.ok:
-        for row: Dictionary in res.rows:
+    if _db.query(sql, [_programgroup_id]):
+        var rows := _db.query_result()
+        for row: Dictionary in rows:
             var program_name: String = row.name
             var program_id: int = row.id
             var index := list.add_item(program_name)
@@ -72,8 +71,7 @@ func _on_remove_program_button_pressed() -> void:
     assert(program_list.get_selected_items().size() == 1)
     var index := program_list.get_selected_items().get(0)
     var program_id: int = program_list.get_item_metadata(index)
-    var res := _db.query("DELETE FROM programgroup_program WHERE programgroup_id=? AND program_id=?;", [_programgroup_id, program_id])
-    if res.ok:
+    if _db.delete_rows("programgroup_program", "programgroup_id=%d AND program_id=%d" % [_programgroup_id, program_id]):
         Events.switch_to_main_screen.emit.call_deferred()
 
 
@@ -84,7 +82,7 @@ func _on_rename_group_button_pressed() -> void:
 
 
 func _on_rename_group_dialog_submitted(text: String) -> void:
-    if _db.update_single_value("programgroup", _programgroup_id, "name", text):
+    if _db.update_rows("programgroup", "id=%d" % _programgroup_id, {"name": text}):
         ($TitleLabel as Label).text = text
 
 
@@ -93,6 +91,5 @@ func _on_delete_group_button_pressed() -> void:
 
 
 func _on_delete_group_dialog_confirmed() -> void:
-    var res := _db.query("DELETE FROM programgroup WHERE id = ?;", [_programgroup_id])
-    if res.ok:
+    if _db.delete_rows("programgroup", "id=%d" % _programgroup_id):
         Events.switch_to_main_screen.emit.call_deferred()
