@@ -27,6 +27,8 @@ ORDER BY p.name;"
         for row: Dictionary in rows:
             add_program(row)
 
+    ($VBoxContainer/HBoxContainer2/CommandsButton as Button).disabled = program_list.item_count == 0
+
 
 func add_program(row: Dictionary) -> void:
     var program_name: String = row.name
@@ -93,3 +95,7 @@ func _on_delete_group_button_pressed() -> void:
 func _on_delete_group_dialog_confirmed() -> void:
     if _db.delete_rows("programgroup", "id=%d" % _programgroup_id):
         Events.switch_to_main_screen.emit.call_deferred()
+
+
+func _on_commands_button_pressed() -> void:
+    Events.switch_to_commands_screen.emit()

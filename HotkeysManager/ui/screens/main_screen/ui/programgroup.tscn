@@ -23,8 +23,8 @@ corner_radius_bottom_left = 4
 corner_detail = 4
 
 [node name="Programgroup" type="PanelContainer"]
-offset_right = 243.0
-offset_bottom = 167.0
+offset_right = 259.0
+offset_bottom = 148.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_f5b1p")
 script = ExtResource("1_756ef")
 
@@ -56,11 +56,6 @@ layout_mode = 2
 disabled = true
 text = "Remove"
 
-[node name="EditProgramButton" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-disabled = true
-text = "Edit"
-
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -71,6 +66,11 @@ text = "Rename Group"
 [node name="DeleteGroupButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 text = "Delete Group"
+
+[node name="CommandsButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+disabled = true
+text = "Edit Commands"
 
 [node name="AddProgramDialog" parent="." instance=ExtResource("2_f5b1p")]
 title = "Add Program"
@@ -89,6 +89,7 @@ label_text = "Are you sure you want to delete this Group?"
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/VBoxContainer/RemoveProgramButton" to="." method="_on_remove_program_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer2/RenameGroupButton" to="." method="_on_rename_group_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer2/DeleteGroupButton" to="." method="_on_delete_group_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer2/CommandsButton" to="." method="_on_commands_button_pressed"]
 [connection signal="submitted" from="AddProgramDialog" to="." method="_on_add_program_dialog_submitted"]
 [connection signal="submitted" from="RenameGroupDialog" to="." method="_on_rename_group_dialog_submitted"]
 [connection signal="confirmed" from="DeleteGroupDialog" to="." method="_on_delete_group_dialog_confirmed"]
