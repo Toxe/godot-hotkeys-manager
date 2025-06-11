@@ -11,7 +11,7 @@ func open(db_name: String) -> bool:
     db.verbosity_level = SQLite.VerbosityLevel.NORMAL
 
     if !db.open_db():
-        show_error("Unable to open database.", db.error_message)
+        Events.error.emit("Unable to open database \"%s\"." % db_name)
         close()
         return false
 
@@ -50,18 +50,14 @@ func create_database_structure() -> bool:
     var sql := FileAccess.get_file_as_string("res://database.sql")
 
     if sql.is_empty():
-        show_error("Unable to create database.", "File open error: %d" % FileAccess.get_open_error())
+        Events.error.emit("Unable to create database. Error code: %d" % FileAccess.get_open_error())
         return false
 
     if !db.query(sql):
-        show_error("Unable to create database.", db.error_message)
+        Events.error.emit("Unable to create database. %s" % db.error_message)
         return false
 
     return true
-
-
-func show_error(text: String, message: String) -> void:
-    Events.error.emit(text, message)
 
 
 func query_result() -> Array[Dictionary]:
@@ -122,8 +118,7 @@ func select_row(table: String, conditions: String, fields: Array) -> Variant:
     if rows.is_empty():
         return null
     elif rows.size() > 1:
-        printerr("select_row() returned more than one row")
-        show_error("Database error", "select_row() returned more than one row")
+        Events.error.emit("Database error: select_row() returned more than one row.")
         return false
     else:
         return rows[0]

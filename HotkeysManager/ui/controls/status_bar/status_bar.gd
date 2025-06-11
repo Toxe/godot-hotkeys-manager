@@ -15,8 +15,13 @@ var num_rows_counter := 0
 
 
 func _ready() -> void:
+    Events.error.connect(_on_error)
     Events.database_query_succeeded.connect(_on_database_query_succeeded)
     Events.database_query_failed.connect(_on_database_query_failed)
+
+
+func _on_error(_error_message: String) -> void:
+    error_counter = increase_counter_and_update_label(error_counter, error_counter_label)
 
 
 func _on_database_query_succeeded(query_type: StringName, _dur: float, num_rows: int) -> void:

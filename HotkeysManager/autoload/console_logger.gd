@@ -9,12 +9,17 @@ enum LogLevel {
 
 
 func _ready() -> void:
+    Events.error.connect(_on_error)
     Events.database_query_succeeded.connect(_on_database_query_succeeded)
     Events.database_query_failed.connect(_on_database_query_failed)
 
 
 func build_prefix() -> String:
     return "%s #%d |" % [Time.get_time_string_from_system(), Engine.get_process_frames()]
+
+
+func _on_error(error_message: String) -> void:
+    printerr("%s %s" % [build_prefix(), error_message])
 
 
 func _on_database_query_succeeded(query_type: StringName, dur: float, num_rows: int) -> void:
