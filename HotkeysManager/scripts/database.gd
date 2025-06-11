@@ -1,16 +1,16 @@
 class_name Database
 
-var db: SQLite = null
+var _db: SQLite = null
 
 
 func open(db_name: String) -> bool:
     var db_needs_to_be_created := !FileAccess.file_exists(db_name)
-    db = SQLite.new()
-    db.path = db_name
-    db.foreign_keys = true
-    db.verbosity_level = SQLite.VerbosityLevel.NORMAL
+    _db = SQLite.new()
+    _db.path = db_name
+    _db.foreign_keys = true
+    _db.verbosity_level = SQLite.VerbosityLevel.NORMAL
 
-    if !db.open_db():
+    if !_db.open_db():
         Events.error.emit("Unable to open database \"%s\"." % db_name)
         close()
         return false
@@ -26,14 +26,14 @@ func open(db_name: String) -> bool:
 func close() -> void:
     assert(is_open())
 
-    db.close_db()
-    db = null
+    _db.close_db()
+    _db = null
 
 
 func close_and_delete_database() -> void:
     assert(is_open())
 
-    var filename := db.path
+    var filename := _db.path
     close()
 
     if FileAccess.file_exists(filename):
@@ -41,7 +41,7 @@ func close_and_delete_database() -> void:
 
 
 func is_open() -> bool:
-    return db != null
+    return _db != null
 
 
 func create_database_structure() -> bool:
@@ -53,19 +53,19 @@ func create_database_structure() -> bool:
         Events.error.emit("Unable to create database. Error code: %d" % FileAccess.get_open_error())
         return false
 
-    if !db.query(sql):
-        Events.error.emit("Unable to create database. %s" % db.error_message)
+    if !_db.query(sql):
+        Events.error.emit("Unable to create database. %s" % _db.error_message)
         return false
 
     return true
 
 
 func query_result() -> Array[Dictionary]:
-    return db.query_result
+    return _db.query_result
 
 
 func last_insert_rowid() -> int:
-    return db.last_insert_rowid
+    return _db.last_insert_rowid
 
 
 func exec_call(query_type: StringName, fn_query: Callable) -> bool:
@@ -74,36 +74,36 @@ func exec_call(query_type: StringName, fn_query: Callable) -> bool:
     var t0 := Time.get_ticks_usec()
     fn_query.call()
     var dur := Time.get_ticks_usec() - t0
-    var success := db.error_message == "not an error"
+    var success := _db.error_message == "not an error"
     var num_rows := query_result().size() if query_type == &"SELECT" else 0
 
     if success:
         Events.database_query_succeeded.emit(query_type, dur, num_rows)
     else:
-        Events.database_query_failed.emit(query_type, dur, db.error_message)
+        Events.database_query_failed.emit(query_type, dur, _db.error_message)
 
     return success
 
 
 func insert_rows(table: String, rows: Array[Dictionary]) -> bool:
-    return exec_call(&"INSERT", func() -> void: db.insert_rows(table, rows))
+    return exec_call(&"INSERT", func() -> void: _db.insert_rows(table, rows))
 
 
 func insert_row(table: String, values: Dictionary) -> bool:
-    return exec_call(&"INSERT", func() -> void: db.insert_row(table, values))
+    return exec_call(&"INSERT", func() -> void: _db.insert_row(table, values))
 
 
 func update_rows(table: String, conditions: String, values: Dictionary) -> bool:
-    return exec_call(&"UPDATE", func() -> void: db.update_rows(table, conditions, values))
+    return exec_call(&"UPDATE", func() -> void: _db.update_rows(table, conditions, values))
 
 
 func delete_rows(table: String, conditions: String) -> bool:
-    return exec_call(&"DELETE", func() -> void: db.delete_rows(table, conditions))
+    return exec_call(&"DELETE", func() -> void: _db.delete_rows(table, conditions))
 
 
 ## Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
 func select_rows(table: String, conditions: String, fields: Array) -> Variant:
-    if exec_call(&"SELECT", func() -> void: db.select_rows(table, conditions, fields)):
+    if exec_call(&"SELECT", func() -> void: _db.select_rows(table, conditions, fields)):
         return query_result()
     else:
         return false
@@ -135,7 +135,7 @@ func select_value(table: String, conditions: String, field: String) -> Variant:
 
 ## For complex SELECT queries that fit no other function. Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
 func select(sql: String, bindings: Array = []) -> Variant:
-    if exec_call(&"SELECT", func() -> void: db.query_with_bindings(sql, bindings)):
+    if exec_call(&"SELECT", func() -> void: _db.query_with_bindings(sql, bindings)):
         return query_result()
     else:
         return false
@@ -143,4 +143,4 @@ func select(sql: String, bindings: Array = []) -> Variant:
 
 ## A general query function, when there is no better fit.
 func query(sql: String, bindings: Array = []) -> bool:
-    return exec_call(&"QUERY", func() -> void: db.query_with_bindings(sql, bindings))
+    return exec_call(&"QUERY", func() -> void: _db.query_with_bindings(sql, bindings))
