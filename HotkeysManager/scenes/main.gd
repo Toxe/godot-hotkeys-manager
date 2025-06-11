@@ -25,10 +25,10 @@ func load_screen(scene: PackedScene) -> Control:
 
 
 func switch_screen(screen: Control) -> void:
-    for child in get_children():
-        remove_child(child)
+    for child in $VBoxContainer/Screens.get_children():
+        $VBoxContainer/Screens.remove_child(child)
         child.queue_free()
-    add_child(screen)
+    $VBoxContainer/Screens.add_child(screen)
 
 
 func switch_to_main_screen() -> void:

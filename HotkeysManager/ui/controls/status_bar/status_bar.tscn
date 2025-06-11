@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://g4tk24sjpyj6"]
+
+[ext_resource type="Script" uid="uid://b80so3yylu6vf" path="res://ui/controls/status_bar/status_bar.gd" id="1_be378"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_be378"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.19607842, 0.19607842, 0.19607842, 1)
+
+[node name="StatusBar" type="PanelContainer"]
+clip_contents = true
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_be378")
+script = ExtResource("1_be378")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="SelectCounterLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "🔍 0 (0 rows)"
+
+[node name="InsertCounterLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "➕ 0"
+
+[node name="DeleteCounterLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "➖ 0"
+
+[node name="UpdateCounterLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "✏️ 0"
+
+[node name="ErrorCounterLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "🔥 0"
