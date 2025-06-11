@@ -9,6 +9,8 @@ var db: Database = Database.new()
 
 
 func _ready() -> void:
+    (get_node("/root/ConsoleLogger") as ConsoleLogger).log_level = ConsoleLogger.LogLevel.NORMAL
+
     Events.switch_to_main_screen.connect(switch_to_main_screen)
     Events.switch_to_commands_screen.connect(switch_to_commands_screen)
     Events.switch_to_hotkeys_screen.connect(switch_to_hotkeys_screen)

@@ -72,20 +72,20 @@ func last_insert_rowid() -> int:
     return db.last_insert_rowid
 
 
-func exec_call(query_type: StringName, fn_query: Callable, fn_suffix: Callable = func() -> String: return "") -> bool:
+func exec_call(query_type: StringName, fn_query: Callable) -> bool:
     assert(is_open())
 
     var t0 := Time.get_ticks_usec()
     fn_query.call()
     var dur := Time.get_ticks_usec() - t0
-    var success: bool = db.error_message == "not an error"
-    var prefix: String = "%s #%d |" % [Time.get_time_string_from_system(), Engine.get_process_frames()]
+    var success := db.error_message == "not an error"
+    var num_rows := query_result().size() if query_type == &"SELECT" else 0
 
     if success:
-        print_rich("[color=darkgray]%s[/color] [color=green]%s:[/color] %.03f ms%s" % [prefix, query_type, dur / 1000.0, fn_suffix.call()])
+        Events.database_query_succeeded.emit(query_type, dur, num_rows)
     else:
-        printerr("%s %s error: %s (%.03f ms)" % [prefix, query_type, db.error_message, dur / 1000.0])
-        show_error("Database error", db.error_message)
+        Events.database_query_failed.emit(query_type, dur, db.error_message)
+
     return success
 
 
@@ -107,7 +107,7 @@ func delete_rows(table: String, conditions: String) -> bool:
 
 ## Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
 func select_rows(table: String, conditions: String, fields: Array) -> Variant:
-    if exec_call(&"SELECT", func() -> void: db.select_rows(table, conditions, fields), func() -> String: return " (%d rows)" % query_result().size()):
+    if exec_call(&"SELECT", func() -> void: db.select_rows(table, conditions, fields)):
         return query_result()
     else:
         return false
@@ -140,7 +140,7 @@ func select_value(table: String, conditions: String, field: String) -> Variant:
 
 ## For complex SELECT queries that fit no other function. Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
 func select(sql: String, bindings: Array = []) -> Variant:
-    if exec_call(&"SELECT", func() -> void: db.query_with_bindings(sql, bindings), func() -> String: return " (%d rows)" % query_result().size()):
+    if exec_call(&"SELECT", func() -> void: db.query_with_bindings(sql, bindings)):
         return query_result()
     else:
         return false

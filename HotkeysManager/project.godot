@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Events="*res://autoload/events.gd"
+ConsoleLogger="*res://autoload/console_logger.gd"
 
 [debug]
 
