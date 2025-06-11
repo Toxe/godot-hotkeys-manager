@@ -1,52 +1,74 @@
-[gd_scene load_steps=5 format=3 uid="uid://ctfylvylgevof"]
+[gd_scene load_steps=6 format=3 uid="uid://ctfylvylgevof"]
 
 [ext_resource type="Script" uid="uid://dh2wwarhajmlw" path="res://ui/screens/main_screen/ui/programgroup.gd" id="1_756ef"]
 [ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_a2sbu"]
 [ext_resource type="PackedScene" uid="uid://1eqq02vc7slg" path="res://ui/dialogs/selection_dialog/selection_dialog.tscn" id="2_f5b1p"]
 [ext_resource type="PackedScene" uid="uid://sdp0se8heewl" path="res://ui/dialogs/verification_dialog/verification_dialog.tscn" id="3_ggu5h"]
 
-[node name="Programgroup" type="VBoxContainer"]
-offset_right = 239.0
-offset_bottom = 163.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f5b1p"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.14044744, 0.14044744, 0.14044744, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 4
+
+[node name="Programgroup" type="PanelContainer"]
+offset_right = 243.0
+offset_bottom = 167.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_f5b1p")
 script = ExtResource("1_756ef")
 
-[node name="TitleLabel" type="Label" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
 text = "???"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="ProgramList" type="ItemList" parent="HBoxContainer"]
+[node name="ProgramList" type="ItemList" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 auto_width = true
 auto_height = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="AddProgramButton" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="AddProgramButton" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Add"
 
-[node name="RemoveProgramButton" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="RemoveProgramButton" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 disabled = true
 text = "Remove"
 
-[node name="EditProgramButton" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="EditProgramButton" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 disabled = true
 text = "Edit"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="."]
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="RenameGroupButton" type="Button" parent="HBoxContainer2"]
+[node name="RenameGroupButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 text = "Rename Group"
 
-[node name="DeleteGroupButton" type="Button" parent="HBoxContainer2"]
+[node name="DeleteGroupButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 text = "Delete Group"
 
@@ -62,11 +84,11 @@ label_text = "Please enter the new Group name."
 title = "Delete Group"
 label_text = "Are you sure you want to delete this Group?"
 
-[connection signal="item_selected" from="HBoxContainer/ProgramList" to="." method="_on_program_list_item_selected"]
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/AddProgramButton" to="." method="_on_add_program_button_pressed"]
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/RemoveProgramButton" to="." method="_on_remove_program_button_pressed"]
-[connection signal="pressed" from="HBoxContainer2/RenameGroupButton" to="." method="_on_rename_group_button_pressed"]
-[connection signal="pressed" from="HBoxContainer2/DeleteGroupButton" to="." method="_on_delete_group_button_pressed"]
+[connection signal="item_selected" from="VBoxContainer/HBoxContainer/ProgramList" to="." method="_on_program_list_item_selected"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/VBoxContainer/AddProgramButton" to="." method="_on_add_program_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/VBoxContainer/RemoveProgramButton" to="." method="_on_remove_program_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer2/RenameGroupButton" to="." method="_on_rename_group_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer2/DeleteGroupButton" to="." method="_on_delete_group_button_pressed"]
 [connection signal="submitted" from="AddProgramDialog" to="." method="_on_add_program_dialog_submitted"]
 [connection signal="submitted" from="RenameGroupDialog" to="." method="_on_rename_group_dialog_submitted"]
 [connection signal="confirmed" from="DeleteGroupDialog" to="." method="_on_delete_group_dialog_confirmed"]

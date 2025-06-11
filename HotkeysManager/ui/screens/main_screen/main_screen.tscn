@@ -22,6 +22,8 @@ grow_vertical = 2
 
 [node name="ProgramgroupList" type="VBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
 theme_override_constants/separation = 30
 
 [node name="NewGroupButton" type="Button" parent="VBoxContainer"]
