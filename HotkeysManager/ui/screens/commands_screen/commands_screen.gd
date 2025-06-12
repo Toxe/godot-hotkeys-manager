@@ -43,11 +43,12 @@ WHERE pp.programgroup_id=?;"
 
 
 func query_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
-    var sql := "SELECT c.name AS command_name, pc.command_id, pc.program_id, pc.name AS program_command_name, pch.hotkey
+    var sql := "SELECT pc.command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pch.hotkey AS program_hotkey, uh.hotkey AS user_hotkey
 FROM program_command pc
 INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
 INNER JOIN program_command_hotkey pch ON pc.id = pch.program_command_id
 INNER JOIN command c ON pc.command_id = c.id
+INNER JOIN user_hotkey uh ON pc.command_id = uh.command_id
 ORDER BY pc.command_id, pc.program_id;"
 
     var commands: Dictionary[int, Dictionary] = {}
@@ -59,10 +60,11 @@ ORDER BY pc.command_id, pc.program_id;"
             var program_id: int = row["program_id"]
             var command_name: String = row["command_name"]
             var program_command_name: String = row["program_command_name"]
-            var hotkey: String = row["hotkey"]
+            var program_hotkey: String = row["program_hotkey"]
+            var user_hotkey: String = row["user_hotkey"]
 
             if command_id not in commands:
-                commands[command_id] = {"name": command_name, "program_commands": {}}
+                commands[command_id] = {"name": command_name, "program_commands": {}, "user_hotkey": user_hotkey}
 
             var command_data: Dictionary = commands[command_id]
             var command_data_program_commands: Dictionary = command_data["program_commands"]
@@ -72,47 +74,56 @@ ORDER BY pc.command_id, pc.program_id;"
 
             var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
             var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
-            command_data_program_commands_hotkeys.append(hotkey)
+            command_data_program_commands_hotkeys.append(program_hotkey)
 
     return commands
 
 
 func setup_command_grid(programs: Dictionary[int, String]) -> void:
-    command_grid.columns = programs.size() + 1
+    command_grid.columns = 1 + programs.size() + 1 + programs.size()
+
+
+func add_command_grid_label(text: String) -> Label:
+    var label := Label.new()
+    label.text = text
+    label.size_flags_vertical = Control.SIZE_FILL
+    command_grid.add_child(label)
+    return label
 
 
 func add_header_row(programs: Dictionary[int, String]) -> void:
-    var commands_label := Label.new()
-    commands_label.text = "Commands"
-    command_grid.add_child(commands_label)
+    add_command_grid_label("Commands")
 
     for program_id: int in programs:
-        var label := Label.new()
-        label.text = programs[program_id]
-        command_grid.add_child(label)
+        add_command_grid_label(programs[program_id])
+
+    add_command_grid_label("User Hotkey")
+
+    for program_id: int in programs:
+        add_command_grid_label("%d" % program_id)
 
 
 func add_command_rows(programs: Dictionary[int, String], commands: Dictionary) -> void:
     for command_id: int in commands:
         var command_data: Dictionary = commands[command_id]
         var command_data_program_commands: Dictionary = command_data["program_commands"]
+        var command_name: String = command_data["name"]
+        var user_hotkey: String = command_data["user_hotkey"]
 
-        var labels: Dictionary[int, Label] = {}
-        labels[0] = Label.new()
-        labels[0].size_flags_vertical = Control.SIZE_FILL
-        labels[0].text = command_data["name"]
-        command_grid.add_child(labels[0])
+        add_command_grid_label(command_name)
 
         for program_id: int in programs.keys():
-            labels[program_id] = Label.new()
-            labels[program_id].size_flags_vertical = Control.SIZE_FILL
-            command_grid.add_child(labels[program_id])
-
             var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
             var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
+            var program_hotkeys_label := add_command_grid_label("")
 
             if !command_data_program_commands_hotkeys.is_empty():
-                labels[program_id].text = "\n".join(command_data_program_commands_hotkeys)
+                program_hotkeys_label.text = "\n".join(command_data_program_commands_hotkeys)
+
+        add_command_grid_label(user_hotkey)
+
+        for program_id: int in programs.keys():
+            add_command_grid_label("-")
 
 
 func _on_back_button_pressed() -> void:
