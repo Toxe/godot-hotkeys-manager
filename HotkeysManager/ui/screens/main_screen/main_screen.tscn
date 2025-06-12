@@ -26,6 +26,10 @@ size_flags_horizontal = 0
 size_flags_vertical = 3
 theme_override_constants/separation = 30
 
+[node name="NewProgramButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "New Program"
+
 [node name="NewGroupButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 text = "New Group"
@@ -34,10 +38,18 @@ text = "New Group"
 layout_mode = 2
 text = "Quit"
 
-[node name="NewGroupDialog" parent="." instance=ExtResource("2_nw5x1")]
-title = "New Group"
+[node name="NewProgramDialog" parent="." instance=ExtResource("2_nw5x1")]
+title = "New Program"
+auto_translate = false
 label_text = "Please enter the name of the new Program Group."
 
+[node name="NewGroupDialog" parent="." instance=ExtResource("2_nw5x1")]
+title = "New Group"
+auto_translate = false
+label_text = "Please enter the name of the new Program Group."
+
+[connection signal="pressed" from="VBoxContainer/NewProgramButton" to="." method="_on_new_program_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/NewGroupButton" to="." method="_on_new_group_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="submitted" from="NewProgramDialog" to="." method="_on_new_program_dialog_submitted"]
 [connection signal="submitted" from="NewGroupDialog" to="." method="_on_new_group_dialog_submitted"]

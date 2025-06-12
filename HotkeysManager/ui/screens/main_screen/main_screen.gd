@@ -29,6 +29,15 @@ func _on_quit_button_pressed() -> void:
     get_tree().quit()
 
 
+func _on_new_program_button_pressed() -> void:
+    ($NewProgramDialog as EnterTextDialog).show()
+
+
+func _on_new_program_dialog_submitted(text: String) -> void:
+    if _db.insert_row("program", {"name": text}):
+        Events.switch_to_main_screen.emit.call_deferred()
+
+
 func _on_new_group_button_pressed() -> void:
     ($NewGroupDialog as EnterTextDialog).show()
 
