@@ -139,12 +139,14 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
         add_command_grid_label(command_name)
 
         for program_id: int in programs.keys():
-            var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
-            var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
             var program_hotkeys_label := add_command_grid_label("")
 
-            if !command_data_program_commands_hotkeys.is_empty():
-                program_hotkeys_label.text = "\n".join(command_data_program_commands_hotkeys)
+            if program_id in command_data_program_commands:
+                var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
+                var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
+
+                if !command_data_program_commands_hotkeys.is_empty():
+                    program_hotkeys_label.text = "\n".join(command_data_program_commands_hotkeys)
 
         var user_hotkey := ""
 
