@@ -167,3 +167,7 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
 
 func _on_back_button_pressed() -> void:
     Events.switch_to_main_screen.emit()
+
+
+func _on_quit_button_pressed() -> void:
+    get_tree().quit()
