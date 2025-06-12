@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://de72ge75p8811"]
+[gd_scene load_steps=3 format=3 uid="uid://de72ge75p8811"]
 
 [ext_resource type="Script" uid="uid://deewaifdo7jag" path="res://ui/screens/commands_screen/commands_screen.gd" id="1_w4fef"]
+[ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_p44ff"]
 
 [node name="CommandsScreen" type="Control"]
 layout_mode = 3
@@ -39,9 +40,18 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[node name="NewCommandButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "New Command"
+
 [node name="QuitButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 text = "Quit"
 
+[node name="NewCommandDialog" parent="." instance=ExtResource("2_p44ff")]
+auto_translate = false
+
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/NewCommandButton" to="." method="_on_new_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="submitted" from="NewCommandDialog" to="." method="_on_new_command_dialog_submitted"]

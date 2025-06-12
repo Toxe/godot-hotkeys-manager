@@ -173,3 +173,12 @@ func _on_back_button_pressed() -> void:
 
 func _on_quit_button_pressed() -> void:
     get_tree().quit()
+
+
+func _on_new_command_button_pressed() -> void:
+    ($NewCommandDialog as EnterTextDialog).show()
+
+
+func _on_new_command_dialog_submitted(text: String) -> void:
+    if _db.insert_row("command", {"name": text}):
+        Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
