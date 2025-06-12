@@ -35,9 +35,9 @@ func switch_to_main_screen() -> void:
     switch_screen(screen)
 
 
-func switch_to_commands_screen() -> void:
+func switch_to_commands_screen(programgroup_id: int) -> void:
     var screen: CommandsScreen = load_screen(commands_screen_scene)
-    screen.setup(_db)
+    screen.setup(_db, programgroup_id)
     switch_screen(screen)
 
 

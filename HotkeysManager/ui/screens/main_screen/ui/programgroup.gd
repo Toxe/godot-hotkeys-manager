@@ -98,4 +98,4 @@ func _on_delete_group_dialog_confirmed() -> void:
 
 
 func _on_commands_button_pressed() -> void:
-    Events.switch_to_commands_screen.emit()
+    Events.switch_to_commands_screen.emit(_programgroup_id)
