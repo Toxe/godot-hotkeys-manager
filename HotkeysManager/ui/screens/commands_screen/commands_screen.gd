@@ -3,7 +3,7 @@ class_name CommandsScreen extends Control
 var _db: Database = null
 var _programgroup_id: int = -1
 
-@onready var command_grid: GridContainer = $VBoxContainer/ScrollContainer/CommandGrid
+@onready var command_grid: GridContainer = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
 
 
 func setup(db: Database, programgroup_id: int) -> void:
@@ -182,3 +182,37 @@ func _on_new_command_button_pressed() -> void:
 func _on_new_command_dialog_submitted(text: String) -> void:
     if _db.insert_row("command", {"name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
+
+
+func _on_add_command_button_pressed() -> void:
+    var sql := "SELECT c.id AS command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pp.programgroup_id
+FROM command c
+LEFT JOIN program_command pc ON c.id = pc.command_id
+LEFT JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
+WHERE pc.command_id IS NULL
+ORDER BY c.name;"
+
+    if !_db.select(sql, [_programgroup_id]):
+        return
+
+    var add_command_dialog: AddCommandDialog = $AddCommandDialog
+    var commands: Dictionary[int, String] = {}
+    var rows := _db.query_result()
+
+    for row: Dictionary in rows:
+        var command_id: int = row["command_id"]
+        var command_name: String = row["command_name"]
+        commands[command_id] = command_name
+
+    add_command_dialog.setup(query_programs(_programgroup_id), commands)
+    add_command_dialog.show()
+
+
+func _on_add_command_dialog_submitted(options: Dictionary[String, Variant]) -> void:
+    var command_id: int = options["command"]
+    for program_command: Dictionary[String, Variant] in options["program_commands"]:
+        if _db.insert_row("program_command", {"command_id": command_id, "program_id": program_command["program_id"], "name": program_command["title"]}):
+            var program_command_id := _db.last_insert_rowid()
+            if !_db.insert_row("program_command_hotkey", {"program_command_id": program_command_id, "hotkey": program_command["hotkey"]}):
+                return
+    Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)

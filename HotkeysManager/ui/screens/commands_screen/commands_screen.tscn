@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://de72ge75p8811"]
+[gd_scene load_steps=4 format=3 uid="uid://de72ge75p8811"]
 
 [ext_resource type="Script" uid="uid://deewaifdo7jag" path="res://ui/screens/commands_screen/commands_screen.gd" id="1_w4fef"]
 [ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_p44ff"]
+[ext_resource type="PackedScene" uid="uid://b338c6ai1jquw" path="res://ui/dialogs/add_command_dialog/add_command_dialog.tscn" id="3_yirhg"]
 
 [node name="CommandsScreen" type="Control"]
 layout_mode = 3
@@ -35,10 +36,21 @@ text = "???"
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="CommandGrid" type="GridContainer" parent="VBoxContainer/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="CommandGrid" type="GridContainer" parent="VBoxContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="AddCommandButton" type="Button" parent="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Add Command"
 
 [node name="NewCommandButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
@@ -51,7 +63,12 @@ text = "Quit"
 [node name="NewCommandDialog" parent="." instance=ExtResource("2_p44ff")]
 auto_translate = false
 
+[node name="AddCommandDialog" parent="." instance=ExtResource("3_yirhg")]
+label_text = "Select a Command and assign it to at least one Program."
+
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer/AddCommandButton" to="." method="_on_add_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/NewCommandButton" to="." method="_on_new_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="submitted" from="NewCommandDialog" to="." method="_on_new_command_dialog_submitted"]
+[connection signal="submitted" from="AddCommandDialog" to="." method="_on_add_command_dialog_submitted"]
