@@ -92,10 +92,11 @@ INNER JOIN program p ON uhp.program_id = p.id;"
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
             var program_id: int = row["program_id"]
+            var user_hotkey_id: int = row["user_hotkey_id"]
             var user_hotkey: String = row["user_hotkey"]
 
             if command_id not in user_hotkey_by_commands:
-                user_hotkey_by_commands[command_id] = {"user_hotkey": user_hotkey, "programs": []}
+                user_hotkey_by_commands[command_id] = {"user_hotkey_id": user_hotkey_id, "user_hotkey": user_hotkey, "programs": []}
 
             var command_data: Dictionary = user_hotkey_by_commands[command_id]
             var programs: Array = command_data["programs"]
@@ -157,14 +158,16 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
         add_command_grid_label(user_hotkey)
 
         for program_id: int in programs.keys():
-            var s: String = "❌"
-
+            var user_hotkey_id: int = 0
+            var s: String = "–"
             if command_id in user_hotkey_by_commands:
                 var command_user_hotkey_data: Dictionary = user_hotkey_by_commands[command_id]
-                if program_id in command_user_hotkey_data["programs"]:
-                    s = "✔️"
-
-            add_command_grid_label(s)
+                user_hotkey_id = command_user_hotkey_data["user_hotkey_id"]
+                s = "✔️" if program_id in command_user_hotkey_data["programs"] else "❌"
+            var label := add_command_grid_label(s)
+            if label.text != "–":
+                label.mouse_filter = Control.MOUSE_FILTER_PASS
+                label.gui_input.connect(_on_user_hotkey_program_checkbox_gui_input.bind(user_hotkey_id, program_id, label))
 
 
 func _on_back_button_pressed() -> void:
@@ -216,3 +219,14 @@ func _on_add_command_dialog_submitted(options: Dictionary[String, Variant]) -> v
             if !_db.insert_row("program_command_hotkey", {"program_command_id": program_command_id, "hotkey": program_command["hotkey"]}):
                 return
     Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
+
+
+func _on_user_hotkey_program_checkbox_gui_input(event: InputEvent, user_hotkey_id: int, program_id: int, label: Label) -> void:
+    if event is InputEventMouseButton:
+        var mouse_button_event: InputEventMouseButton = event
+        if mouse_button_event.pressed && mouse_button_event.button_index == 1:
+            if label.text == "✔️":
+                _db.delete_rows("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [user_hotkey_id, program_id])
+            elif label.text == "❌":
+                _db.insert_row("user_hotkey_program", {"user_hotkey_id": user_hotkey_id, "program_id": program_id})
+            Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
