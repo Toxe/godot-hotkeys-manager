@@ -78,12 +78,13 @@ INNER JOIN command c ON pc.command_id = c.id;"
 
 
 func query_user_hotkey_by_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
-    var sql := "SELECT uh.id AS user_hotkey_id, uh.hotkey AS user_hotkey, uh.command_id, c.name AS command_name, uhp.program_id, p.name AS program_name
+    var sql := "SELECT uh.id AS user_hotkey_id, uh.hotkey AS user_hotkey, uh.command_id, c.name AS command_name, p.id AS program_id, p.name AS program_name, uhp.program_id IS NOT NULL AS is_user_hotkey_assigned_to_program
 FROM user_hotkey uh
 INNER JOIN command c ON uh.command_id = c.id
-INNER JOIN user_hotkey_program uhp ON uh.id = uhp.user_hotkey_id
-INNER JOIN programgroup_program pp ON uhp.program_id = pp.program_id AND pp.programgroup_id = ?
-INNER JOIN program p ON uhp.program_id = p.id;"
+INNER JOIN program_command pc ON c.id = pc.command_id
+INNER JOIN program p ON pc.program_id = p.id
+INNER JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id = ?
+LEFT JOIN user_hotkey_program uhp ON uh.id = uhp.user_hotkey_id AND p.id = uhp.program_id;"
 
     var user_hotkey_by_commands: Dictionary[int, Dictionary] = {}
 
@@ -94,6 +95,7 @@ INNER JOIN program p ON uhp.program_id = p.id;"
             var program_id: int = row["program_id"]
             var user_hotkey_id: int = row["user_hotkey_id"]
             var user_hotkey: String = row["user_hotkey"]
+            var is_user_hotkey_assigned_to_program: bool = row["is_user_hotkey_assigned_to_program"] != 0
 
             if command_id not in user_hotkey_by_commands:
                 user_hotkey_by_commands[command_id] = {"user_hotkey_id": user_hotkey_id, "user_hotkey": user_hotkey, "programs": []}
@@ -101,7 +103,7 @@ INNER JOIN program p ON uhp.program_id = p.id;"
             var command_data: Dictionary = user_hotkey_by_commands[command_id]
             var programs: Array = command_data["programs"]
 
-            if program_id not in programs:
+            if is_user_hotkey_assigned_to_program && program_id not in programs:
                 programs.append(program_id)
 
     return user_hotkey_by_commands
