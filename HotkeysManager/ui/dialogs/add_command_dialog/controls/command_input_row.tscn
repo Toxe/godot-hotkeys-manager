@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d336yo3y6ycap"]
 
-[ext_resource type="Script" uid="uid://ddmkky6sovquc" path="res://ui/dialogs/add_command_dialog/ui/command_input_row.gd" id="1_ruyuu"]
+[ext_resource type="Script" uid="uid://ddmkky6sovquc" path="res://ui/dialogs/add_command_dialog/controls/command_input_row.gd" id="1_ruyuu"]
 
 [node name="CommandInputRow" type="HBoxContainer"]
 anchors_preset = 10
