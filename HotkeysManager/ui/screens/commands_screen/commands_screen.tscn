@@ -67,9 +67,15 @@ label_text = "Enter the name of the new Command."
 [node name="AddCommandDialog" parent="." instance=ExtResource("3_yirhg")]
 label_text = "Select a Command and assign it to at least one Program."
 
+[node name="RenameCommandDialog" parent="." instance=ExtResource("2_p44ff")]
+title = "Rename Command"
+label_text = "Enter the new Command name."
+metadata/command_id = 0
+
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer/AddCommandButton" to="." method="_on_add_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/NewCommandButton" to="." method="_on_new_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="submitted" from="NewCommandDialog" to="." method="_on_new_command_dialog_submitted"]
 [connection signal="submitted" from="AddCommandDialog" to="." method="_on_add_command_dialog_submitted"]
+[connection signal="submitted" from="RenameCommandDialog" to="." method="_on_rename_command_dialog_submitted"]

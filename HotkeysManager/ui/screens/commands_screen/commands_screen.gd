@@ -149,7 +149,8 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
         var command_data_program_commands: Dictionary = command_data["program_commands"]
         var command_name: String = command_data["name"]
 
-        add_command_grid_button(command_name)
+        var button := add_command_grid_button(command_name)
+        button.pressed.connect(_on_rename_command_button_pressed.bind(command_name, command_id))
 
         for program_id: int in programs.keys():
             var program_hotkeys_label := add_command_grid_button("")
@@ -198,6 +199,20 @@ func _on_new_command_button_pressed() -> void:
 
 func _on_new_command_dialog_submitted(text: String) -> void:
     if _db.insert_row("command", {"name": text}):
+        Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
+
+
+func _on_rename_command_button_pressed(command_name: String, command_id: int) -> void:
+    var rename_command_dialog: EnterTextDialog = $RenameCommandDialog
+    rename_command_dialog.get_text_field().text = command_name
+    rename_command_dialog.set_meta("command_id", command_id)
+    rename_command_dialog.show()
+
+
+func _on_rename_command_dialog_submitted(text: String) -> void:
+    var rename_command_dialog: EnterTextDialog = $RenameCommandDialog
+    var command_id: int = rename_command_dialog.get_meta("command_id")
+    if _db.update_rows("command", "id=%d" % command_id, {"name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
