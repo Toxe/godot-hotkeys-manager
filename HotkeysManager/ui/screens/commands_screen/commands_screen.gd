@@ -44,7 +44,7 @@ WHERE pp.programgroup_id = ?;"
 
 
 func query_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
-    var sql := "SELECT pc.command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pch.hotkey AS program_hotkey
+    var sql := "SELECT pc.command_id, c.name AS command_name, pc.program_id, pc.id AS program_command_id, pc.name AS program_command_name, pch.hotkey AS program_hotkey
 FROM program_command pc
 INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
 INNER JOIN program_command_hotkey pch ON pc.id = pch.program_command_id
@@ -58,6 +58,7 @@ INNER JOIN command c ON pc.command_id = c.id;"
             var command_id: int = row["command_id"]
             var program_id: int = row["program_id"]
             var command_name: String = row["command_name"]
+            var program_command_id: int = row["program_command_id"]
             var program_command_name: String = row["program_command_name"]
             var program_hotkey: String = row["program_hotkey"]
 
@@ -68,7 +69,7 @@ INNER JOIN command c ON pc.command_id = c.id;"
             var command_data_program_commands: Dictionary = command_data["program_commands"]
 
             if program_id not in command_data_program_commands:
-                command_data_program_commands[program_id] = {"name": program_command_name, "hotkeys": []}
+                command_data_program_commands[program_id] = {"id": program_command_id, "name": program_command_name, "hotkeys": []}
 
             var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
             var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
@@ -121,6 +122,15 @@ func add_command_grid_label(text: String) -> Label:
     return label
 
 
+func add_command_grid_button(text: String) -> Button:
+    var button := Button.new()
+    button.text = text
+    button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+    button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+    command_grid.add_child(button)
+    return button
+
+
 func add_header_row(programs: Dictionary[int, String]) -> void:
     add_command_grid_label("Commands")
 
@@ -139,17 +149,19 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
         var command_data_program_commands: Dictionary = command_data["program_commands"]
         var command_name: String = command_data["name"]
 
-        add_command_grid_label(command_name)
+        add_command_grid_button(command_name)
 
         for program_id: int in programs.keys():
-            var program_hotkeys_label := add_command_grid_label("")
+            var program_hotkeys_label := add_command_grid_button("")
 
             if program_id in command_data_program_commands:
                 var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
                 var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
 
+                program_hotkeys_label.text = command_data_program_commands_data["name"]
+
                 if !command_data_program_commands_hotkeys.is_empty():
-                    program_hotkeys_label.text = "\n".join(command_data_program_commands_hotkeys)
+                    program_hotkeys_label.text += ":\n" + "\n".join(command_data_program_commands_hotkeys)
 
         var user_hotkey := ""
 
@@ -157,7 +169,7 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
             var command_user_hotkey_data: Dictionary = user_hotkey_by_commands[command_id]
             user_hotkey = command_user_hotkey_data["user_hotkey"]
 
-        add_command_grid_label(user_hotkey)
+        add_command_grid_button(user_hotkey)
 
         for program_id: int in programs.keys():
             var user_hotkey_id: int = 0
