@@ -61,7 +61,8 @@ layout_mode = 2
 text = "Quit"
 
 [node name="NewCommandDialog" parent="." instance=ExtResource("2_p44ff")]
-auto_translate = false
+title = "New Command"
+label_text = "Enter the name of the new Command."
 
 [node name="AddCommandDialog" parent="." instance=ExtResource("3_yirhg")]
 label_text = "Select a Command and assign it to at least one Program."
