@@ -1,5 +1,7 @@
 class_name CommandsScreen extends Control
 
+const program_hotkeys_control_scene: PackedScene = preload("uid://dq4m5hd12nvxh")
+
 var _db: Database = null
 var _programgroup_id: int = -1
 
@@ -44,11 +46,11 @@ WHERE pp.programgroup_id = ?;"
 
 
 func query_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
-    var sql := "SELECT pc.command_id, c.name AS command_name, pc.program_id, pc.id AS program_command_id, pc.name AS program_command_name, pch.hotkey AS program_hotkey
+    var sql := "SELECT pc.command_id, c.name AS command_name, pc.program_id, pc.id AS program_command_id, pc.name AS program_command_name, pch.id program_hotkey_id, pch.hotkey AS program_hotkey
 FROM program_command pc
+INNER JOIN command c ON pc.command_id = c.id
 INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
-INNER JOIN program_command_hotkey pch ON pc.id = pch.program_command_id
-INNER JOIN command c ON pc.command_id = c.id;"
+LEFT JOIN program_command_hotkey pch ON pc.id = pch.program_command_id;"
 
     var commands: Dictionary[int, Dictionary] = {}
 
@@ -60,7 +62,7 @@ INNER JOIN command c ON pc.command_id = c.id;"
             var command_name: String = row["command_name"]
             var program_command_id: int = row["program_command_id"]
             var program_command_name: String = row["program_command_name"]
-            var program_hotkey: String = row["program_hotkey"]
+            var program_hotkey_id: Variant = row["program_hotkey_id"]
 
             if command_id not in commands:
                 commands[command_id] = {"name": command_name, "program_commands": {}}
@@ -69,11 +71,13 @@ INNER JOIN command c ON pc.command_id = c.id;"
             var command_data_program_commands: Dictionary = command_data["program_commands"]
 
             if program_id not in command_data_program_commands:
-                command_data_program_commands[program_id] = {"id": program_command_id, "name": program_command_name, "hotkeys": []}
+                command_data_program_commands[program_id] = {"program_command_id": program_command_id, "name": program_command_name, "hotkeys": {}}
 
-            var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
-            var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
-            command_data_program_commands_hotkeys.append(program_hotkey)
+            if program_hotkey_id != null:
+                var program_hotkey: String = row["program_hotkey"]
+                var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
+                var command_data_program_commands_hotkeys: Dictionary = command_data_program_commands_data["hotkeys"]
+                command_data_program_commands_hotkeys[program_hotkey_id] = program_hotkey
 
     return commands
 
@@ -131,6 +135,13 @@ func add_command_grid_button(text: String) -> Button:
     return button
 
 
+func add_command_grid_program_hotkeys_control(program_id: int, command_id: int, command_data_program_commands: Dictionary) -> ProgramHotkeysControl:
+    var control: ProgramHotkeysControl = program_hotkeys_control_scene.instantiate()
+    control.setup(_db, _programgroup_id, program_id, command_id, command_data_program_commands)
+    command_grid.add_child(control)
+    return control
+
+
 func add_header_row(programs: Dictionary[int, String]) -> void:
     add_command_grid_label("Commands")
 
@@ -153,16 +164,7 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
         button.pressed.connect(_on_rename_command_button_pressed.bind(command_name, command_id))
 
         for program_id: int in programs.keys():
-            var program_hotkeys_label := add_command_grid_button("")
-
-            if program_id in command_data_program_commands:
-                var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
-                var command_data_program_commands_hotkeys: Array = command_data_program_commands_data["hotkeys"]
-
-                program_hotkeys_label.text = command_data_program_commands_data["name"]
-
-                if !command_data_program_commands_hotkeys.is_empty():
-                    program_hotkeys_label.text += ":\n" + "\n".join(command_data_program_commands_hotkeys)
+            add_command_grid_program_hotkeys_control(program_id, command_id, command_data_program_commands)
 
         var user_hotkey := ""
 

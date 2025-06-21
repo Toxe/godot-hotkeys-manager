@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=3 uid="uid://dq4m5hd12nvxh"]
+
+[ext_resource type="Script" uid="uid://c6t0y4c2p4148" path="res://ui/screens/commands_screen/controls/program_hotkeys_control.gd" id="1_wc045"]
+[ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_kx16o"]
+
+[node name="ProgramHotkeysControl" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wc045")
+
+[node name="ProgramCommandNameButton" type="Button" parent="."]
+layout_mode = 2
+text = "Name"
+
+[node name="Hotkeys" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="AddProgramCommandHotkeyButton" type="Button" parent="."]
+layout_mode = 2
+text = "➕ Add"
+
+[node name="CreateProgramCommandButton" type="Button" parent="."]
+layout_mode = 2
+text = "➕ Create"
+
+[node name="DeleteProgramCommandButton" type="Button" parent="."]
+layout_mode = 2
+text = "➖ Delete"
+
+[node name="ChangeProgramCommandNameDialog" parent="." instance=ExtResource("2_kx16o")]
+title = "Change Program Command Name"
+label_text = "Enter the new Program Command name."
+
+[node name="ChangeProgramCommandHotkeyDialog" parent="." instance=ExtResource("2_kx16o")]
+title = "Change Program Command Hotkey"
+label_text = "Enter the new Hotkey."
+metadata/program_hotkey_id = 0
+
+[node name="AddProgramCommandHotkeyDialog" parent="." instance=ExtResource("2_kx16o")]
+title = "Add Program Command Hotkey"
+label_text = "Enter the new Hotkey."
+
+[node name="CreateProgramCommandDialog" parent="." instance=ExtResource("2_kx16o")]
+title = "Create Program Command Hotkey"
+label_text = "Enter the Program Command name."
+
+[connection signal="pressed" from="ProgramCommandNameButton" to="." method="_on_program_command_name_button_pressed"]
+[connection signal="pressed" from="AddProgramCommandHotkeyButton" to="." method="_on_add_program_command_hotkey_button_pressed"]
+[connection signal="pressed" from="CreateProgramCommandButton" to="." method="_on_create_program_command_button_pressed"]
+[connection signal="pressed" from="DeleteProgramCommandButton" to="." method="_on_delete_program_command_button_pressed"]
+[connection signal="submitted" from="ChangeProgramCommandNameDialog" to="." method="_on_change_program_command_name_dialog_submitted"]
+[connection signal="submitted" from="ChangeProgramCommandHotkeyDialog" to="." method="_on_change_program_command_hotkey_dialog_submitted"]
+[connection signal="submitted" from="AddProgramCommandHotkeyDialog" to="." method="_on_add_program_command_hotkey_dialog_submitted"]
+[connection signal="submitted" from="CreateProgramCommandDialog" to="." method="_on_create_program_command_dialog_submitted"]
