@@ -1,6 +1,7 @@
 class_name CommandsScreen extends Control
 
 const program_hotkeys_control_scene: PackedScene = preload("uid://dq4m5hd12nvxh")
+const user_hotkey_control_scene: PackedScene = preload("uid://brad514ehxj7r")
 
 var _db: Database = null
 var _programgroup_id: int = -1
@@ -142,6 +143,13 @@ func add_command_grid_program_hotkeys_control(program_id: int, command_id: int, 
     return control
 
 
+func add_command_grid_user_hotkey_control(command_id: int, user_hotkey_by_commands: Dictionary) -> UserHotkeyControl:
+    var control: UserHotkeyControl = user_hotkey_control_scene.instantiate()
+    control.setup(_db, _programgroup_id, command_id, user_hotkey_by_commands)
+    command_grid.add_child(control)
+    return control
+
+
 func add_header_row(programs: Dictionary[int, String]) -> void:
     add_command_grid_label("Commands")
 
@@ -166,13 +174,7 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
         for program_id: int in programs.keys():
             add_command_grid_program_hotkeys_control(program_id, command_id, command_data_program_commands)
 
-        var user_hotkey := ""
-
-        if command_id in user_hotkey_by_commands:
-            var command_user_hotkey_data: Dictionary = user_hotkey_by_commands[command_id]
-            user_hotkey = command_user_hotkey_data["user_hotkey"]
-
-        add_command_grid_button(user_hotkey)
+        add_command_grid_user_hotkey_control(command_id, user_hotkey_by_commands)
 
         for program_id: int in programs.keys():
             var user_hotkey_id: int = 0
