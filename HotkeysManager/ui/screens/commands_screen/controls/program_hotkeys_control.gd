@@ -7,36 +7,36 @@ var _command_id: int
 var _program_command_id: int
 
 
-func setup(db: Database, programgroup_id: int, program_id: int, command_id: int, command_data_program_commands: Dictionary) -> void:
+func setup(db: Database, programgroup_id: int, command_id: int, program_id: int, program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> void:
     _db = db
     _programgroup_id = programgroup_id
     _program_id = program_id
     _command_id = command_id
 
-    if program_id in command_data_program_commands:
-        var command_data_program_commands_data: Dictionary = command_data_program_commands[program_id]
-        var command_data_program_commands_hotkeys: Dictionary = command_data_program_commands_data["hotkeys"]
+    if _program_id in program_commands[_command_id]:
+        var program_command_data: Dictionary = program_commands[_command_id][_program_id]
+        var program_command_hotkey_data: Dictionary = program_command_hotkeys[_command_id][_program_id]
 
-        _program_command_id = command_data_program_commands_data["program_command_id"]
+        _program_command_id = program_command_data["program_command_id"]
 
-        ($ProgramCommandNameButton as Button).text = command_data_program_commands_data["name"]
+        ($ProgramCommandNameButton as Button).text = program_command_data["program_command_name"]
         ($CreateProgramCommandButton as Button).visible = false
 
-        if !command_data_program_commands_hotkeys.is_empty():
+        if program_command_hotkey_data != null && !program_command_hotkey_data.is_empty():
             ($DeleteProgramCommandButton as Button).visible = false
 
-            for program_hotkey_id: int in command_data_program_commands_hotkeys:
-                var program_hotkey: String = command_data_program_commands_hotkeys[program_hotkey_id]
+            for program_command_hotkey_id: int in program_command_hotkey_data:
+                var program_command_hotkey: String = program_command_hotkey_data[program_command_hotkey_id]
 
                 var hotkey_button := Button.new()
-                hotkey_button.text = program_hotkey
+                hotkey_button.text = program_command_hotkey
                 hotkey_button.alignment = HORIZONTAL_ALIGNMENT_RIGHT
                 hotkey_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-                hotkey_button.pressed.connect(_on_change_program_command_hotkey_button_pressed.bind(program_hotkey_id, program_hotkey))
+                hotkey_button.pressed.connect(_on_change_program_command_hotkey_button_pressed.bind(program_command_hotkey_id, program_command_hotkey))
 
                 var delete_button := Button.new()
                 delete_button.text = "❌"
-                delete_button.pressed.connect(_on_delete_program_command_hotkey_button_pressed.bind(program_hotkey_id))
+                delete_button.pressed.connect(_on_delete_program_command_hotkey_button_pressed.bind(program_command_hotkey_id))
 
                 var hbox := HBoxContainer.new()
                 hbox.add_child(hotkey_button)

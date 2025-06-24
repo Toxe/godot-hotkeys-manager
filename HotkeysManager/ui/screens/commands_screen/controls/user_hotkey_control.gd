@@ -6,15 +6,15 @@ var _command_id: int
 var _user_hotkey_id: int
 
 
-func setup(db: Database, programgroup_id: int, command_id: int, user_hotkey_by_commands: Dictionary) -> void:
+func setup(db: Database, programgroup_id: int, command_id: int, user_hotkeys: Dictionary[int, Dictionary]) -> void:
     _db = db
     _programgroup_id = programgroup_id
     _command_id = command_id
 
-    if command_id in user_hotkey_by_commands:
-        var command_user_hotkey_data: Dictionary = user_hotkey_by_commands[command_id]
-        var user_hotkey: String = command_user_hotkey_data["user_hotkey"]
-        _user_hotkey_id = command_user_hotkey_data["user_hotkey_id"]
+    if _command_id in user_hotkeys:
+        var user_hotkey_data: Dictionary = user_hotkeys[_command_id]
+        var user_hotkey: String = user_hotkey_data["user_hotkey"]
+        _user_hotkey_id = user_hotkey_data["user_hotkey_id"]
         ($UserHotkeyButton as Button).text = user_hotkey
         ($CreateUserHotkeyButton as Button).visible = false
     else:
