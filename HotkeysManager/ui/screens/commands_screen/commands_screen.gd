@@ -211,9 +211,9 @@ func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[in
 
         add_command_grid_user_hotkey_control(command_id, user_hotkeys)
 
-        if command_id in user_hotkey_programs:
-            var user_hotkey_id: int = user_hotkey_programs[command_id]["user_hotkey_id"]
-            var hotkeys: Array = user_hotkey_programs[command_id]["hotkeys"]
+        if command_id in user_hotkeys:
+            var user_hotkey_id: int = user_hotkeys[command_id]["user_hotkey_id"]
+            var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
 
             for program_id: int in programs:
                 var s := "✔️" if program_id in hotkeys else "❌"
