@@ -3,7 +3,7 @@ class_name Programgroup extends Control
 var _db: Database = null
 var _programgroup_id: int = -1
 
-@onready var program_list: ItemList = $HBoxContainer/ProgramList
+@onready var program_list: ItemList = $VBoxContainer/HBoxContainer/ProgramList
 
 
 func setup(db: Database, id: int) -> void:
@@ -14,7 +14,7 @@ func setup(db: Database, id: int) -> void:
 func _ready() -> void:
     var programgroup_name: Variant = _db.select_value("programgroup", "id=%d" % _programgroup_id, "name")
     if programgroup_name != null:
-        ($TitleLabel as Label).text = programgroup_name
+        ($VBoxContainer/TitleLabel as Label).text = programgroup_name
 
     var sql := "SELECT pp.programgroup_id, pp.program_id, p.name
 FROM programgroup_program pp
@@ -22,10 +22,12 @@ INNER JOIN program p ON pp.program_id = p.id
 WHERE pp.programgroup_id = ?
 ORDER BY p.name;"
 
-    if _db.query(sql, [_programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             add_program(row)
+
+    ($VBoxContainer/HBoxContainer2/CommandsButton as Button).disabled = program_list.item_count == 0
 
 
 func add_program(row: Dictionary) -> void:
@@ -36,7 +38,7 @@ func add_program(row: Dictionary) -> void:
 
 
 func _on_program_list_item_selected(_index: int) -> void:
-    ($HBoxContainer/VBoxContainer/RemoveProgramButton as Button).disabled = !program_list.is_anything_selected()
+    ($VBoxContainer/HBoxContainer/VBoxContainer/RemoveProgramButton as Button).disabled = !program_list.is_anything_selected()
 
 
 func _on_add_program_button_pressed() -> void:
@@ -50,7 +52,7 @@ LEFT JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id
 WHERE pp.program_id IS NULL
 ORDER BY p.name;"
 
-    if _db.query(sql, [_programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var program_name: String = row.name
@@ -77,13 +79,13 @@ func _on_remove_program_button_pressed() -> void:
 
 func _on_rename_group_button_pressed() -> void:
     var rename_group_dialog: EnterTextDialog = $RenameGroupDialog
-    rename_group_dialog.get_text_field().text = ($TitleLabel as Label).text
+    rename_group_dialog.get_text_field().text = ($VBoxContainer/TitleLabel as Label).text
     rename_group_dialog.show()
 
 
 func _on_rename_group_dialog_submitted(text: String) -> void:
     if _db.update_rows("programgroup", "id=%d" % _programgroup_id, {"name": text}):
-        ($TitleLabel as Label).text = text
+        ($VBoxContainer/TitleLabel as Label).text = text
 
 
 func _on_delete_group_button_pressed() -> void:
@@ -93,3 +95,7 @@ func _on_delete_group_button_pressed() -> void:
 func _on_delete_group_dialog_confirmed() -> void:
     if _db.delete_rows("programgroup", "id=%d" % _programgroup_id):
         Events.switch_to_main_screen.emit.call_deferred()
+
+
+func _on_commands_button_pressed() -> void:
+    Events.switch_to_commands_screen.emit(_programgroup_id)

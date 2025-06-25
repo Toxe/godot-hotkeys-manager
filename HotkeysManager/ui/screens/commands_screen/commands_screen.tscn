@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://de72ge75p8811"]
+[gd_scene load_steps=4 format=3 uid="uid://de72ge75p8811"]
 
 [ext_resource type="Script" uid="uid://deewaifdo7jag" path="res://ui/screens/commands_screen/commands_screen.gd" id="1_w4fef"]
+[ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_p44ff"]
+[ext_resource type="PackedScene" uid="uid://b338c6ai1jquw" path="res://ui/dialogs/add_command_dialog/add_command_dialog.tscn" id="3_yirhg"]
 
 [node name="CommandsScreen" type="Control"]
 layout_mode = 3
@@ -13,31 +15,67 @@ script = ExtResource("1_w4fef")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -68.5
-offset_top = -29.0
-offset_right = 68.5
-offset_bottom = 29.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Commands Screen"
-horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="VBoxContainer"]
+[node name="BackButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "View Command Hotkeys"
+text = "◀️ Back"
 
-[node name="Button2" type="Button" parent="VBoxContainer"]
+[node name="ProgramgroupTitleLabel" type="Label" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "Back"
+text = "???"
 
-[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_button_2_pressed"]
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CommandGrid" type="GridContainer" parent="VBoxContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="AddCommandButton" type="Button" parent="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Add Command"
+
+[node name="NewCommandButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "New Command"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[node name="NewCommandDialog" parent="." instance=ExtResource("2_p44ff")]
+title = "New Command"
+label_text = "Enter the name of the new Command."
+
+[node name="AddCommandDialog" parent="." instance=ExtResource("3_yirhg")]
+label_text = "Select a Command and assign it to at least one Program."
+
+[node name="RenameCommandDialog" parent="." instance=ExtResource("2_p44ff")]
+title = "Rename Command"
+label_text = "Enter the new Command name."
+metadata/command_id = 0
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer/AddCommandButton" to="." method="_on_add_command_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/NewCommandButton" to="." method="_on_new_command_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="submitted" from="NewCommandDialog" to="." method="_on_new_command_dialog_submitted"]
+[connection signal="submitted" from="AddCommandDialog" to="." method="_on_add_command_dialog_submitted"]
+[connection signal="submitted" from="RenameCommandDialog" to="." method="_on_rename_command_dialog_submitted"]

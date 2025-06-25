@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3 uid="uid://brad514ehxj7r"]
+
+[ext_resource type="Script" uid="uid://dedk2rr46hshw" path="res://ui/screens/commands_screen/controls/user_hotkey_control.gd" id="1_tu2bi"]
+[ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_opyco"]
+
+[node name="UserHotkeyControl" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tu2bi")
+
+[node name="UserHotkeyButton" type="Button" parent="."]
+layout_mode = 2
+text = "Hotkey"
+
+[node name="CreateUserHotkeyButton" type="Button" parent="."]
+layout_mode = 2
+text = "➕ Add"
+
+[node name="DeleteUserHotkeyButton" type="Button" parent="."]
+layout_mode = 2
+text = "➖ Delete"
+
+[node name="ChangeUserHotkeyDialog" parent="." instance=ExtResource("2_opyco")]
+title = "Change Hotkey"
+label_text = "Enter the new Hotkey."
+
+[node name="CreateUserHotkeyDialog" parent="." instance=ExtResource("2_opyco")]
+title = "Create Hotkey"
+label_text = "Enter the new Hotkey."
+
+[connection signal="pressed" from="UserHotkeyButton" to="." method="_on_user_hotkey_button_pressed"]
+[connection signal="pressed" from="CreateUserHotkeyButton" to="." method="_on_create_user_hotkey_button_pressed"]
+[connection signal="pressed" from="DeleteUserHotkeyButton" to="." method="_on_delete_user_hotkey_button_pressed"]
+[connection signal="submitted" from="ChangeUserHotkeyDialog" to="." method="_on_change_user_hotkey_dialog_submitted"]
+[connection signal="submitted" from="CreateUserHotkeyDialog" to="." method="_on_create_user_hotkey_dialog_submitted"]

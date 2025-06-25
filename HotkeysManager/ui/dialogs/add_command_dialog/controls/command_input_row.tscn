@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://d336yo3y6ycap"]
+
+[ext_resource type="Script" uid="uid://ddmkky6sovquc" path="res://ui/dialogs/add_command_dialog/controls/command_input_row.gd" id="1_ruyuu"]
+
+[node name="CommandInputRow" type="HBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
+script = ExtResource("1_ruyuu")
+
+[node name="ProgramNameLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Name"
+
+[node name="CommandTitleLineEdit" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Command Title"
+
+[node name="CommandHotkeyLineEdit" type="LineEdit" parent="."]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+placeholder_text = "Hotkey"
+
+[connection signal="text_changed" from="CommandTitleLineEdit" to="." method="_on_text_changed"]
+[connection signal="text_changed" from="CommandHotkeyLineEdit" to="." method="_on_text_changed"]
