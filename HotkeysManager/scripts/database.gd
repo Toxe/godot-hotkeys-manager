@@ -53,8 +53,8 @@ func create_database_structure() -> bool:
         Events.error.emit("Unable to create database. Error code: %d" % FileAccess.get_open_error())
         return false
 
-    if !_db.query(sql):
-        Events.error.emit("Unable to create database. %s" % _db.error_message)
+    if !query(sql):
+        Events.error.emit("Unable to create database.")
         return false
 
     return true
