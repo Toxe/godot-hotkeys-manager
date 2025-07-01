@@ -47,15 +47,14 @@ func is_open() -> bool:
 func create_database_structure() -> bool:
     assert(is_open())
 
-    var sql := FileAccess.get_file_as_string("res://database.sql")
-
-    if sql.is_empty():
-        Events.error.emit("Unable to create database. Error code: %d" % FileAccess.get_open_error())
-        return false
-
-    if !query(sql):
-        Events.error.emit("Unable to create database.")
-        return false
+    for file: String in ["res://db/schema.sql", "res://db/example.sql"]:
+        var sql := FileAccess.get_file_as_string(file)
+        if sql.is_empty():
+            Events.error.emit("Unable to create database. File system error: %d" % FileAccess.get_open_error())
+            return false
+        if !query(sql):
+            Events.error.emit("Unable to create database.")
+            return false
 
     return true
 
