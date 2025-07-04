@@ -1,8 +1,9 @@
 extends Node
 
 enum LogLevel {
-    ERROR,
+    QUIET,
     NORMAL,
+    ERROR,
 }
 
 @export var log_level := LogLevel.ERROR
@@ -19,14 +20,16 @@ func build_prefix() -> String:
 
 
 func _on_error(error_message: String) -> void:
-    printerr("%s %s" % [build_prefix(), error_message])
+    if log_level in [LogLevel.NORMAL, LogLevel.ERROR]:
+        printerr("%s %s" % [build_prefix(), error_message])
 
 
 func _on_database_query_succeeded(query_type: StringName, dur: float, num_rows: int) -> void:
-    if log_level == LogLevel.NORMAL:
+    if log_level in [LogLevel.NORMAL]:
         var suffix := (" (%d rows)" % num_rows) if query_type == &"SELECT" else ""
         print_rich("[color=darkgray]%s[/color] [color=green]%s:[/color] %.03f ms%s" % [build_prefix(), query_type, dur / 1000.0, suffix])
 
 
 func _on_database_query_failed(query_type: StringName, dur: float, error_message: String) -> void:
-    printerr("%s %s error: %s (%.03f ms)" % [build_prefix(), query_type, error_message, dur / 1000.0])
+    if log_level in [LogLevel.NORMAL, LogLevel.ERROR]:
+        printerr("%s %s error: %s (%.03f ms)" % [build_prefix(), query_type, error_message, dur / 1000.0])
