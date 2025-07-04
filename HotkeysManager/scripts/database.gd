@@ -2,13 +2,19 @@ class_name Database
 
 var _db: SQLite = null
 
+var verbosity_level: SQLite.VerbosityLevel:
+    set(value):
+        verbosity_level = value
+        if _db != null:
+            _db.verbosity_level = value
+
 
 func open(db_name: String) -> bool:
     var db_needs_to_be_created := !FileAccess.file_exists(db_name)
     _db = SQLite.new()
     _db.path = db_name
     _db.foreign_keys = true
-    _db.verbosity_level = SQLite.VerbosityLevel.NORMAL
+    _db.verbosity_level = verbosity_level
 
     if !_db.open_db():
         Events.error.emit("Unable to open database \"%s\"." % db_name)
