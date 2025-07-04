@@ -111,7 +111,7 @@ func select_rows(table: String, conditions: String, fields: Array) -> Variant:
 ## Returns [code]false[/code] on a database error or a Dictionary with row values or [code]null[/code] (if the row doesn't exist).
 func select_row(table: String, conditions: String, fields: Array) -> Variant:
     var result: Variant = select_rows(table, conditions, fields)
-    if !result:
+    if result is not Array:
         return false
     var rows: Array = result
     if rows.is_empty():
