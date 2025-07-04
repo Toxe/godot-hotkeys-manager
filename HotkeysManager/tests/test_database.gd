@@ -1,10 +1,21 @@
 extends GutTest
 
 var db: Database = null
+var old_console_logger_log_level: ConsoleLogger.LogLevel
+
+
+func before_all() -> void:
+    old_console_logger_log_level = ($/root/ConsoleLogger as ConsoleLogger).log_level
+    ($/root/ConsoleLogger as ConsoleLogger).log_level = ConsoleLogger.LogLevel.QUIET
+
+
+func after_all() -> void:
+    ($/root/ConsoleLogger as ConsoleLogger).log_level = old_console_logger_log_level
 
 
 func before_each() -> void:
     db = Database.new()
+    db.verbosity_level = SQLite.VerbosityLevel.QUIET
     db.open(":memory:")
 
 
