@@ -3,6 +3,12 @@ class_name Programgroup extends Control
 var _db: Database = null
 var _programgroup_id: int = -1
 
+var programgroup_name: String:
+    get:
+        return ($VBoxContainer/TitleLabel as Label).text
+    set(value):
+        ($VBoxContainer/TitleLabel as Label).text = value
+
 @onready var program_list: ItemList = $VBoxContainer/HBoxContainer/ProgramList
 
 
@@ -12,9 +18,9 @@ func setup(db: Database, id: int) -> void:
 
 
 func _ready() -> void:
-    var programgroup_name: Variant = _db.select_value("programgroup", "id=%d" % _programgroup_id, "name")
-    if programgroup_name != null:
-        ($VBoxContainer/TitleLabel as Label).text = programgroup_name
+    var pg_name: Variant = _db.select_value("programgroup", "id=%d" % _programgroup_id, "name")
+    if pg_name != null:
+        programgroup_name = pg_name
 
     var sql := "SELECT pp.programgroup_id, pp.program_id, p.name
 FROM programgroup_program pp
@@ -79,13 +85,13 @@ func _on_remove_program_button_pressed() -> void:
 
 func _on_rename_group_button_pressed() -> void:
     var rename_group_dialog: EnterTextDialog = $RenameGroupDialog
-    rename_group_dialog.get_text_field().text = ($VBoxContainer/TitleLabel as Label).text
+    rename_group_dialog.get_text_field().text = programgroup_name
     rename_group_dialog.show()
 
 
 func _on_rename_group_dialog_submitted(text: String) -> void:
     if _db.update_rows("programgroup", "id=%d" % _programgroup_id, {"name": text}):
-        ($VBoxContainer/TitleLabel as Label).text = text
+        programgroup_name = text
 
 
 func _on_delete_group_button_pressed() -> void:
