@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://de72ge75p8811"]
+[gd_scene load_steps=5 format=3 uid="uid://de72ge75p8811"]
 
 [ext_resource type="Script" uid="uid://deewaifdo7jag" path="res://ui/screens/commands_screen/commands_screen.gd" id="1_w4fef"]
+[ext_resource type="PackedScene" uid="uid://tu6qv3ixq5us" path="res://ui/screens/commands_screen/controls/command_grid.tscn" id="2_1uboc"]
 [ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_p44ff"]
 [ext_resource type="PackedScene" uid="uid://b338c6ai1jquw" path="res://ui/dialogs/add_command_dialog/add_command_dialog.tscn" id="3_yirhg"]
 
@@ -41,9 +42,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="CommandGrid" type="GridContainer" parent="VBoxContainer/ScrollContainer/VBoxContainer"]
+[node name="CommandGrid" parent="VBoxContainer/ScrollContainer/VBoxContainer" instance=ExtResource("2_1uboc")]
 layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2

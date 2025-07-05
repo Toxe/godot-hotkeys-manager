@@ -1,12 +1,7 @@
 class_name CommandsScreen extends Control
 
-const program_hotkeys_control_scene: PackedScene = preload("uid://dq4m5hd12nvxh")
-const user_hotkey_control_scene: PackedScene = preload("uid://brad514ehxj7r")
-
 var _db: Database = null
 var _programgroup_id: int = -1
-
-@onready var command_grid: GridContainer = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
 
 
 func setup(db: Database, programgroup_id: int) -> void:
@@ -28,9 +23,10 @@ func _ready() -> void:
     var user_hotkeys := query_user_hotkeys(_programgroup_id)
     var user_hotkey_programs := query_user_hotkey_programs(_programgroup_id)
 
-    setup_command_grid(programs)
-    add_header_row(programs)
-    add_command_rows(programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
+    command_grid.setup(_db, _programgroup_id, programs)
+    command_grid.add_header_row(programs)
+    command_grid.add_command_rows(programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 func query_programs(programgroup_id: int) -> Dictionary[int, String]:
@@ -152,79 +148,6 @@ INNER JOIN (
     return user_hotkey_programs
 
 
-func setup_command_grid(programs: Dictionary[int, String]) -> void:
-    command_grid.columns = 1 + programs.size() + 1 + programs.size()
-
-
-func add_command_grid_label(text: String) -> Label:
-    var label := Label.new()
-    label.text = text
-    label.size_flags_vertical = Control.SIZE_FILL
-    command_grid.add_child(label)
-    return label
-
-
-func add_command_grid_button(text: String) -> Button:
-    var button := Button.new()
-    button.text = text
-    button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-    button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-    command_grid.add_child(button)
-    return button
-
-
-func add_command_grid_program_hotkeys_control(command_id: int, program_id: int, program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> ProgramHotkeysControl:
-    var control: ProgramHotkeysControl = program_hotkeys_control_scene.instantiate()
-    control.setup(_db, _programgroup_id, command_id, program_id, program_commands, program_command_hotkeys)
-    command_grid.add_child(control)
-    return control
-
-
-func add_command_grid_user_hotkey_control(command_id: int, user_hotkeys: Dictionary[int, Dictionary]) -> UserHotkeyControl:
-    var control: UserHotkeyControl = user_hotkey_control_scene.instantiate()
-    control.setup(_db, _programgroup_id, command_id, user_hotkeys)
-    command_grid.add_child(control)
-    return control
-
-
-func add_header_row(programs: Dictionary[int, String]) -> void:
-    add_command_grid_label("Commands")
-
-    for program_id: int in programs:
-        add_command_grid_label(programs[program_id])
-
-    add_command_grid_label("User Hotkey")
-
-    for program_id: int in programs:
-        add_command_grid_label("%d" % program_id)
-
-
-func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
-    for command_id: int in commands:
-        var command_name: String = commands[command_id]
-
-        var button := add_command_grid_button(command_name)
-        button.pressed.connect(_on_rename_command_button_pressed.bind(command_name, command_id))
-
-        for program_id: int in programs:
-            add_command_grid_program_hotkeys_control(command_id, program_id, program_commands, program_command_hotkeys)
-
-        add_command_grid_user_hotkey_control(command_id, user_hotkeys)
-
-        if command_id in user_hotkeys:
-            var user_hotkey_id: int = user_hotkeys[command_id]["user_hotkey_id"]
-            var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
-
-            for program_id: int in programs:
-                var s := "✔️" if program_id in hotkeys else "❌"
-                var label := add_command_grid_label(s)
-                label.mouse_filter = Control.MOUSE_FILTER_PASS
-                label.gui_input.connect(_on_user_hotkey_program_checkbox_gui_input.bind(user_hotkey_id, program_id, label))
-        else:
-            for program_id: int in programs:
-                add_command_grid_label("–")
-
-
 func _on_back_button_pressed() -> void:
     Events.switch_to_main_screen.emit()
 
@@ -240,13 +163,6 @@ func _on_new_command_button_pressed() -> void:
 func _on_new_command_dialog_submitted(text: String) -> void:
     if _db.insert_row("command", {"name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
-
-
-func _on_rename_command_button_pressed(command_name: String, command_id: int) -> void:
-    var rename_command_dialog: EnterTextDialog = $RenameCommandDialog
-    rename_command_dialog.get_text_field().text = command_name
-    rename_command_dialog.set_meta("command_id", command_id)
-    rename_command_dialog.show()
 
 
 func _on_rename_command_dialog_submitted(text: String) -> void:
@@ -288,14 +204,3 @@ func _on_add_command_dialog_submitted(options: Dictionary[String, Variant]) -> v
             if !_db.insert_row("program_command_hotkey", {"program_command_id": program_command_id, "hotkey": program_command["hotkey"]}):
                 return
     Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
-
-
-func _on_user_hotkey_program_checkbox_gui_input(event: InputEvent, user_hotkey_id: int, program_id: int, label: Label) -> void:
-    if event is InputEventMouseButton:
-        var mouse_button_event: InputEventMouseButton = event
-        if mouse_button_event.pressed && mouse_button_event.button_index == 1:
-            if label.text == "✔️":
-                _db.delete_rows("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [user_hotkey_id, program_id])
-            elif label.text == "❌":
-                _db.insert_row("user_hotkey_program", {"user_hotkey_id": user_hotkey_id, "program_id": program_id})
-            Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)

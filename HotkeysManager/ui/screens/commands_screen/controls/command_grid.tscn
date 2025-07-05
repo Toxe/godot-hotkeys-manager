@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://tu6qv3ixq5us"]
+
+[ext_resource type="Script" uid="uid://6hotnvi7qplw" path="res://ui/screens/commands_screen/controls/command_grid.gd" id="1_bynxt"]
+
+[node name="CommandGrid" type="GridContainer"]
+size_flags_horizontal = 3
+script = ExtResource("1_bynxt")
