@@ -1,6 +1,6 @@
 PRAGMA foreign_keys = ON;
 
-INSERT INTO `programgroup` (`name`) VALUES ('Texteditoren'), ('Grafikprogramme');
+INSERT INTO `programgroup` (`name`) VALUES ('Texteditoren'), ('Grafikprogramme'), ('Web Browser');
 INSERT INTO `program` (`name`) VALUES ('CLion'), ('Visual Studio'), ('Visual Studio Code'), ('Obsidian'), ('Photoshop'), ('Illustrator'), ('Krita');
 INSERT INTO `programgroup_program` (`programgroup_id`, `program_id`) VALUES (1, 1), (1, 2), (1, 3), (1, 4), (2, 5), (2, 6), (2, 7);
 INSERT INTO `category` (`name`) VALUES ('Navigation'), ('Files'), ('Tabs');
