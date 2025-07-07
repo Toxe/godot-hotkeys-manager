@@ -7,9 +7,5 @@ func setup(db: Database) -> void:
     _db = db
 
 
-func _ready() -> void:
-    assert(_db.is_open())
-
-
 func _on_button_pressed() -> void:
     Events.switch_to_commands_screen.emit()

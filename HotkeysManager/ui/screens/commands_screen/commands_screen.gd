@@ -10,8 +10,6 @@ func setup(db: Database, programgroup_id: int) -> void:
 
 
 func _ready() -> void:
-    assert(_db.is_open())
-
     var programgroup_name: Variant = _db.select_value("programgroup", "id=%d" % _programgroup_id, "name")
     if programgroup_name != null:
         ($VBoxContainer/HBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
