@@ -7,7 +7,6 @@ var main_screen: MainScreen = null
 
 func before_each() -> void:
     var db: Database = Database.new()
-    db.verbosity_level = SQLite.VerbosityLevel.QUIET
     db.open(":memory:")
 
     main_screen = autofree(main_screen_scene.instantiate())

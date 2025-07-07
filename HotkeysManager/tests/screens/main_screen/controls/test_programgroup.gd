@@ -7,7 +7,6 @@ var programgroup: Programgroup = null
 
 func before_each() -> void:
     var db: Database = Database.new()
-    db.verbosity_level = SQLite.VerbosityLevel.QUIET
     db.open(":memory:")
 
     var programgroup_id := 1

@@ -6,7 +6,7 @@ enum LogLevel {
     ERROR,
 }
 
-@export var log_level := LogLevel.ERROR
+@export var log_level := LogLevel.QUIET
 
 
 func _ready() -> void:

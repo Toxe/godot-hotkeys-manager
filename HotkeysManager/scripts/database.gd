@@ -2,7 +2,7 @@ class_name Database
 
 var _db: SQLite = null
 
-var verbosity_level: SQLite.VerbosityLevel:
+var verbosity_level: SQLite.VerbosityLevel = SQLite.VerbosityLevel.QUIET:
     set(value):
         verbosity_level = value
         if _db != null:
