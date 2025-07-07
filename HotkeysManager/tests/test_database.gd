@@ -4,13 +4,8 @@ var db: Database = null
 
 
 func before_each() -> void:
-    db = Database.new()
+    db = autofree(Database.new())
     db.open(":memory:")
-
-
-func after_each() -> void:
-    db.close()
-    db = null
 
 
 func test_insert_rows() -> void:
