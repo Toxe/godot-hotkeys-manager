@@ -20,10 +20,12 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ProgramgroupList" type="VBoxContainer" parent="VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 0
 size_flags_vertical = 3
+
+[node name="ProgramgroupList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
 theme_override_constants/separation = 30
 
 [node name="NewProgramButton" type="Button" parent="VBoxContainer"]

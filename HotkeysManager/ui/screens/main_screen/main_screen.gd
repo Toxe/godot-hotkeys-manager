@@ -16,7 +16,7 @@ func setup(db: Database) -> void:
         var programgroup: Programgroup = programgroup_scene.instantiate()
         programgroup.setup(_db, programgroup_id, programgroups[programgroup_id], programs)
         programgroup.programgroup_deleted.connect(_on_programgroup_deleted)
-        $VBoxContainer/ProgramgroupList.add_child(programgroup)
+        $VBoxContainer/ScrollContainer/ProgramgroupList.add_child(programgroup)
 
 
 func query_programgroups() -> Dictionary[int, String]:
@@ -71,8 +71,8 @@ func _on_new_group_dialog_submitted(text: String) -> void:
 
 
 func _on_programgroup_deleted(programgroup_id: int) -> void:
-    for programgroup: Programgroup in $VBoxContainer/ProgramgroupList.find_children("*", "Programgroup", true, false):
+    for programgroup: Programgroup in $VBoxContainer/ScrollContainer/ProgramgroupList.find_children("*", "Programgroup", true, false):
         if programgroup._programgroup_id == programgroup_id:
-            $VBoxContainer/ProgramgroupList.remove_child(programgroup)
+            $VBoxContainer/ScrollContainer/ProgramgroupList.remove_child(programgroup)
             programgroup.free()
             break
