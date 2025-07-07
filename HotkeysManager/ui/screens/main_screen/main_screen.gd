@@ -57,8 +57,7 @@ func _on_new_program_button_pressed() -> void:
 
 
 func _on_new_program_dialog_submitted(text: String) -> void:
-    if _db.insert_row("program", {"name": text}):
-        Events.switch_to_main_screen.emit.call_deferred()
+    _db.insert_row("program", {"name": text})
 
 
 func _on_new_group_button_pressed() -> void:
