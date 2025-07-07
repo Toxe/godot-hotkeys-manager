@@ -74,5 +74,5 @@ func _on_programgroup_deleted(programgroup_id: int) -> void:
     for programgroup: Programgroup in $VBoxContainer/ScrollContainer/ProgramgroupList.find_children("*", "Programgroup", true, false):
         if programgroup._programgroup_id == programgroup_id:
             $VBoxContainer/ScrollContainer/ProgramgroupList.remove_child(programgroup)
-            programgroup.free()
+            programgroup.queue_free()
             break
