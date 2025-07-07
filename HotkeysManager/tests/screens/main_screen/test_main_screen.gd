@@ -14,6 +14,13 @@ func before_each() -> void:
     main_screen.setup(db)
 
 
+func check_has_all_programgroups(expected_names: Array[String]) -> void:
+    var programgroups := main_screen.find_children("*", "Programgroup", true, false)
+    assert_eq(programgroups.size(), expected_names.size())
+    for pg: Programgroup in programgroups:
+        assert_has(expected_names, pg.programgroup_name)
+
+
 func test_query_programgroups() -> void:
     var programgroups := main_screen.query_programgroups()
     assert_eq_deep(programgroups, {
@@ -41,20 +48,9 @@ func test_query_programgroup_programs() -> void:
 
 
 func test_main_screen_shows_programgroups() -> void:
-    const expected_names: Array[String] = ["Grafikprogramme", "Texteditoren", "Web Browser"]
-    var programgroups := main_screen.find_children("*", "Programgroup", true, false)
-    assert_eq(programgroups.size(), expected_names.size())
-
-    for pg: Programgroup in programgroups:
-        assert_has(expected_names, pg.programgroup_name)
+    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Web Browser"])
 
 
 func test_programgroup_control_has_been_removed_after_programgroup_got_deleted() -> void:
-    const expected_names: Array[String] = ["Texteditoren", "Web Browser"]
-
     main_screen._on_programgroup_deleted(2)
-    var programgroups := main_screen.find_children("*", "Programgroup", true, false)
-    assert_eq(programgroups.size(), expected_names.size())
-
-    for pg: Programgroup in programgroups:
-        assert_has(expected_names, pg.programgroup_name)
+    check_has_all_programgroups(["Texteditoren", "Web Browser"])

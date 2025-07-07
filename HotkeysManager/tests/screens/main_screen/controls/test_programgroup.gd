@@ -17,6 +17,12 @@ func before_each() -> void:
     programgroup.setup(db, programgroup_id, programgroup_name, programs)
 
 
+func check_has_all_programs(expected_programs: Array[String]) -> void:
+    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
+    for index in programgroup.get_program_list().item_count:
+        assert_has(expected_programs, programgroup.get_program_list().get_item_text(index))
+
+
 func test_query_programs() -> void:
     var programgroup1: Programgroup = autofree(programgroup_scene.instantiate())
     var programgroup2: Programgroup = autofree(programgroup_scene.instantiate())
@@ -87,89 +93,36 @@ func test_can_delete_programgroup() -> void:
 
 
 func test_program_list_shows_programs() -> void:
-    const expected_programs: Array[String] = ["CLion", "Visual Studio", "Visual Studio Code", "Obsidian"]
-    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
-
-    var names: Array[String]
-    for index in programgroup.get_program_list().item_count:
-        names.append(programgroup.get_program_list().get_item_text(index))
-
-    for s in expected_programs:
-        assert_has(names, s)
+    check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian"])
 
 
 func test_can_add_a_program() -> void:
-    const expected_programs: Array[String] = ["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"]
-
     programgroup._on_add_program_dialog_submitted([7])
-    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
-
-    var names: Array[String]
-    for index in programgroup.get_program_list().item_count:
-        names.append(programgroup.get_program_list().get_item_text(index))
-
-    for s in expected_programs:
-        assert_has(names, s)
+    check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"])
 
 
 func test_can_add_multiple_programs() -> void:
-    const expected_programs: Array[String] = ["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Illustrator", "Photoshop"]
-
     programgroup._on_add_program_dialog_submitted([5, 6])
-    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
-
-    var names: Array[String]
-    for index in programgroup.get_program_list().item_count:
-        names.append(programgroup.get_program_list().get_item_text(index))
-
-    for s in expected_programs:
-        assert_has(names, s)
+    check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Illustrator", "Photoshop"])
 
 
 func test_cannot_add_a_program_twice() -> void:
-    const expected_programs: Array[String] = ["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"]
+    programgroup._on_add_program_dialog_submitted([7])
+    check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"])
 
     programgroup._on_add_program_dialog_submitted([7])
-    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
-
-    programgroup._on_add_program_dialog_submitted([7])
-    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
-
-    var names: Array[String]
-    for index in programgroup.get_program_list().item_count:
-        names.append(programgroup.get_program_list().get_item_text(index))
-
-    for s in expected_programs:
-        assert_has(names, s)
+    check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"])
 
 
 func test_cannot_add_unavailable_programs() -> void:
-    const expected_programs: Array[String] = ["CLion", "Visual Studio", "Visual Studio Code", "Obsidian"]
-
     programgroup._on_add_program_dialog_submitted([1001, 1002])
-    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
-
-    var names: Array[String]
-    for index in programgroup.get_program_list().item_count:
-        names.append(programgroup.get_program_list().get_item_text(index))
-
-    for s in expected_programs:
-        assert_has(names, s)
+    check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian"])
 
 
 func test_can_remove_a_program() -> void:
-    const expected_programs: Array[String] = ["CLion", "Visual Studio Code", "Obsidian"]
-
     programgroup.select_program_list_item(1)
     programgroup._on_remove_program_button_pressed()
-    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
-
-    var names: Array[String]
-    for index in programgroup.get_program_list().item_count:
-        names.append(programgroup.get_program_list().get_item_text(index))
-
-    for s in expected_programs:
-        assert_has(names, s)
+    check_has_all_programs(["CLion", "Visual Studio Code", "Obsidian"])
 
 
 func test_no_list_item_is_selected_in_the_beginning() -> void:
