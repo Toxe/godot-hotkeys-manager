@@ -40,12 +40,10 @@ text = "Quit"
 
 [node name="NewProgramDialog" parent="." instance=ExtResource("2_nw5x1")]
 title = "New Program"
-auto_translate = false
 label_text = "Please enter the name of the new Program Group."
 
 [node name="NewGroupDialog" parent="." instance=ExtResource("2_nw5x1")]
 title = "New Group"
-auto_translate = false
 label_text = "Please enter the name of the new Program Group."
 
 [connection signal="pressed" from="VBoxContainer/NewProgramButton" to="." method="_on_new_program_button_pressed"]
