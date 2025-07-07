@@ -23,14 +23,22 @@ func get_program_list() -> ItemList:
     return $VBoxContainer/HBoxContainer/ProgramList
 
 
+func program_list_contains_program(program_id: int) -> bool:
+    for index in get_program_list().item_count:
+        if program_id == get_program_list().get_item_metadata(index):
+            return true
+    return false
+
+
 func get_selected_program_list_item() -> int:
     var items := get_program_list().get_selected_items()
     return items[0] if items.size() == 1 else -1
 
 
 func select_program_list_item(index: int) -> void:
-    get_program_list().select(index)
-    update_button_states()
+    if index >= 0 && index < get_program_list().item_count:
+        get_program_list().select(index)
+        update_button_states()
 
 
 func update_button_states() -> void:
@@ -102,8 +110,10 @@ func _on_add_program_button_pressed() -> void:
 
 func _on_add_program_dialog_submitted(selection: Array) -> void:
     for id: Variant in selection:
-        if !_db.insert_row("programgroup_program", {"programgroup_id": _programgroup_id, "program_id": id}):
-            return
+        var program_id: int = id
+        if !program_list_contains_program(program_id):
+            if !_db.insert_row("programgroup_program", {"programgroup_id": _programgroup_id, "program_id": program_id}):
+                return
     update_program_list(query_programs())
 
 

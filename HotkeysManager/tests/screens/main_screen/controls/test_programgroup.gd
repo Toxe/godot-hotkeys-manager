@@ -129,6 +129,16 @@ func test_no_list_item_is_selected_in_the_beginning() -> void:
     assert_lt(programgroup.get_selected_program_list_item(), 0)
 
 
+func test_program_list_contains_existing_programs() -> void:
+    for program_id: int in [1, 2, 3, 4]:
+        assert_true(programgroup.program_list_contains_program(program_id), "program_id=%d" % program_id)
+
+
+func test_program_list_contains_non_existing_programs() -> void:
+    for program_id: int in [-1, 0, 5, 6]:
+        assert_false(programgroup.program_list_contains_program(program_id), "program_id=%d" % program_id)
+
+
 func test_select_non_existing_program_list_items() -> void:
     # no item is selected by default
     programgroup.select_program_list_item(-1)
