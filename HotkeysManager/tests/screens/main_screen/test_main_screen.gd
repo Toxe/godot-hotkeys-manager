@@ -50,6 +50,17 @@ func test_main_screen_shows_programgroups() -> void:
     check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Web Browser"])
 
 
-func test_programgroup_control_has_been_removed_after_programgroup_got_deleted() -> void:
+func test_can_remove_programgroup() -> void:
     main_screen._on_programgroup_deleted(2)
     check_has_all_programgroups(["Texteditoren", "Web Browser"])
+    await wait_process_frames(1) # wait 1 frame to free the node, so that GUT won't report orphans
+
+
+func test_can_create_new_program() -> void:
+    main_screen._on_new_program_dialog_submitted("New Program")
+    assert_gt(main_screen._db.select_value("program", "name='New Program'", "id"), 0)
+
+
+func test_can_create_new_programgroup() -> void:
+    main_screen._on_new_group_dialog_submitted("New Group")
+    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Web Browser", "New Group"])

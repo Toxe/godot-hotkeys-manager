@@ -12,9 +12,14 @@ func setup(db: Database) -> void:
     var programgroup_programs := query_programgroup_programs()
 
     for programgroup_id in programgroups:
+        var programgroup_name: String = programgroups[programgroup_id]
         var programs: Dictionary = programgroup_programs.get(programgroup_id, {})
+        add_programgroup(programgroup_id, programgroup_name, programs)
+
+
+func add_programgroup(programgroup_id: int, programgroup_name: String, programs: Dictionary) -> void:
         var programgroup: Programgroup = programgroup_scene.instantiate()
-        programgroup.setup(_db, programgroup_id, programgroups[programgroup_id], programs)
+        programgroup.setup(_db, programgroup_id, programgroup_name, programs)
         programgroup.programgroup_deleted.connect(_on_programgroup_deleted)
         $VBoxContainer/ScrollContainer/ProgramgroupList.add_child(programgroup)
 
@@ -64,9 +69,11 @@ func _on_new_group_button_pressed() -> void:
     ($NewGroupDialog as EnterTextDialog).show()
 
 
-func _on_new_group_dialog_submitted(text: String) -> void:
-    if _db.insert_row("programgroup", {"name": text}):
-        Events.switch_to_main_screen.emit.call_deferred()
+func _on_new_group_dialog_submitted(programgroup_name: String) -> void:
+    if _db.insert_row("programgroup", {"name": programgroup_name}):
+        var programgroup_id := _db.last_insert_rowid()
+        var programs := {} # new group is empty
+        add_programgroup(programgroup_id, programgroup_name, programs)
 
 
 func _on_programgroup_deleted(programgroup_id: int) -> void:
