@@ -155,18 +155,11 @@ func _on_quit_button_pressed() -> void:
 
 
 func _on_new_command_button_pressed() -> void:
-    ($NewCommandDialog as EnterTextDialog).show()
+    EnterTextDialog.open_dialog(self, "New Command", "Enter the name of the new Command.", _on_new_command_dialog_submitted)
 
 
-func _on_new_command_dialog_submitted(text: String) -> void:
+func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
     if _db.insert_row("command", {"name": text}):
-        Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
-
-
-func _on_rename_command_dialog_submitted(text: String) -> void:
-    var rename_command_dialog: EnterTextDialog = $RenameCommandDialog
-    var command_id: int = rename_command_dialog.get_meta("command_id")
-    if _db.update_rows("command", "id=%d" % command_id, {"name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 

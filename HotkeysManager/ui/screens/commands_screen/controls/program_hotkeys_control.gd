@@ -50,46 +50,39 @@ func setup(db: Database, programgroup_id: int, command_id: int, program_id: int,
 
 
 func _on_program_command_name_button_pressed() -> void:
-    var dialog: EnterTextDialog = $ChangeProgramCommandNameDialog
-    dialog.get_text_field().text = ($ProgramCommandNameButton as Button).text
-    dialog.show()
+    EnterTextDialog.open_dialog(self, "Change Program Command Name", "Enter the new Program Command name.", _on_change_program_command_name_dialog_submitted, ($ProgramCommandNameButton as Button).text)
 
 
-func _on_change_program_command_name_dialog_submitted(text: String) -> void:
+func _on_change_program_command_hotkey_button_pressed(program_hotkey_id: int, program_hotkey: String) -> void:
+    var dialog := EnterTextDialog.open_dialog(self, "Change Program Command Hotkey", "Enter the new Hotkey.", _on_change_program_command_hotkey_dialog_submitted, program_hotkey)
+    dialog.set_meta("program_hotkey_id", program_hotkey_id)
+
+
+func _on_add_program_command_hotkey_button_pressed() -> void:
+    EnterTextDialog.open_dialog(self, "Add Program Command Hotkey", "Enter the new Hotkey.", _on_add_program_command_hotkey_dialog_submitted)
+
+
+func _on_create_program_command_button_pressed() -> void:
+    EnterTextDialog.open_dialog(self, "Create Program Command Hotkey", "Enter the Program Command name.", _on_create_program_command_dialog_submitted)
+
+
+func _on_change_program_command_name_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
     if _db.update_rows("program_command", "id=%d" % _program_command_id, {"name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_change_program_command_hotkey_button_pressed(program_hotkey_id: int, program_hotkey: String) -> void:
-    var dialog: EnterTextDialog = $ChangeProgramCommandHotkeyDialog
-    dialog.get_text_field().text = program_hotkey
-    dialog.set_meta("program_hotkey_id", program_hotkey_id)
-    dialog.show()
-
-
-func _on_change_program_command_hotkey_dialog_submitted(text: String) -> void:
-    var dialog: EnterTextDialog = $ChangeProgramCommandHotkeyDialog
+func _on_change_program_command_hotkey_dialog_submitted(dialog: EnterTextDialog, text: String) -> void:
     var program_hotkey_id: int = dialog.get_meta("program_hotkey_id")
     if _db.update_rows("program_command_hotkey", "id=%d" % program_hotkey_id, {"hotkey": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_add_program_command_hotkey_button_pressed() -> void:
-    var dialog: EnterTextDialog = $AddProgramCommandHotkeyDialog
-    dialog.show()
-
-
-func _on_add_program_command_hotkey_dialog_submitted(text: String) -> void:
+func _on_add_program_command_hotkey_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
     if _db.insert_row("program_command_hotkey", {"program_command_id": _program_command_id, "hotkey": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_create_program_command_button_pressed() -> void:
-    var dialog: EnterTextDialog = $CreateProgramCommandDialog
-    dialog.show()
-
-
-func _on_create_program_command_dialog_submitted(text: String) -> void:
+func _on_create_program_command_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
     if _db.insert_row("program_command", {"program_id": _program_id, "command_id": _command_id, "name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 

@@ -57,10 +57,24 @@ func test_can_remove_programgroup() -> void:
 
 
 func test_can_create_new_program() -> void:
-    main_screen._on_new_program_dialog_submitted("New Program")
+    main_screen._on_new_program_dialog_submitted(null, "New Program")
     assert_gt(main_screen._db.select_value("program", "name='New Program'", "id"), 0)
 
 
 func test_can_create_new_programgroup() -> void:
-    main_screen._on_new_group_dialog_submitted("New Group")
+    main_screen._on_new_group_dialog_submitted(null, "New Group")
     check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Web Browser", "New Group"])
+
+
+func test_can_open_New_Program_dialog() -> void:
+    main_screen._on_new_program_button_pressed()
+    var dialog: EnterTextDialog = main_screen.find_child("EnterTextDialog", true, false)
+    assert_not_null(dialog)
+    dialog.close()
+
+
+func test_can_open_New_Program_Group_dialog() -> void:
+    main_screen._on_new_group_button_pressed()
+    var dialog: EnterTextDialog = main_screen.find_child("EnterTextDialog", true, false)
+    assert_not_null(dialog)
+    dialog.close()

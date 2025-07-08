@@ -3,10 +3,10 @@
 [ext_resource type="Script" uid="uid://co46ghdhwct6x" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.gd" id="1_dbr4e"]
 
 [node name="EnterTextDialog" type="Window"]
+oversampling_override = 1.0
 title = "Title"
 initial_position = 2
 size = Vector2i(400, 100)
-visible = false
 wrap_controls = true
 transient = true
 exclusive = true
@@ -45,7 +45,7 @@ text = "OK"
 layout_mode = 2
 text = "Cancel"
 
-[connection signal="close_requested" from="." to="." method="hide"]
-[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="text_changed" from="VBoxContainer/VBoxContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/SubmitButton" to="." method="_on_submit_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]

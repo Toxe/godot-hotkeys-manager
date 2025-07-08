@@ -127,12 +127,10 @@ func _on_remove_program_button_pressed() -> void:
 
 
 func _on_rename_group_button_pressed() -> void:
-    var rename_group_dialog: EnterTextDialog = $RenameGroupDialog
-    rename_group_dialog.get_text_field().text = programgroup_name
-    rename_group_dialog.show()
+    EnterTextDialog.open_dialog(self, "Rename Group", "Please enter the new Program Group name.", _on_rename_group_dialog_submitted, programgroup_name)
 
 
-func _on_rename_group_dialog_submitted(new_name: String) -> void:
+func _on_rename_group_dialog_submitted(_dialog: EnterTextDialog, new_name: String) -> void:
     if _db.update_rows("programgroup", "id=%d" % _programgroup_id, {"name": new_name}):
         programgroup_name = new_name
 

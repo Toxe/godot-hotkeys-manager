@@ -79,7 +79,7 @@ func test_programgroup_has_name() -> void:
 
 
 func test_can_rename_programgroup() -> void:
-    programgroup._on_rename_group_dialog_submitted("New Name")
+    programgroup._on_rename_group_dialog_submitted(null, "New Name")
     assert_eq(programgroup.programgroup_name, "New Name")
     assert_eq(programgroup._db.select_value("programgroup", "id=%d" % programgroup._programgroup_id, "name"), "New Name")
 
@@ -199,3 +199,10 @@ func test_removing_the_last_program_disables_the_remove_button() -> void:
         programgroup._on_remove_program_button_pressed()
 
     assert_true(button.disabled)
+
+
+func test_can_open_Rename_Group_dialog() -> void:
+    programgroup._on_rename_group_button_pressed()
+    var dialog: EnterTextDialog = programgroup.find_child("EnterTextDialog", true, false)
+    assert_not_null(dialog)
+    dialog.close()

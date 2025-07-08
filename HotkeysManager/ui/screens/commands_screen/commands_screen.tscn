@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://de72ge75p8811"]
+[gd_scene load_steps=4 format=3 uid="uid://de72ge75p8811"]
 
 [ext_resource type="Script" uid="uid://deewaifdo7jag" path="res://ui/screens/commands_screen/commands_screen.gd" id="1_w4fef"]
 [ext_resource type="PackedScene" uid="uid://tu6qv3ixq5us" path="res://ui/screens/commands_screen/controls/command_grid.tscn" id="2_1uboc"]
-[ext_resource type="PackedScene" uid="uid://pmsm6nuojugq" path="res://ui/dialogs/enter_text_dialog/enter_text_dialog.tscn" id="2_p44ff"]
 [ext_resource type="PackedScene" uid="uid://b338c6ai1jquw" path="res://ui/dialogs/add_command_dialog/add_command_dialog.tscn" id="3_yirhg"]
 
 [node name="CommandsScreen" type="Control"]
@@ -60,22 +59,12 @@ text = "New Command"
 layout_mode = 2
 text = "Quit"
 
-[node name="NewCommandDialog" parent="." instance=ExtResource("2_p44ff")]
-title = "New Command"
-label_text = "Enter the name of the new Command."
-
 [node name="AddCommandDialog" parent="." instance=ExtResource("3_yirhg")]
+auto_translate_mode = 2
 label_text = "Select a Command and assign it to at least one Program."
-
-[node name="RenameCommandDialog" parent="." instance=ExtResource("2_p44ff")]
-title = "Rename Command"
-label_text = "Enter the new Command name."
-metadata/command_id = 0
 
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer/AddCommandButton" to="." method="_on_add_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/NewCommandButton" to="." method="_on_new_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
-[connection signal="submitted" from="NewCommandDialog" to="." method="_on_new_command_dialog_submitted"]
 [connection signal="submitted" from="AddCommandDialog" to="." method="_on_add_command_dialog_submitted"]
-[connection signal="submitted" from="RenameCommandDialog" to="." method="_on_rename_command_dialog_submitted"]
