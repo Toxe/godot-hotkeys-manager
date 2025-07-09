@@ -1,7 +1,6 @@
-class_name EnterTextDialog extends Window
+class_name EnterTextDialog extends BaseDialog
 
 signal submitted(dialog: EnterTextDialog, text: String)
-signal canceled(dialog: EnterTextDialog)
 
 const dialog_scene: PackedScene = preload("uid://pmsm6nuojugq")
 
@@ -24,6 +23,7 @@ static func open_dialog(parent: Node, dialog_title: String, label: String, calla
 
 
 func _ready() -> void:
+    super._ready()
     get_label().text = label_text
     get_text_field().grab_focus()
     get_text_field().caret_column = get_text_field().text.length()
@@ -42,22 +42,9 @@ func update_submit_button(text: String) -> void:
     ($VBoxContainer/HBoxContainer/SubmitButton as Button).disabled = text.is_empty()
 
 
-func close() -> void:
-    queue_free()
-
-
-func _on_close_requested() -> void:
-    close()
-
-
 func _on_submit_button_pressed() -> void:
     close()
     submitted.emit(self, get_text_field().text)
-
-
-func _on_cancel_button_pressed() -> void:
-    close()
-    canceled.emit(self)
 
 
 func _on_line_edit_text_changed(new_text: String) -> void:

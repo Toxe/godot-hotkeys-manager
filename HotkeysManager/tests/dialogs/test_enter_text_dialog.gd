@@ -71,19 +71,3 @@ func test_submitting_the_dialog() -> void:
     watch_signals(dialog)
     dialog._on_submit_button_pressed()
     assert_signal_emitted(dialog.submitted)
-
-
-func test_canceling_the_dialog() -> void:
-    var dialog: EnterTextDialog = add_child_autofree(create_dialog())
-    watch_signals(dialog)
-    dialog._on_cancel_button_pressed()
-    assert_signal_emitted(dialog.canceled)
-
-
-func test_dialog_is_getting_destroyed_after_closing() -> void:
-    var dialog: EnterTextDialog = create_dialog()
-    add_child(dialog)
-    await wait_process_frames(1)
-    dialog.close()
-    await wait_process_frames(1)
-    assert_false(is_instance_valid(dialog))
