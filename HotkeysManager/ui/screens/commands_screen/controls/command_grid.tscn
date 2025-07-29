@@ -1,7 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://tu6qv3ixq5us"]
+[gd_scene load_steps=3 format=3 uid="uid://tu6qv3ixq5us"]
 
+[ext_resource type="Theme" uid="uid://dpqsa2k1ma2sl" path="res://ui/screens/commands_screen/controls/theme.tres" id="1_2uuou"]
 [ext_resource type="Script" uid="uid://6hotnvi7qplw" path="res://ui/screens/commands_screen/controls/command_grid.gd" id="1_bynxt"]
 
 [node name="CommandGrid" type="GridContainer"]
 size_flags_horizontal = 3
+theme = ExtResource("1_2uuou")
 script = ExtResource("1_bynxt")

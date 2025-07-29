@@ -14,23 +14,23 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
 
 
 func add_header_row(programs: Dictionary[int, String]) -> void:
-    add_label("Commands")
+    add_header_command_label("Commands")
 
     for program_id: int in programs:
-        add_label(programs[program_id])
+        add_header_program_label(programs[program_id])
 
-    add_label("User Hotkey")
+    add_header_program_label("User Hotkey")
 
     for program_id: int in programs:
-        add_label("%d" % program_id)
+        add_header_program_label("%d" % program_id)
 
 
 func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
     for command_id: int in commands:
         var command_name: String = commands[command_id]
 
-        var button := add_button(command_name)
-        button.pressed.connect(_on_rename_command_button_pressed.bind(command_name, command_id))
+        var command_button := add_command_button(command_name)
+        command_button.pressed.connect(_on_rename_command_button_pressed.bind(command_name, command_id))
 
         for program_id: int in programs:
             add_program_hotkeys_control(command_id, program_id, program_commands, program_command_hotkeys)
@@ -59,9 +59,23 @@ func add_label(text: String) -> Label:
     return label
 
 
-func add_button(text: String) -> Button:
+func add_header_command_label(text: String) -> Label:
+    var label := add_label(text)
+    label.theme_type_variation = "HeaderCommandLabel"
+    return label
+
+
+func add_header_program_label(text: String) -> Label:
+    var label := add_label(text)
+    label.theme_type_variation = "HeaderProgramLabel"
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    return label
+
+
+func add_command_button(text: String) -> Button:
     var button := Button.new()
     button.text = text
+    button.theme_type_variation = "CommandButton"
     button.alignment = HORIZONTAL_ALIGNMENT_LEFT
     button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
     add_child(button)

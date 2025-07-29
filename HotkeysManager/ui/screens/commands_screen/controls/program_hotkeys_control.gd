@@ -1,4 +1,4 @@
-class_name ProgramHotkeysControl extends VBoxContainer
+class_name ProgramHotkeysControl extends PanelContainer
 
 var _db: Database
 var _programgroup_id: int
@@ -19,11 +19,11 @@ func setup(db: Database, programgroup_id: int, command_id: int, program_id: int,
 
         _program_command_id = program_command_data["program_command_id"]
 
-        ($ProgramCommandNameButton as Button).text = program_command_data["program_command_name"]
-        ($CreateProgramCommandButton as Button).visible = false
+        ($VBoxContainer/ProgramCommandNameButton as Button).text = program_command_data["program_command_name"]
+        ($VBoxContainer/CreateProgramCommandButton as Button).visible = false
 
         if program_command_hotkey_data != null && !program_command_hotkey_data.is_empty():
-            ($DeleteProgramCommandButton as Button).visible = false
+            ($VBoxContainer/DeleteProgramCommandButton as Button).visible = false
 
             for program_command_hotkey_id: int in program_command_hotkey_data:
                 var program_command_hotkey: String = program_command_hotkey_data[program_command_hotkey_id]
@@ -42,15 +42,15 @@ func setup(db: Database, programgroup_id: int, command_id: int, program_id: int,
                 hbox.add_child(hotkey_button)
                 hbox.add_child(delete_button)
 
-                $Hotkeys.add_child(hbox)
+                $VBoxContainer/Hotkeys.add_child(hbox)
     else:
-        ($ProgramCommandNameButton as Button).visible = false
-        ($AddProgramCommandHotkeyButton as Button).visible = false
-        ($DeleteProgramCommandButton as Button).visible = false
+        ($VBoxContainer/ProgramCommandNameButton as Button).visible = false
+        ($VBoxContainer/AddProgramCommandHotkeyButton as Button).visible = false
+        ($VBoxContainer/DeleteProgramCommandButton as Button).visible = false
 
 
 func _on_program_command_name_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Change Program Command Name", "Enter the new Program Command name.", _on_change_program_command_name_dialog_submitted, ($ProgramCommandNameButton as Button).text)
+    EnterTextDialog.open_dialog(self, "Change Program Command Name", "Enter the new Program Command name.", _on_change_program_command_name_dialog_submitted, ($VBoxContainer/ProgramCommandNameButton as Button).text)
 
 
 func _on_change_program_command_hotkey_button_pressed(program_hotkey_id: int, program_hotkey: String) -> void:
