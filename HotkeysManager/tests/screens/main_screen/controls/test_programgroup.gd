@@ -86,7 +86,7 @@ func test_can_rename_programgroup() -> void:
 
 func test_can_delete_programgroup() -> void:
     watch_signals(programgroup)
-    programgroup._on_delete_group_dialog_confirmed()
+    programgroup._on_delete_group_dialog_confirmed(null)
     assert_signal_emitted(programgroup.programgroup_deleted)
     assert_null(programgroup._db.select_value("programgroup", "id=%d" % programgroup._programgroup_id, "id"))
 
@@ -96,25 +96,25 @@ func test_program_list_shows_programs() -> void:
 
 
 func test_can_add_a_program() -> void:
-    programgroup._on_add_program_dialog_submitted([7])
+    programgroup._on_add_program_dialog_submitted(null, [7])
     check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"])
 
 
 func test_can_add_multiple_programs() -> void:
-    programgroup._on_add_program_dialog_submitted([5, 6])
+    programgroup._on_add_program_dialog_submitted(null, [5, 6])
     check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Illustrator", "Photoshop"])
 
 
 func test_cannot_add_a_program_twice() -> void:
-    programgroup._on_add_program_dialog_submitted([7])
+    programgroup._on_add_program_dialog_submitted(null, [7])
     check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"])
 
-    programgroup._on_add_program_dialog_submitted([7])
+    programgroup._on_add_program_dialog_submitted(null, [7])
     check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian", "Krita"])
 
 
 func test_cannot_add_unavailable_programs() -> void:
-    programgroup._on_add_program_dialog_submitted([1001, 1002])
+    programgroup._on_add_program_dialog_submitted(null, [1001, 1002])
     check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian"])
 
 

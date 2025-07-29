@@ -1,12 +1,11 @@
-class_name AddCommandDialog extends Window
+class_name AddCommandDialog extends BaseDialog
 
-signal submitted(options: Dictionary[String, Variant])
-signal canceled
+signal submitted(dialog: AddCommandDialog, options: Dictionary[String, Variant])
 
+const dialog_scene: PackedScene = preload("uid://b338c6ai1jquw")
 const command_input_row_scene: PackedScene = preload("uid://d336yo3y6ycap")
 
 var command_input_rows: Array[CommandInputRow] = []
-
 
 @export var label_text: String:
     set(value):
@@ -14,12 +13,13 @@ var command_input_rows: Array[CommandInputRow] = []
         get_label().text = label_text
 
 
-func setup(programs: Dictionary[int, String], commands: Dictionary[int, String]) -> void:
-    ($VBoxContainer/HBoxContainer/SubmitButton as Button).disabled = true
+## Create and show a new dialog. Unless parent is [code]null[/code] it will automatically be added to the parent as a child.
+static func open_dialog(parent: Node, label: String, callable: Callable, programs: Dictionary[int, String], commands: Dictionary[int, String]) -> AddCommandDialog:
+    var dialog: AddCommandDialog = dialog_scene.instantiate()
+    dialog.label_text = label
+    dialog.submitted.connect(callable)
 
-    var list := get_list()
-    list.clear()
-
+    var list := dialog.get_list()
     for command_id: int in commands:
         var command_name := commands[command_id]
         var index := list.add_item(command_name)
@@ -29,9 +29,17 @@ func setup(programs: Dictionary[int, String], commands: Dictionary[int, String])
         var program_name := programs[program_id]
         var row: CommandInputRow = command_input_row_scene.instantiate()
         row.setup(program_id, program_name)
-        command_input_rows.append(row)
-        row.command_input_changed.connect(_on_command_input_changed)
-        $VBoxContainer/VBoxContainer.add_child(row)
+        dialog.add_command_input_row(row)
+
+    if parent:
+        parent.add_child(dialog)
+
+    return dialog
+
+
+func _ready() -> void:
+    super._ready()
+    update_submit_button_status()
 
 
 func get_label() -> RichTextLabel:
@@ -42,11 +50,10 @@ func get_list() -> ItemList:
     return $VBoxContainer/VBoxContainer/ItemList
 
 
-func clear_command_input_rows() -> void:
-    for row in command_input_rows:
-        $VBoxContainer/VBoxContainer.remove_child(row)
-        row.queue_free()
-    command_input_rows.clear()
+func add_command_input_row(row: CommandInputRow) -> void:
+    row.command_input_changed.connect(_on_command_input_changed)
+    command_input_rows.append(row)
+    $VBoxContainer/VBoxContainer.add_child(row)
 
 
 func update_submit_button_status() -> void:
@@ -56,11 +63,6 @@ func update_submit_button_status() -> void:
             if row.has_complete_input():
                 ($VBoxContainer/HBoxContainer/SubmitButton as Button).disabled = false
                 break
-
-
-func _on_visibility_changed() -> void:
-    if visible:
-        get_label().text = label_text
 
 
 func _on_submit_button_pressed() -> void:
@@ -77,15 +79,8 @@ func _on_submit_button_pressed() -> void:
                 "hotkey": row.get_hotkey()}
             program_commands.append(program_command)
 
-    hide()
-    clear_command_input_rows()
-    submitted.emit(options)
-
-
-func _on_cancel_button_pressed() -> void:
-    hide()
-    clear_command_input_rows()
-    canceled.emit()
+    close()
+    submitted.emit(self, options)
 
 
 func _on_item_list_item_selected(_index: int) -> void:

@@ -146,6 +146,24 @@ INNER JOIN (
     return user_hotkey_programs
 
 
+func query_available_commands(programgroup_id: int) -> Dictionary[int, String]:
+    var commands: Dictionary[int, String] = {}
+    var sql := "SELECT c.id AS command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pp.programgroup_id
+FROM command c
+LEFT JOIN program_command pc ON c.id = pc.command_id
+LEFT JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
+WHERE pc.command_id IS NULL
+ORDER BY c.name;"
+
+    if _db.select(sql, [programgroup_id]):
+        var rows := _db.query_result()
+        for row: Dictionary in rows:
+            var command_id: int = row["command_id"]
+            var command_name: String = row["command_name"]
+            commands[command_id] = command_name
+    return commands
+
+
 func _on_back_button_pressed() -> void:
     Events.switch_to_main_screen.emit()
 
@@ -164,30 +182,10 @@ func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, text: String) ->
 
 
 func _on_add_command_button_pressed() -> void:
-    var sql := "SELECT c.id AS command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pp.programgroup_id
-FROM command c
-LEFT JOIN program_command pc ON c.id = pc.command_id
-LEFT JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
-WHERE pc.command_id IS NULL
-ORDER BY c.name;"
-
-    if !_db.select(sql, [_programgroup_id]):
-        return
-
-    var add_command_dialog: AddCommandDialog = $AddCommandDialog
-    var commands: Dictionary[int, String] = {}
-    var rows := _db.query_result()
-
-    for row: Dictionary in rows:
-        var command_id: int = row["command_id"]
-        var command_name: String = row["command_name"]
-        commands[command_id] = command_name
-
-    add_command_dialog.setup(query_programs(_programgroup_id), commands)
-    add_command_dialog.show()
+    AddCommandDialog.open_dialog(self, "Select a Command and assign it to at least one Program.", _on_add_command_dialog_submitted, query_programs(_programgroup_id), query_available_commands(_programgroup_id))
 
 
-func _on_add_command_dialog_submitted(options: Dictionary[String, Variant]) -> void:
+func _on_add_command_dialog_submitted(_dialog: AddCommandDialog, options: Dictionary[String, Variant]) -> void:
     var command_id: int = options["command"]
     for program_command: Dictionary[String, Variant] in options["program_commands"]:
         if _db.insert_row("program_command", {"command_id": command_id, "program_id": program_command["program_id"], "name": program_command["title"]}):

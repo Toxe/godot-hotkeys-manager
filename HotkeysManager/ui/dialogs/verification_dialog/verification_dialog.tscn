@@ -3,10 +3,10 @@
 [ext_resource type="Script" uid="uid://0c1qbq57vima" path="res://ui/dialogs/verification_dialog/verification_dialog.gd" id="1_e16g0"]
 
 [node name="VerificationDialog" type="Window"]
+oversampling_override = 1.0
 title = "Title"
 initial_position = 2
 size = Vector2i(400, 100)
-visible = false
 wrap_controls = true
 transient = true
 exclusive = true
@@ -39,7 +39,5 @@ text = "Yes"
 layout_mode = 2
 text = "No"
 
-[connection signal="close_requested" from="." to="." method="hide"]
-[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/ConfirmationButton" to="." method="_on_confirmation_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/HBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/CancelButton" to="." method="_on_cancel_requested"]

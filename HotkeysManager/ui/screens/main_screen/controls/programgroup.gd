@@ -96,19 +96,18 @@ func _on_program_list_item_selected(index: int) -> void:
 
 
 func _on_add_program_button_pressed() -> void:
-    var available_programs := query_available_programs()
-    var add_program_dialog: SelectionDialog = $AddProgramDialog
-    var list := add_program_dialog.get_list()
-    list.clear()
-
-    for program_id: int in available_programs:
-        var program_name: String = available_programs[program_id]
-        var index := list.add_item(program_name)
-        list.set_item_metadata(index, program_id)
-    add_program_dialog.show()
+    SelectionDialog.open_dialog(self, "Add Program", "Select one or more Programs to add to this Group.", _on_add_program_dialog_submitted, query_available_programs())
 
 
-func _on_add_program_dialog_submitted(selection: Array) -> void:
+func _on_rename_group_button_pressed() -> void:
+    EnterTextDialog.open_dialog(self, "Rename Group", "Please enter the new Program Group name.", _on_rename_group_dialog_submitted, programgroup_name)
+
+
+func _on_delete_group_button_pressed() -> void:
+    VerificationDialog.open_dialog(self, "Delete Group", "Are you sure you want to delete this Group?", _on_delete_group_dialog_confirmed)
+
+
+func _on_add_program_dialog_submitted(_dialog: SelectionDialog, selection: Array) -> void:
     for id: Variant in selection:
         var program_id: int = id
         if !program_list_contains_program(program_id):
@@ -126,20 +125,12 @@ func _on_remove_program_button_pressed() -> void:
         select_program_list_item(mini(index, get_program_list().item_count - 1))
 
 
-func _on_rename_group_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Rename Group", "Please enter the new Program Group name.", _on_rename_group_dialog_submitted, programgroup_name)
-
-
 func _on_rename_group_dialog_submitted(_dialog: EnterTextDialog, new_name: String) -> void:
     if _db.update_rows("programgroup", "id=%d" % _programgroup_id, {"name": new_name}):
         programgroup_name = new_name
 
 
-func _on_delete_group_button_pressed() -> void:
-    ($DeleteGroupDialog as VerificationDialog).show()
-
-
-func _on_delete_group_dialog_confirmed() -> void:
+func _on_delete_group_dialog_confirmed(_dialog: VerificationDialog) -> void:
     if _db.delete_rows("programgroup", "id=%d" % _programgroup_id):
         programgroup_deleted.emit(_programgroup_id)
 
