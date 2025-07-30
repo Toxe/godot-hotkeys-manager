@@ -13,16 +13,14 @@ func setup(db: Database, programgroup_id: int, command_id: int, program_id: int,
     _program_id = program_id
     _command_id = command_id
 
-    if _program_id in program_commands[_command_id]:
+    if _program_id in program_commands[_command_id] and _command_id in program_command_hotkeys:
         var program_command_data: Dictionary = program_commands[_command_id][_program_id]
-        var program_command_hotkey_data: Dictionary = program_command_hotkeys[_command_id][_program_id]
-
         _program_command_id = program_command_data["program_command_id"]
-
         ($VBoxContainer/ProgramCommandNameButton as Button).text = program_command_data["program_command_name"]
         ($VBoxContainer/CreateProgramCommandButton as Button).visible = false
 
-        if program_command_hotkey_data != null && !program_command_hotkey_data.is_empty():
+        if _program_id in program_command_hotkeys[_command_id]:
+            var program_command_hotkey_data: Dictionary = program_command_hotkeys[_command_id][_program_id]
             ($VBoxContainer/DeleteProgramCommandButton as Button).visible = false
 
             for program_command_hotkey_id: int in program_command_hotkey_data:
