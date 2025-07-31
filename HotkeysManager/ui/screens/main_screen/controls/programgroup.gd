@@ -63,7 +63,8 @@ func query_programs() -> Dictionary[int, String]:
     var programs: Dictionary[int, String] = {}
     var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
-INNER JOIN programgroup_program pp ON p.program_id = pp.program_id AND pp.programgroup_id = ?;"
+INNER JOIN programgroup_program pp USING (program_id)
+WHERE pp.programgroup_id = ?;"
 
     if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
