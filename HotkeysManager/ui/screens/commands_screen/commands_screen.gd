@@ -10,7 +10,7 @@ func setup(db: Database, programgroup_id: int) -> void:
 
 
 func _ready() -> void:
-    var programgroup_name: Variant = _db.select_value("programgroup", "id=%d" % _programgroup_id, "name")
+    var programgroup_name: Variant = _db.select_value("programgroup", "programgroup_id=%d" % _programgroup_id, "name")
     if programgroup_name != null:
         ($VBoxContainer/HBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
 
@@ -29,9 +29,9 @@ func _ready() -> void:
 
 func query_programs(programgroup_id: int) -> Dictionary[int, String]:
     var programs: Dictionary[int, String] = {}
-    var sql := "SELECT p.id AS program_id, p.name AS program_name
+    var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
-INNER JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id = ?;"
+INNER JOIN programgroup_program pp ON p.program_id = pp.program_id AND pp.programgroup_id = ?;"
 
     if _db.select(sql, [programgroup_id]):
         var rows := _db.query_result()
@@ -44,11 +44,11 @@ INNER JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_i
 
 func query_commands(programgroup_id: int) -> Dictionary[int, String]:
     var commands: Dictionary[int, String] = {}
-    var sql := "SELECT c.id AS command_id, c.name AS command_name
+    var sql := "SELECT c.command_id, c.name AS command_name
 FROM command c
-INNER JOIN program_command pc ON c.id = pc.command_id
+INNER JOIN program_command pc ON c.command_id = pc.command_id
 INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
-GROUP BY c.id;"
+GROUP BY c.command_id;"
 
     if _db.select(sql, [programgroup_id]):
         var rows := _db.query_result()
@@ -61,7 +61,7 @@ GROUP BY c.id;"
 
 func query_program_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
     var program_commands: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT pc.program_id, pc.command_id, pc.id AS program_command_id, pc.name AS program_command_name
+    var sql := "SELECT pc.program_id, pc.command_id, pc.program_command_id, pc.name AS program_command_name
 FROM program_command pc
 INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?;"
 
@@ -80,9 +80,9 @@ INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.progr
 
 func query_program_command_hotkeys(programgroup_id: int) -> Dictionary[int, Dictionary]:
     var program_command_hotkeys: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT pc.program_id, pc.command_id, pch.id AS program_command_hotkey_id, pch.hotkey AS program_command_hotkey
+    var sql := "SELECT pc.program_id, pc.command_id, pch.program_command_hotkey_id, pch.hotkey AS program_command_hotkey
 FROM program_command pc
-INNER JOIN program_command_hotkey pch ON pc.id = pch.program_command_id
+INNER JOIN program_command_hotkey pch ON pc.program_command_id = pch.program_command_id
 INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?;"
 
     if _db.select(sql, [programgroup_id]):
@@ -101,7 +101,7 @@ INNER JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.progr
 
 func query_user_hotkeys(programgroup_id: int) -> Dictionary[int, Dictionary]:
     var user_hotkeys: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT uh.command_id, uh.id AS user_hotkey_id, uh.hotkey AS user_hotkey
+    var sql := "SELECT uh.command_id, uh.user_hotkey_id, uh.hotkey AS user_hotkey
 FROM user_hotkey uh
 INNER JOIN (
 	SELECT pc.command_id
@@ -124,7 +124,7 @@ func query_user_hotkey_programs(programgroup_id: int) -> Dictionary[int, Diction
     var user_hotkey_programs: Dictionary[int, Dictionary] = {}
     var sql := "SELECT uh.command_id, uhp.program_id, uhp.user_hotkey_id
 FROM user_hotkey_program uhp
-INNER JOIN user_hotkey uh ON uhp.user_hotkey_id = uh.id
+INNER JOIN user_hotkey uh ON uhp.user_hotkey_id = uh.user_hotkey_id
 INNER JOIN (
 	SELECT pc.command_id
 	FROM program_command pc
@@ -148,9 +148,9 @@ INNER JOIN (
 
 func query_available_commands(programgroup_id: int) -> Dictionary[int, String]:
     var commands: Dictionary[int, String] = {}
-    var sql := "SELECT c.id AS command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pp.programgroup_id
+    var sql := "SELECT c.command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pp.programgroup_id
 FROM command c
-LEFT JOIN program_command pc ON c.id = pc.command_id
+LEFT JOIN program_command pc ON c.command_id = pc.command_id
 LEFT JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
 WHERE pc.command_id IS NULL
 ORDER BY c.name;"

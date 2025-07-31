@@ -61,9 +61,9 @@ func update_program_list(programs: Dictionary) -> void:
 
 func query_programs() -> Dictionary[int, String]:
     var programs: Dictionary[int, String] = {}
-    var sql := "SELECT p.id AS program_id, p.name AS program_name
+    var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
-INNER JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id = ?;"
+INNER JOIN programgroup_program pp ON p.program_id = pp.program_id AND pp.programgroup_id = ?;"
 
     if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
@@ -76,9 +76,9 @@ INNER JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_i
 
 func query_available_programs() -> Dictionary[int, String]:
     var available_programs: Dictionary[int, String] = {}
-    var sql := "SELECT p.id AS program_id, p.name AS program_name
+    var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
-LEFT JOIN programgroup_program pp ON p.id = pp.program_id AND pp.programgroup_id = ?
+LEFT JOIN programgroup_program pp ON p.program_id = pp.program_id AND pp.programgroup_id = ?
 WHERE pp.program_id IS NULL;"
 
     if _db.select(sql, [_programgroup_id]):
@@ -126,12 +126,12 @@ func _on_remove_program_button_pressed() -> void:
 
 
 func _on_rename_group_dialog_submitted(_dialog: EnterTextDialog, new_name: String) -> void:
-    if _db.update_rows("programgroup", "id=%d" % _programgroup_id, {"name": new_name}):
+    if _db.update_rows("programgroup", "programgroup_id=%d" % _programgroup_id, {"name": new_name}):
         programgroup_name = new_name
 
 
 func _on_delete_group_dialog_confirmed(_dialog: VerificationDialog) -> void:
-    if _db.delete_rows("programgroup", "id=%d" % _programgroup_id):
+    if _db.delete_rows("programgroup", "programgroup_id=%d" % _programgroup_id):
         programgroup_deleted.emit(_programgroup_id)
 
 

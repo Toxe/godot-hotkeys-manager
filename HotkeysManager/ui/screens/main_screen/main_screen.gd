@@ -26,10 +26,10 @@ func add_programgroup(programgroup_id: int, programgroup_name: String, programs:
 
 func query_programgroups() -> Dictionary[int, String]:
     var programgroups: Dictionary[int, String] = {}
-    var rows: Variant = _db.select_rows("programgroup", "", ["id", "name"])
+    var rows: Variant = _db.select_rows("programgroup", "", ["programgroup_id", "name"])
     if rows:
         for row: Dictionary in rows:
-            var programgroup_id: int = row["id"]
+            var programgroup_id: int = row["programgroup_id"]
             var programgroup_name: String = row["name"]
             programgroups[programgroup_id] = programgroup_name
     return programgroups
@@ -39,7 +39,7 @@ func query_programgroup_programs() -> Dictionary[int, Dictionary]:
     var programgroup_programs: Dictionary[int, Dictionary] = {}
     var sql := "SELECT pp.programgroup_id, pp.program_id, p.name AS program_name
 FROM programgroup_program pp
-INNER JOIN program p ON pp.program_id = p.id;"
+INNER JOIN program p ON pp.program_id = p.program_id;"
 
     if _db.select(sql):
         var rows := _db.query_result()

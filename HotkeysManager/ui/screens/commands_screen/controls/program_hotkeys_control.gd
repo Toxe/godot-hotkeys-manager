@@ -65,13 +65,13 @@ func _on_create_program_command_button_pressed() -> void:
 
 
 func _on_change_program_command_name_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.update_rows("program_command", "id=%d" % _program_command_id, {"name": text}):
+    if _db.update_rows("program_command", "program_command_id=%d" % _program_command_id, {"name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
 func _on_change_program_command_hotkey_dialog_submitted(dialog: EnterTextDialog, text: String) -> void:
     var program_hotkey_id: int = dialog.get_meta("program_hotkey_id")
-    if _db.update_rows("program_command_hotkey", "id=%d" % program_hotkey_id, {"hotkey": text}):
+    if _db.update_rows("program_command_hotkey", "program_command_hotkey_id=%d" % program_hotkey_id, {"hotkey": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
@@ -86,7 +86,7 @@ func _on_create_program_command_dialog_submitted(_dialog: EnterTextDialog, text:
 
 
 func _on_delete_program_command_hotkey_button_pressed(program_hotkey_id: int) -> void:
-    if _db.delete_rows("program_command_hotkey", "id=%d" % program_hotkey_id):
+    if _db.delete_rows("program_command_hotkey", "program_command_hotkey_id=%d" % program_hotkey_id):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 

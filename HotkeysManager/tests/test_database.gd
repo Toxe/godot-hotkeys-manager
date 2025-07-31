@@ -48,7 +48,7 @@ func test_select_row() -> void:
     assert_false(db.select_row("program_command", "program_id=1", ["name"]))
 
     # return null if the row doesn't exist
-    assert_null(db.select_row("program_command", "program_id=99", ["id", "name"]))
+    assert_null(db.select_row("program_command", "program_id=99", ["program_id", "name"]))
 
 
 func test_select_value() -> void:

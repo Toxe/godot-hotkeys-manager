@@ -58,7 +58,7 @@ func test_can_remove_programgroup() -> void:
 
 func test_can_create_new_program() -> void:
     main_screen._on_new_program_dialog_submitted(null, "New Program")
-    assert_gt(main_screen._db.select_value("program", "name='New Program'", "id"), 0)
+    assert_gt(main_screen._db.select_value("program", "name='New Program'", "program_id"), 0)
 
 
 func test_can_create_new_programgroup() -> void:

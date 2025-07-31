@@ -31,12 +31,12 @@ func _on_create_user_hotkey_button_pressed() -> void:
 
 
 func _on_delete_user_hotkey_button_pressed() -> void:
-    if _db.delete_rows("user_hotkey", "id=%d" % _user_hotkey_id):
+    if _db.delete_rows("user_hotkey", "user_hotkey_id=%d" % _user_hotkey_id):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
 func _on_change_user_hotkey_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.update_rows("user_hotkey", "id=%d" % _user_hotkey_id, {"hotkey": text}):
+    if _db.update_rows("user_hotkey", "user_hotkey_id=%d" % _user_hotkey_id, {"hotkey": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
