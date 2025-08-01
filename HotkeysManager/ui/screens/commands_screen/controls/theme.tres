@@ -26,4 +26,7 @@ HeaderProgramAbbreviation/font_sizes/font_size = 24
 HeaderProgramLabel/base_type = &"Label"
 HeaderProgramLabel/colors/font_color = Color(1, 1, 0, 1)
 HeaderProgramLabel/font_sizes/font_size = 24
+HeaderUserHotkeyLabel/base_type = &"Label"
+HeaderUserHotkeyLabel/colors/font_color = Color(0.36152095, 0.55944246, 1, 1)
+HeaderUserHotkeyLabel/font_sizes/font_size = 24
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_3jvpu")

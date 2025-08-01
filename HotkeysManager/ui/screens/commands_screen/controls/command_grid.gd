@@ -19,7 +19,7 @@ func add_header_row(programs: Dictionary[int, String], program_abbreviations: Di
     for program_id: int in programs:
         add_header_program_label(programs[program_id])
 
-    add_header_program_label("User Hotkey")
+    add_header_user_hotkey_label("User Hotkey")
 
     for program_id: int in programs:
         add_header_program_abbreviation(programs[program_id], program_abbreviations[program_id])
@@ -62,6 +62,13 @@ func add_label(text: String) -> Label:
 func add_header_command_label(text: String) -> Label:
     var label := add_label(text)
     label.theme_type_variation = "HeaderCommandLabel"
+    return label
+
+
+func add_header_user_hotkey_label(text: String) -> Label:
+    var label := add_label(text)
+    label.theme_type_variation = "HeaderUserHotkeyLabel"
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     return label
 
 
