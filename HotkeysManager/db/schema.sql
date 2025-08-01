@@ -51,9 +51,9 @@ CREATE TABLE program_command (
 );
 
 CREATE TABLE program_command_hotkey (
-    program_command_hotkey_id integer PRIMARY KEY NOT NULL,
     program_command_id integer NOT NULL,
-    hotkey varchar(64),
+    hotkey varchar(64) NOT NULL,
+    PRIMARY KEY (program_command_id, hotkey),
     FOREIGN KEY (program_command_id) REFERENCES program_command (program_command_id) ON DELETE CASCADE
 );
 

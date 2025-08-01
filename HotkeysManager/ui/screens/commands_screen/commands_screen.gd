@@ -83,7 +83,7 @@ WHERE pp.programgroup_id = ?;"
 
 func query_program_command_hotkeys(programgroup_id: int) -> Dictionary[int, Dictionary]:
     var program_command_hotkeys: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT pc.program_id, pc.command_id, pch.program_command_hotkey_id, pch.hotkey AS program_command_hotkey
+    var sql := "SELECT pc.program_id, pc.command_id, pch.hotkey AS program_command_hotkey
 FROM program_command pc
 INNER JOIN program_command_hotkey pch USING (program_command_id)
 INNER JOIN programgroup_program pp USING (program_id)
@@ -94,12 +94,11 @@ WHERE pp.programgroup_id = ?;"
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
             var command_id: int = row["command_id"]
-            var program_command_hotkey_id: int = row["program_command_hotkey_id"]
             var program_command_hotkey: String = row["program_command_hotkey"]
 
             var command_data: Dictionary = program_command_hotkeys.get_or_add(command_id, {})
-            var program_data: Dictionary = command_data.get_or_add(program_id, {})
-            program_data.get_or_add(program_command_hotkey_id, program_command_hotkey)
+            var program_hotkeys: Array = command_data.get_or_add(program_id, [])
+            program_hotkeys.append(program_command_hotkey)
     return program_command_hotkeys
 
 
