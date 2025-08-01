@@ -5,14 +5,14 @@ INSERT INTO programgroup (name) VALUES
 ('Grafikprogramme'),
 ('Web Browser');
 
-INSERT INTO program (name) VALUES
-('CLion'),
-('Visual Studio'),
-('Visual Studio Code'),
-('Obsidian'),
-('Photoshop'),
-('Illustrator'),
-('Krita');
+INSERT INTO program (name, abbreviation) VALUES
+('CLion', 'CL'),
+('Visual Studio', 'VS'),
+('Visual Studio Code', 'VSCode'),
+('Obsidian', 'Obs'),
+('Photoshop', 'Ps'),
+('Illustrator', 'Ai'),
+('Krita', 'Kr');
 
 INSERT INTO programgroup_program (programgroup_id, program_id) VALUES
 (1, 1),

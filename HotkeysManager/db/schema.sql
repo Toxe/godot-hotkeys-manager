@@ -12,6 +12,7 @@ CREATE TABLE programgroup (
 CREATE TABLE program (
     program_id integer PRIMARY KEY NOT NULL,
     name varchar(255),
+    abbreviation varchar(16),
     icon blob
 );
 
