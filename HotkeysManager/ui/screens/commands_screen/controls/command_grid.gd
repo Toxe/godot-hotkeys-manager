@@ -13,7 +13,7 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     columns = 1 + programs.size() + 1 + programs.size()
 
 
-func add_header_row(programs: Dictionary[int, String]) -> void:
+func add_header_row(programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String]) -> void:
     add_header_command_label("Commands")
 
     for program_id: int in programs:
@@ -22,7 +22,7 @@ func add_header_row(programs: Dictionary[int, String]) -> void:
     add_header_program_label("User Hotkey")
 
     for program_id: int in programs:
-        add_header_program_label("%d" % program_id)
+        add_header_program_label(program_abbreviations[program_id])
 
 
 func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:

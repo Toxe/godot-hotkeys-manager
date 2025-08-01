@@ -15,6 +15,7 @@ func _ready() -> void:
         ($VBoxContainer/HBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
 
     var programs := query_programs(_programgroup_id)
+    var program_abbreviations := query_program_abbreviations(_programgroup_id)
     var commands := query_commands(_programgroup_id)
     var program_commands := query_program_commands(_programgroup_id)
     var program_command_hotkeys := query_program_command_hotkeys(_programgroup_id)
@@ -23,7 +24,7 @@ func _ready() -> void:
 
     var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
     command_grid.setup(_db, _programgroup_id, programs)
-    command_grid.add_header_row(programs)
+    command_grid.add_header_row(programs, program_abbreviations)
     command_grid.add_command_rows(programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
@@ -41,6 +42,22 @@ WHERE pp.programgroup_id = ?;"
             var program_name: String = row["program_name"]
             programs[program_id] = program_name
     return programs
+
+
+func query_program_abbreviations(programgroup_id: int) -> Dictionary[int, String]:
+    var program_abbreviations: Dictionary[int, String] = {}
+    var sql := "SELECT p.program_id, p.abbreviation
+FROM program p
+INNER JOIN programgroup_program pp USING (program_id)
+WHERE pp.programgroup_id = ?;"
+
+    if _db.select(sql, [programgroup_id]):
+        var rows := _db.query_result()
+        for row: Dictionary in rows:
+            var program_id: int = row["program_id"]
+            var program_abbr: String = row["abbreviation"]
+            program_abbreviations[program_id] = program_abbr
+    return program_abbreviations
 
 
 func query_commands(programgroup_id: int) -> Dictionary[int, String]:
