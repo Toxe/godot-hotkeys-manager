@@ -23,9 +23,7 @@ func _ready() -> void:
     var user_hotkey_programs := query_user_hotkey_programs(_programgroup_id)
 
     var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
-    command_grid.setup(_db, _programgroup_id, programs)
-    command_grid.add_header_row(programs, program_abbreviations)
-    command_grid.add_command_rows(programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 func query_programs(programgroup_id: int) -> Dictionary[int, String]:

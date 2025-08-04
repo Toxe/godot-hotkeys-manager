@@ -7,10 +7,13 @@ var _db: Database = null
 var _programgroup_id: int = -1
 
 
-func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]) -> void:
+func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
     _db = db
     _programgroup_id = programgroup_id
     columns = 1 + programs.size() + 1 + programs.size()
+
+    add_header_row(programs, program_abbreviations)
+    add_command_rows(programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 func add_header_row(programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String]) -> void:
