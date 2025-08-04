@@ -170,12 +170,15 @@ INNER JOIN (
 
 func query_available_commands(programgroup_id: int) -> Dictionary[int, String]:
     var commands: Dictionary[int, String] = {}
-    var sql := "SELECT c.command_id, c.name AS command_name, pc.program_id, pc.name AS program_command_name, pp.programgroup_id
-FROM command c
-LEFT JOIN program_command pc USING (command_id)
-LEFT JOIN programgroup_program pp ON pc.program_id = pp.program_id AND pp.programgroup_id = ?
-WHERE pc.command_id IS NULL
-ORDER BY c.name;"
+    var sql := "SELECT command_id, name AS command_name
+FROM command
+WHERE command_id NOT IN (
+    SELECT pc.command_id
+    FROM program_command pc
+    INNER JOIN programgroup_program pp USING (program_id)
+    WHERE pp.programgroup_id = ?
+    GROUP BY pc.command_id)
+ORDER BY name;"
 
     if _db.select(sql, [programgroup_id]):
         var rows := _db.query_result()
