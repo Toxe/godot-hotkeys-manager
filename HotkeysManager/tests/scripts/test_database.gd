@@ -10,12 +10,12 @@ func before_each() -> void:
 
 func test_insert_rows() -> void:
     assert_true(db.insert_rows("program", [ {"name": "test1"}, {"name": "test2"}]))
-    assert_eq(db.last_insert_rowid(), 9)
+    assert_eq(db.last_insert_rowid(), 12)
 
 
 func test_insert_row() -> void:
     assert_true(db.insert_row("program", {"name": "test"}))
-    assert_eq(db.last_insert_rowid(), 8)
+    assert_eq(db.last_insert_rowid(), 11)
 
 
 func test_update_rows() -> void:

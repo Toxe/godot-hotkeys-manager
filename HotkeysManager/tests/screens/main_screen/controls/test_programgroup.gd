@@ -9,9 +9,9 @@ func before_each() -> void:
     var db: Database = Database.new()
     db.open(":memory:")
 
-    var programgroup_id := 1
-    var programgroup_name := "Texteditoren"
-    var programs: Dictionary = {1: "CLion", 2: "Visual Studio", 3: "Visual Studio Code", 4: "Obsidian"}
+    const programgroup_id := 1
+    const programgroup_name := "Texteditoren"
+    const programs: Dictionary = {1: "CLion", 2: "Visual Studio", 3: "Visual Studio Code", 4: "Obsidian"}
     programgroup = autofree(programgroup_scene.instantiate())
     programgroup.setup(db, programgroup_id, programgroup_name, programs)
 
@@ -26,9 +26,11 @@ func test_query_programs() -> void:
     var programgroup1: Programgroup = autofree(programgroup_scene.instantiate())
     var programgroup2: Programgroup = autofree(programgroup_scene.instantiate())
     var programgroup3: Programgroup = autofree(programgroup_scene.instantiate())
+    var programgroup4: Programgroup = autofree(programgroup_scene.instantiate())
     programgroup1.setup(programgroup._db, 1, "Programgroup 1", {})
     programgroup2.setup(programgroup._db, 2, "Programgroup 2", {})
     programgroup3.setup(programgroup._db, 3, "Programgroup 3", {})
+    programgroup4.setup(programgroup._db, 4, "Programgroup 4", {})
 
     assert_eq_deep(programgroup1.query_programs(), {
         1: "CLion",
@@ -41,27 +43,41 @@ func test_query_programs() -> void:
         6: "Illustrator",
         7: "Krita",
     })
-    assert_eq_deep(programgroup3.query_programs(), {})
+    assert_eq_deep(programgroup3.query_programs(), {
+        7: "Krita",
+        8: "Firefox",
+        9: "Vivaldi",
+        10: "Chrome",
+    })
+    assert_eq_deep(programgroup4.query_programs(), {})
 
 
 func test_query_available_programs() -> void:
     var programgroup1: Programgroup = autofree(programgroup_scene.instantiate())
     var programgroup2: Programgroup = autofree(programgroup_scene.instantiate())
     var programgroup3: Programgroup = autofree(programgroup_scene.instantiate())
+    var programgroup4: Programgroup = autofree(programgroup_scene.instantiate())
     programgroup1.setup(programgroup._db, 1, "Programgroup 1", {})
     programgroup2.setup(programgroup._db, 2, "Programgroup 2", {})
     programgroup3.setup(programgroup._db, 3, "Programgroup 3", {})
+    programgroup4.setup(programgroup._db, 4, "Programgroup 4", {})
 
     assert_eq_deep(programgroup1.query_available_programs(), {
         5: "Photoshop",
         6: "Illustrator",
         7: "Krita",
+        8: "Firefox",
+        9: "Vivaldi",
+        10: "Chrome",
     })
     assert_eq_deep(programgroup2.query_available_programs(), {
         1: "CLion",
         2: "Visual Studio",
         3: "Visual Studio Code",
         4: "Obsidian",
+        8: "Firefox",
+        9: "Vivaldi",
+        10: "Chrome",
     })
     assert_eq_deep(programgroup3.query_available_programs(), {
         1: "CLion",
@@ -70,7 +86,18 @@ func test_query_available_programs() -> void:
         4: "Obsidian",
         5: "Photoshop",
         6: "Illustrator",
+    })
+    assert_eq_deep(programgroup4.query_available_programs(), {
+        1: "CLion",
+        2: "Visual Studio",
+        3: "Visual Studio Code",
+        4: "Obsidian",
+        5: "Photoshop",
+        6: "Illustrator",
         7: "Krita",
+        8: "Firefox",
+        9: "Vivaldi",
+        10: "Chrome",
     })
 
 

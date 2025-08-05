@@ -25,7 +25,8 @@ func test_query_programgroups() -> void:
     assert_eq_deep(programgroups, {
         1: "Texteditoren",
         2: "Grafikprogramme",
-        3: "Web Browser",
+        3: "Group 3",
+        4: "Group 4",
     })
 
 
@@ -43,16 +44,22 @@ func test_query_programgroup_programs() -> void:
             6: "Illustrator",
             7: "Krita",
         },
+        3: {
+            7: "Krita",
+            8: "Firefox",
+            9: "Vivaldi",
+            10: "Chrome",
+        },
     })
 
 
 func test_main_screen_shows_programgroups() -> void:
-    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Web Browser"])
+    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Group 3", "Group 4"])
 
 
 func test_can_remove_programgroup() -> void:
     main_screen._on_programgroup_deleted(2)
-    check_has_all_programgroups(["Texteditoren", "Web Browser"])
+    check_has_all_programgroups(["Texteditoren", "Group 3", "Group 4"])
     await wait_process_frames(1) # wait 1 frame to free the node, so that GUT won't report orphans
 
 
@@ -63,7 +70,7 @@ func test_can_create_new_program() -> void:
 
 func test_can_create_new_programgroup() -> void:
     main_screen._on_new_group_dialog_submitted(null, "New Group")
-    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Web Browser", "New Group"])
+    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Group 3", "Group 4", "New Group"])
 
 
 func test_can_open_New_Program_dialog() -> void:

@@ -3,7 +3,8 @@ PRAGMA foreign_keys = ON;
 INSERT INTO programgroup (name) VALUES
 ('Texteditoren'),
 ('Grafikprogramme'),
-('Web Browser');
+('Group 3'),
+('Group 4');
 
 INSERT INTO program (name, abbreviation) VALUES
 ('CLion', 'CL'),
@@ -12,7 +13,10 @@ INSERT INTO program (name, abbreviation) VALUES
 ('Obsidian', 'Obs'),
 ('Photoshop', 'Ps'),
 ('Illustrator', 'Ai'),
-('Krita', 'Kr');
+('Krita', 'Kr'),
+('Firefox', 'FF'),
+('Vivaldi', 'Viv'),
+('Chrome', 'Chr');
 
 INSERT INTO programgroup_program (programgroup_id, program_id) VALUES
 (1, 1),
@@ -21,7 +25,11 @@ INSERT INTO programgroup_program (programgroup_id, program_id) VALUES
 (1, 4),
 (2, 5),
 (2, 6),
-(2, 7);
+(2, 7),
+(3, 7),
+(3, 8),
+(3, 9),
+(3, 10);
 
 INSERT INTO category (name) VALUES
 ('Navigation'),
@@ -30,7 +38,11 @@ INSERT INTO category (name) VALUES
 
 INSERT INTO command (name) VALUES
 ('Go to File'),
-('Go to Next Editor Tab');
+('Go to Next Editor Tab'),
+('New Tab'),
+('New Window'),
+('Close Tab'),
+('Close All Tabs');
 
 INSERT INTO command_category (command_id, category_id) VALUES
 (1, 1),
@@ -45,7 +57,9 @@ INSERT INTO program_command (program_id, command_id, name) VALUES
 (1, 2, 'Select Next Tab'),
 (2, 2, 'Window.NextTab'),
 (3, 2, 'View: Open Next Editor'),
-(4, 2, 'Go to next tab');
+(4, 2, 'Go to next tab'),
+(8, 3, 'New Tab'),
+(10, 5, 'Close Tab');
 
 INSERT INTO program_command_hotkey (program_command_id, hotkey) VALUES
 (1, 'Ctrl+Shift+N'),
@@ -59,7 +73,9 @@ INSERT INTO program_command_hotkey (program_command_id, hotkey) VALUES
 (5, 'Alt+Right'),
 (6, 'Ctrl+Alt+PageDown'),
 (7, 'Ctrl+PageDown'),
-(8, 'Ctrl+PageDown');
+(8, 'Ctrl+PageDown'),
+(9, 'Ctrl+T'),
+(10, 'Ctrl+W');
 
 INSERT INTO comment (comment_text) VALUES
 ('Öffnet ein Suchfeld, in dem man nach Dateinamen suchen kann.'),
@@ -76,7 +92,9 @@ INSERT INTO program_command_comment (program_command_id, comment_id) VALUES
 
 INSERT INTO user_hotkey (command_id, hotkey) VALUES
 (1, 'Ctrl+P'),
-(2, 'Ctrl+PageDown');
+(2, 'Ctrl+PageDown'),
+(5, 'Ctrl+W'),
+(4, 'Ctrl+N');
 
 INSERT INTO user_hotkey_program (user_hotkey_id, program_id) VALUES
 (1, 1),
@@ -86,7 +104,10 @@ INSERT INTO user_hotkey_program (user_hotkey_id, program_id) VALUES
 (2, 1),
 (2, 2),
 (2, 3),
-(2, 4);
+(2, 4),
+(3, 7),
+(3, 8),
+(4, 9);
 
 INSERT INTO user_hotkey_comment (user_hotkey_id, comment_id) VALUES
 (2, 4);
