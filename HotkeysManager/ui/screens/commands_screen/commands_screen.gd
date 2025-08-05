@@ -5,6 +5,10 @@ var _programgroup_id: int = -1
 
 
 func setup(db: Database, programgroup_id: int) -> void:
+    assert(db != null)
+    assert(db.is_open())
+    assert(programgroup_id > 0)
+
     _db = db
     _programgroup_id = programgroup_id
 

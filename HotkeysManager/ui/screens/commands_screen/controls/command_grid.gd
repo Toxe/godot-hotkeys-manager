@@ -8,6 +8,10 @@ var _programgroup_id: int = -1
 
 
 func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
+    assert(db != null)
+    assert(db.is_open())
+    assert(programgroup_id > 0)
+
     _db = db
     _programgroup_id = programgroup_id
     columns = 1 + programs.size() + 1 + programs.size()

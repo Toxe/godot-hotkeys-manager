@@ -13,6 +13,10 @@ var programgroup_name: String:
 
 
 func setup(db: Database, programgroup_id: int, group_name: String, programs: Dictionary) -> void:
+    assert(db != null)
+    assert(db.is_open())
+    assert(programgroup_id > 0)
+
     _db = db
     _programgroup_id = programgroup_id
     programgroup_name = group_name

@@ -7,6 +7,11 @@ var _user_hotkey_id: int
 
 
 func setup(db: Database, programgroup_id: int, command_id: int, user_hotkeys: Dictionary[int, Dictionary]) -> void:
+    assert(db != null)
+    assert(db.is_open())
+    assert(programgroup_id > 0)
+    assert(command_id > 0)
+
     _db = db
     _programgroup_id = programgroup_id
     _command_id = command_id

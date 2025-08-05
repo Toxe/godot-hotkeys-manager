@@ -4,6 +4,9 @@ var _db: Database = null
 
 
 func setup(db: Database) -> void:
+    assert(db != null)
+    assert(db.is_open())
+
     _db = db
 
 

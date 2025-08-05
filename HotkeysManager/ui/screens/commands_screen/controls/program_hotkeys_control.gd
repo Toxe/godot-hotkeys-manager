@@ -8,6 +8,12 @@ var _program_command_id: int
 
 
 func setup(db: Database, programgroup_id: int, command_id: int, program_id: int, program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> void:
+    assert(db != null)
+    assert(db.is_open())
+    assert(programgroup_id > 0)
+    assert(command_id > 0)
+    assert(program_id > 0)
+
     _db = db
     _programgroup_id = programgroup_id
     _program_id = program_id

@@ -6,6 +6,8 @@ var _program_id: int
 
 
 func setup(program_id: int, program_name: String) -> void:
+    assert(program_id >= 0)
+
     _program_id = program_id
     ($ProgramNameLabel as Label).text = program_name
 
