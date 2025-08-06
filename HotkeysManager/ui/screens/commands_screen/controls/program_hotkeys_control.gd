@@ -56,8 +56,7 @@ func _on_program_command_name_button_pressed() -> void:
 
 
 func _on_change_program_command_hotkey_button_pressed(program_command_id: int, hotkey: String) -> void:
-    var dialog := EnterTextDialog.open_dialog(self, "Change Program Command Hotkey", "Enter the new Hotkey.", _on_change_program_command_hotkey_dialog_submitted, hotkey)
-    dialog.set_meta("program_command_id", program_command_id)
+    EnterTextDialog.open_dialog(self, "Change Program Command Hotkey", "Enter the new Hotkey.", _on_change_program_command_hotkey_dialog_submitted.bind(program_command_id, hotkey), hotkey)
 
 
 func _on_add_program_command_hotkey_button_pressed() -> void:
@@ -73,9 +72,8 @@ func _on_change_program_command_name_dialog_submitted(_dialog: EnterTextDialog, 
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_change_program_command_hotkey_dialog_submitted(dialog: EnterTextDialog, text: String) -> void:
-    var program_hotkey_id: int = dialog.get_meta("program_hotkey_id")
-    if _db.update_rows("program_command_hotkey", "program_command_hotkey_id=%d" % program_hotkey_id, {"hotkey": text}):
+func _on_change_program_command_hotkey_dialog_submitted(_dialog: EnterTextDialog, new_hotkey: String, program_command_id: int, old_hotkey: String) -> void:
+    if _db.update_rows("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [program_command_id, old_hotkey], {"hotkey": new_hotkey}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
