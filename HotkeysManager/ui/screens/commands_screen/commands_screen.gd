@@ -18,14 +18,14 @@ func _ready() -> void:
     if programgroup_name != null:
         ($VBoxContainer/HBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
 
-    var programs := query_programs(_programgroup_id)
-    var program_abbreviations := query_program_abbreviations(_programgroup_id)
-    var commands := query_commands(_programgroup_id)
-    var program_commands := query_program_commands(_programgroup_id)
-    var program_command_hotkeys := query_program_command_hotkeys(_programgroup_id)
-    var user_hotkeys_by_commands := query_user_hotkeys_by_commands(_programgroup_id)
-    var user_hotkeys_by_programs := query_user_hotkeys_by_programs(_programgroup_id)
-    var user_hotkey_programs := query_user_hotkey_programs(_programgroup_id)
+    var programs := query_programs()
+    var program_abbreviations := query_program_abbreviations()
+    var commands := query_commands()
+    var program_commands := query_program_commands()
+    var program_command_hotkeys := query_program_command_hotkeys()
+    var user_hotkeys_by_commands := query_user_hotkeys_by_commands()
+    var user_hotkeys_by_programs := query_user_hotkeys_by_programs()
+    var user_hotkey_programs := query_user_hotkey_programs()
 
     var user_hotkeys: Dictionary[int, Dictionary] = {}
     for command_id in user_hotkeys_by_commands:
@@ -45,14 +45,14 @@ func _ready() -> void:
     command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
-func query_programs(programgroup_id: int) -> Dictionary[int, String]:
+func query_programs() -> Dictionary[int, String]:
     var programs: Dictionary[int, String] = {}
     var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
@@ -61,14 +61,14 @@ WHERE pp.programgroup_id = ?;"
     return programs
 
 
-func query_program_abbreviations(programgroup_id: int) -> Dictionary[int, String]:
+func query_program_abbreviations() -> Dictionary[int, String]:
     var program_abbreviations: Dictionary[int, String] = {}
     var sql := "SELECT p.program_id, p.abbreviation
 FROM program p
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
@@ -77,7 +77,7 @@ WHERE pp.programgroup_id = ?;"
     return program_abbreviations
 
 
-func query_commands(programgroup_id: int) -> Dictionary[int, String]:
+func query_commands() -> Dictionary[int, String]:
     var commands: Dictionary[int, String] = {}
     var sql := "SELECT c.command_id, c.name AS command_name
 FROM command c
@@ -86,7 +86,7 @@ INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?
 GROUP BY c.command_id;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
@@ -95,14 +95,14 @@ GROUP BY c.command_id;"
     return commands
 
 
-func query_program_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
+func query_program_commands() -> Dictionary[int, Dictionary]:
     var program_commands: Dictionary[int, Dictionary] = {}
     var sql := "SELECT pc.program_id, pc.command_id, pc.program_command_id, pc.name AS program_command_name
 FROM program_command pc
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
@@ -115,7 +115,7 @@ WHERE pp.programgroup_id = ?;"
     return program_commands
 
 
-func query_program_command_hotkeys(programgroup_id: int) -> Dictionary[int, Dictionary]:
+func query_program_command_hotkeys() -> Dictionary[int, Dictionary]:
     var program_command_hotkeys: Dictionary[int, Dictionary] = {}
     var sql := "SELECT pc.program_id, pc.command_id, pch.hotkey AS program_command_hotkey
 FROM program_command pc
@@ -123,7 +123,7 @@ INNER JOIN program_command_hotkey pch USING (program_command_id)
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
@@ -136,7 +136,7 @@ WHERE pp.programgroup_id = ?;"
     return program_command_hotkeys
 
 
-func query_user_hotkeys_by_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
+func query_user_hotkeys_by_commands() -> Dictionary[int, Dictionary]:
     var user_hotkeys_by_commands: Dictionary[int, Dictionary] = {}
     var sql := "SELECT uh.user_hotkey_id, uh.hotkey AS user_hotkey, uh.command_id, c.command_name
 FROM user_hotkey uh
@@ -149,7 +149,7 @@ INNER JOIN (
 	GROUP BY c.command_id
 ) c USING (command_id);"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
@@ -161,7 +161,7 @@ INNER JOIN (
     return user_hotkeys_by_commands
 
 
-func query_user_hotkeys_by_programs(programgroup_id: int) -> Dictionary[int, Dictionary]:
+func query_user_hotkeys_by_programs() -> Dictionary[int, Dictionary]:
     var user_hotkeys_by_programs: Dictionary[int, Dictionary] = {}
     var sql := "SELECT DISTINCT uh.user_hotkey_id, uh.hotkey AS user_hotkey, uh.command_id, c.name AS command_name
 FROM user_hotkey uh
@@ -170,7 +170,7 @@ INNER JOIN programgroup_program pp USING (program_id)
 INNER JOIN command c USING (command_id)
 WHERE pp.programgroup_id = ?;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
@@ -182,7 +182,7 @@ WHERE pp.programgroup_id = ?;"
     return user_hotkeys_by_programs
 
 
-func query_user_hotkey_programs(programgroup_id: int) -> Dictionary[int, Dictionary]:
+func query_user_hotkey_programs() -> Dictionary[int, Dictionary]:
     var user_hotkey_programs: Dictionary[int, Dictionary] = {}
     var sql := "SELECT uhp.user_hotkey_id, uh.command_id, uhp.program_id
 FROM user_hotkey uh
@@ -190,7 +190,7 @@ INNER JOIN user_hotkey_program uhp USING (user_hotkey_id)
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
@@ -205,7 +205,7 @@ WHERE pp.programgroup_id = ?;"
     return user_hotkey_programs
 
 
-func query_available_commands(programgroup_id: int) -> Dictionary[int, String]:
+func query_available_commands() -> Dictionary[int, String]:
     var commands: Dictionary[int, String] = {}
     var sql := "SELECT command_id, name AS command_name
 FROM command
@@ -217,7 +217,7 @@ WHERE command_id NOT IN (
     GROUP BY pc.command_id)
 ORDER BY name;"
 
-    if _db.select(sql, [programgroup_id]):
+    if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
@@ -244,7 +244,7 @@ func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, text: String) ->
 
 
 func _on_add_command_button_pressed() -> void:
-    AddCommandDialog.open_dialog(self, "Select a Command and assign it to at least one Program.", _on_add_command_dialog_submitted, query_programs(_programgroup_id), query_available_commands(_programgroup_id))
+    AddCommandDialog.open_dialog(self, "Select a Command and assign it to at least one Program.", _on_add_command_dialog_submitted, query_programs(), query_available_commands())
 
 
 func _on_add_command_dialog_submitted(_dialog: AddCommandDialog, options: Dictionary[String, Variant]) -> void:
