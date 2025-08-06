@@ -17,7 +17,9 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     columns = 1 + programs.size() + 1 + programs.size()
 
     add_header_row(programs, program_abbreviations)
-    add_command_rows(programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+
+    for command_id in commands:
+        add_command_row(command_id, programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 func add_header_row(programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String]) -> void:
@@ -32,30 +34,28 @@ func add_header_row(programs: Dictionary[int, String], program_abbreviations: Di
         add_header_program_abbreviation(programs[program_id], program_abbreviations[program_id])
 
 
-func add_command_rows(programs: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
-    for command_id: int in commands:
-        var command_name: String = commands[command_id]
+func add_command_row(command_id: int, programs: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
+    var command_name: String = commands[command_id]
+    var command_button := add_command_button(command_name)
+    command_button.pressed.connect(_on_rename_command_button_pressed.bind(command_name, command_id))
 
-        var command_button := add_command_button(command_name)
-        command_button.pressed.connect(_on_rename_command_button_pressed.bind(command_name, command_id))
+    for program_id: int in programs:
+        add_program_hotkeys_control(command_id, program_id, program_commands, program_command_hotkeys)
 
-        for program_id: int in programs:
-            add_program_hotkeys_control(command_id, program_id, program_commands, program_command_hotkeys)
+    add_user_hotkey_control(command_id, user_hotkeys)
 
-        add_user_hotkey_control(command_id, user_hotkeys)
+    if command_id in user_hotkeys:
+        var user_hotkey_id: int = user_hotkeys[command_id]["user_hotkey_id"]
+        var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
 
-        if command_id in user_hotkeys:
-            var user_hotkey_id: int = user_hotkeys[command_id]["user_hotkey_id"]
-            var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
-
-            for program_id: int in programs:
-                var s := "✔️" if program_id in hotkeys else "❌"
-                var label := add_label(s)
-                label.mouse_filter = Control.MOUSE_FILTER_PASS
-                label.gui_input.connect(_on_user_hotkey_program_checkbox_gui_input.bind(user_hotkey_id, program_id, label))
-        else:
-            for program_id: int in programs:
-                add_label("–")
+        for program_id in programs:
+            var s := "✔️" if program_id in hotkeys else "❌"
+            var label := add_label(s)
+            label.mouse_filter = Control.MOUSE_FILTER_PASS
+            label.gui_input.connect(_on_user_hotkey_program_checkbox_gui_input.bind(user_hotkey_id, program_id, label))
+    else:
+        for program_id in programs:
+            add_label("–")
 
 
 func add_label(text: String) -> Label:

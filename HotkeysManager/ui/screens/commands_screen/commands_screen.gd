@@ -23,11 +23,26 @@ func _ready() -> void:
     var commands := query_commands(_programgroup_id)
     var program_commands := query_program_commands(_programgroup_id)
     var program_command_hotkeys := query_program_command_hotkeys(_programgroup_id)
-    var user_hotkeys := query_user_hotkeys(_programgroup_id)
+    var user_hotkeys_by_commands := query_user_hotkeys_by_commands(_programgroup_id)
+    var user_hotkeys_by_programs := query_user_hotkeys_by_programs(_programgroup_id)
     var user_hotkey_programs := query_user_hotkey_programs(_programgroup_id)
 
+    var user_hotkeys: Dictionary[int, Dictionary] = {}
+    for command_id in user_hotkeys_by_commands:
+        user_hotkeys[command_id] = user_hotkeys_by_commands[command_id]
+    for command_id in user_hotkeys_by_programs:
+        user_hotkeys[command_id] = user_hotkeys_by_programs[command_id]
+
+    var combined_commands: Dictionary[int, String] = {}
+    for command_id in commands:
+        combined_commands[command_id] = commands[command_id]
+    for command_id in user_hotkeys_by_commands:
+        combined_commands[command_id] = user_hotkeys_by_commands[command_id]["command_name"]
+    for command_id in user_hotkeys_by_programs:
+        combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
+
     var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
-    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 func query_programs(programgroup_id: int) -> Dictionary[int, String]:
@@ -121,39 +136,59 @@ WHERE pp.programgroup_id = ?;"
     return program_command_hotkeys
 
 
-func query_user_hotkeys(programgroup_id: int) -> Dictionary[int, Dictionary]:
-    var user_hotkeys: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT uh.command_id, uh.user_hotkey_id, uh.hotkey AS user_hotkey
+func query_user_hotkeys_by_commands(programgroup_id: int) -> Dictionary[int, Dictionary]:
+    var user_hotkeys_by_commands: Dictionary[int, Dictionary] = {}
+    var sql := "SELECT uh.user_hotkey_id, uh.hotkey AS user_hotkey, uh.command_id, c.command_name
 FROM user_hotkey uh
 INNER JOIN (
-	SELECT pc.command_id
-	FROM program_command pc
-    INNER JOIN programgroup_program pp USING (program_id)
-    WHERE pp.programgroup_id = ?
-	GROUP BY pc.command_id) c USING (command_id);"
+	SELECT c.command_id, c.name AS command_name
+	FROM command c
+	INNER JOIN program_command pc USING (command_id)
+	INNER JOIN programgroup_program pp USING (program_id)
+	WHERE pp.programgroup_id = ?
+	GROUP BY c.command_id
+) c USING (command_id);"
 
     if _db.select(sql, [programgroup_id]):
         var rows := _db.query_result()
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
+            var command_name: String = row["command_name"]
             var user_hotkey_id: int = row["user_hotkey_id"]
             var user_hotkey: String = row["user_hotkey"]
 
-            user_hotkeys[command_id] = {"user_hotkey_id": user_hotkey_id, "user_hotkey": user_hotkey}
-    return user_hotkeys
+            user_hotkeys_by_commands[command_id] = {"user_hotkey_id": user_hotkey_id, "user_hotkey": user_hotkey, "command_name": command_name}
+    return user_hotkeys_by_commands
+
+
+func query_user_hotkeys_by_programs(programgroup_id: int) -> Dictionary[int, Dictionary]:
+    var user_hotkeys_by_programs: Dictionary[int, Dictionary] = {}
+    var sql := "SELECT DISTINCT uh.user_hotkey_id, uh.hotkey AS user_hotkey, uh.command_id, c.name AS command_name
+FROM user_hotkey uh
+INNER JOIN user_hotkey_program uhp USING (user_hotkey_id)
+INNER JOIN programgroup_program pp USING (program_id)
+INNER JOIN command c USING (command_id)
+WHERE pp.programgroup_id = ?;"
+
+    if _db.select(sql, [programgroup_id]):
+        var rows := _db.query_result()
+        for row: Dictionary in rows:
+            var command_id: int = row["command_id"]
+            var command_name: String = row["command_name"]
+            var user_hotkey_id: int = row["user_hotkey_id"]
+            var user_hotkey: String = row["user_hotkey"]
+
+            user_hotkeys_by_programs[command_id] = {"user_hotkey_id": user_hotkey_id, "user_hotkey": user_hotkey, "command_name": command_name}
+    return user_hotkeys_by_programs
 
 
 func query_user_hotkey_programs(programgroup_id: int) -> Dictionary[int, Dictionary]:
     var user_hotkey_programs: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT uh.command_id, uhp.program_id, uhp.user_hotkey_id
-FROM user_hotkey_program uhp
-INNER JOIN user_hotkey uh USING (user_hotkey_id)
-INNER JOIN (
-	SELECT pc.command_id
-	FROM program_command pc
-	INNER JOIN programgroup_program pp USING (program_id)
-    WHERE pp.programgroup_id = ?
-	GROUP BY pc.command_id) c USING (command_id);"
+    var sql := "SELECT uhp.user_hotkey_id, uh.command_id, uhp.program_id
+FROM user_hotkey uh
+INNER JOIN user_hotkey_program uhp USING (user_hotkey_id)
+INNER JOIN programgroup_program pp USING (program_id)
+WHERE pp.programgroup_id = ?;"
 
     if _db.select(sql, [programgroup_id]):
         var rows := _db.query_result()
