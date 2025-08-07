@@ -50,15 +50,20 @@ layout_mode = 2
 layout_mode = 2
 text = "Add Command"
 
-[node name="NewCommandButton" type="Button" parent="VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
+
+[node name="NewCommandButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "New Command"
 
-[node name="QuitButton" type="Button" parent="VBoxContainer"]
+[node name="QuitButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Quit"
 
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer/AddCommandButton" to="." method="_on_add_command_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/NewCommandButton" to="." method="_on_new_command_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer2/NewCommandButton" to="." method="_on_new_command_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer2/QuitButton" to="." method="_on_quit_button_pressed"]
