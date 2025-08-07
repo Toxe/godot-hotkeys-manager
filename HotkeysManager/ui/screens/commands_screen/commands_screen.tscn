@@ -60,12 +60,12 @@ text = "◀️ Back"
 [node name="NewCommandButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "New Command"
+text = "➕ New Command"
 
 [node name="QuitButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Quit"
+text = "🚪 Quit"
 
 [connection signal="pressed" from="VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer/AddCommandButton" to="." method="_on_add_command_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
