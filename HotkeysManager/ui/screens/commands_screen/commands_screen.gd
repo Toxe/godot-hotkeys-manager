@@ -16,7 +16,7 @@ func setup(db: Database, programgroup_id: int) -> void:
 func _ready() -> void:
     var programgroup_name: Variant = _db.select_value("programgroup", "programgroup_id=%d" % _programgroup_id, "name")
     if programgroup_name != null:
-        ($VBoxContainer/HBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
+        ($VBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
 
     var programs := query_programs()
     var program_abbreviations := query_program_abbreviations()
