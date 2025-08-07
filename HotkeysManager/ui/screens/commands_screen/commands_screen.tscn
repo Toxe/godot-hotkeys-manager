@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://de72ge75p8811"]
+[gd_scene load_steps=4 format=3 uid="uid://de72ge75p8811"]
 
 [ext_resource type="Script" uid="uid://deewaifdo7jag" path="res://ui/screens/commands_screen/commands_screen.gd" id="1_w4fef"]
+[ext_resource type="Theme" uid="uid://dths6kqrpshni" path="res://ui/screens/commands_screen/theme.tres" id="1_yirhg"]
 [ext_resource type="PackedScene" uid="uid://tu6qv3ixq5us" path="res://ui/screens/commands_screen/controls/command_grid.tscn" id="2_1uboc"]
 
 [node name="CommandsScreen" type="Control"]
@@ -10,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_yirhg")
 script = ExtResource("1_w4fef")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
@@ -22,7 +24,11 @@ grow_vertical = 2
 
 [node name="ProgramgroupTitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
+theme_type_variation = &"ProgramgroupTitleLabel"
 text = "???"
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2

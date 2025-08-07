@@ -1,0 +1,11 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://dths6kqrpshni"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_3a0nm"]
+color = Color(1, 1, 1, 1)
+thickness = 2
+
+[resource]
+HSeparator/styles/separator = SubResource("StyleBoxLine_3a0nm")
+ProgramgroupTitleLabel/base_type = &"Label"
+ProgramgroupTitleLabel/colors/font_color = Color(1, 1, 1, 1)
+ProgramgroupTitleLabel/font_sizes/font_size = 32
