@@ -14,6 +14,18 @@ func before_each() -> void:
     commands_screen.setup(db, programgroup_id)
 
 
+func test_query_all_commands() -> void:
+    var commands := commands_screen.query_all_commands()
+    assert_eq_deep(commands, {
+        1: "Go to File",
+        2: "Go to Next Editor Tab",
+        3: "New Tab",
+        4: "New Window",
+        5: "Close Tab",
+        6: "Close All Tabs",
+    })
+
+
 func test_query_programs() -> void:
     var programs := commands_screen.query_programs()
     assert_eq_deep(programs, {
@@ -79,3 +91,18 @@ func test_query_user_hotkey_programs() -> void:
           4: {"user_hotkey_id": 4, "hotkeys": [9]},
           5: {"user_hotkey_id": 3, "hotkeys": [7, 8]},
     })
+
+
+func test_can_delete_command() -> void:
+    var old_count := commands_screen.query_all_commands().size()
+    commands_screen._on_delete_command_dialog_submitted(null, [1, 3])
+    var new_count := commands_screen.query_all_commands().size()
+    assert_eq(new_count, old_count - 2)
+
+
+func test_can_open_Delete_Command_dialog() -> void:
+    commands_screen._on_delete_command_button_pressed()
+    var dialog: SelectionDialog = commands_screen.find_child("SelectionDialog", true, false)
+    assert_not_null(dialog)
+    assert_eq(dialog.title, "Delete Command")
+    dialog.close()

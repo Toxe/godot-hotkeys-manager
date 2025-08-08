@@ -45,6 +45,17 @@ func _ready() -> void:
     command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
+func query_all_commands() -> Dictionary[int, String]:
+    var commands: Dictionary[int, String] = {}
+    var rows: Variant = _db.select_rows("command", "", ["command_id", "name"])
+    if rows:
+        for row: Dictionary in rows:
+            var command_id: int = row["command_id"]
+            var command_name: String = row["name"]
+            commands[command_id] = command_name
+    return commands
+
+
 func query_programs() -> Dictionary[int, String]:
     var programs: Dictionary[int, String] = {}
     var sql := "SELECT p.program_id, p.name AS program_name
@@ -238,13 +249,25 @@ func _on_new_command_button_pressed() -> void:
     EnterTextDialog.open_dialog(self, "New Command", "Enter the name of the new Command.", _on_new_command_dialog_submitted)
 
 
+func _on_delete_command_button_pressed() -> void:
+    SelectionDialog.open_dialog(self, "Delete Command", "Select the Commands that you want to delete.\n\nNote: This will completely delete the Commands and also all associated program and user Hotkeys!", _on_delete_command_dialog_submitted, query_all_commands())
+
+
+func _on_add_command_button_pressed() -> void:
+    AddCommandDialog.open_dialog(self, "Select a Command and assign it to at least one Program.", _on_add_command_dialog_submitted, query_programs(), query_available_commands())
+
+
 func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
     if _db.insert_row("command", {"name": text}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_add_command_button_pressed() -> void:
-    AddCommandDialog.open_dialog(self, "Select a Command and assign it to at least one Program.", _on_add_command_dialog_submitted, query_programs(), query_available_commands())
+func _on_delete_command_dialog_submitted(_dialog: SelectionDialog, selection: Array) -> void:
+    for id: Variant in selection:
+        var command_id: int = id
+        if !_db.delete_rows("command", "command_id=%d" % command_id):
+            return
+    Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
 func _on_add_command_dialog_submitted(_dialog: AddCommandDialog, options: Dictionary[String, Variant]) -> void:
