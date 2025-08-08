@@ -27,6 +27,17 @@ func add_programgroup(programgroup_id: int, programgroup_name: String, programs:
         $VBoxContainer/ScrollContainer/ProgramgroupList.add_child(programgroup)
 
 
+func query_programs() -> Dictionary[int, String]:
+    var programs: Dictionary[int, String] = {}
+    var rows: Variant = _db.select_rows("program", "", ["program_id", "name"])
+    if rows:
+        for row: Dictionary in rows:
+            var program_id: int = row["program_id"]
+            var program_name: String = row["name"]
+            programs[program_id] = program_name
+    return programs
+
+
 func query_programgroups() -> Dictionary[int, String]:
     var programgroups: Dictionary[int, String] = {}
     var rows: Variant = _db.select_rows("programgroup", "", ["programgroup_id", "name"])
@@ -64,12 +75,24 @@ func _on_new_program_button_pressed() -> void:
     EnterTextDialog.open_dialog(self, "New Program", "Please enter the name of the new Program.", _on_new_program_dialog_submitted)
 
 
+func _on_delete_program_button_pressed() -> void:
+    SelectionDialog.open_dialog(self, "Delete Program", "Select the Programs that you want to delete.\n\nNote: This will delete the Programs from all Program Groups and also delete all associated Commands and Hotkeys!", _on_delete_program_dialog_submitted, query_programs())
+
+
 func _on_new_group_button_pressed() -> void:
     EnterTextDialog.open_dialog(self, "New Program Group", "Please enter the name of the new Program Group.", _on_new_group_dialog_submitted)
 
 
 func _on_new_program_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
     _db.insert_row("program", {"name": text})
+
+
+func _on_delete_program_dialog_submitted(_dialog: SelectionDialog, selection: Array) -> void:
+    for id: Variant in selection:
+        var program_id: int = id
+        if !_db.delete_rows("program", "program_id=%d" % program_id):
+            return
+    Events.switch_to_main_screen.emit.call_deferred()
 
 
 func _on_new_group_dialog_submitted(_dialog: EnterTextDialog, programgroup_name: String) -> void:

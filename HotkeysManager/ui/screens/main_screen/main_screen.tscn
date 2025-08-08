@@ -35,6 +35,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "➕ New Program"
 
+[node name="DeleteProgramButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "➖ Delete Program"
+
 [node name="NewGroupButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -46,5 +51,6 @@ size_flags_horizontal = 3
 text = "🚪 Quit"
 
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/NewProgramButton" to="." method="_on_new_program_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/DeleteProgramButton" to="." method="_on_delete_program_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/NewGroupButton" to="." method="_on_new_group_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]

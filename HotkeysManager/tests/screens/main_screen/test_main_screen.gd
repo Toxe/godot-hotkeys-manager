@@ -20,6 +20,22 @@ func check_has_all_programgroups(expected_names: Array[String]) -> void:
         assert_has(expected_names, pg.programgroup_name)
 
 
+func test_query_programs() -> void:
+    var programs := main_screen.query_programs()
+    assert_eq_deep(programs, {
+        1: "CLion",
+        2: "Visual Studio",
+        3: "Visual Studio Code",
+        4: "Obsidian",
+        5: "Photoshop",
+        6: "Illustrator",
+        7: "Krita",
+        8: "Firefox",
+        9: "Vivaldi",
+        10: "Chrome",
+    })
+
+
 func test_query_programgroups() -> void:
     var programgroups := main_screen.query_programgroups()
     assert_eq_deep(programgroups, {
@@ -68,6 +84,13 @@ func test_can_create_new_program() -> void:
     assert_gt(main_screen._db.select_value("program", "name='New Program'", "program_id"), 0)
 
 
+func test_can_delete_program() -> void:
+    var old_count := main_screen.query_programs().size()
+    main_screen._on_delete_program_dialog_submitted(null, [1, 3, 5])
+    var new_count := main_screen.query_programs().size()
+    assert_eq(new_count, old_count - 3)
+
+
 func test_can_create_new_programgroup() -> void:
     main_screen._on_new_group_dialog_submitted(null, "New Group")
     check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Group 3", "Group 4", "New Group"])
@@ -77,6 +100,15 @@ func test_can_open_New_Program_dialog() -> void:
     main_screen._on_new_program_button_pressed()
     var dialog: EnterTextDialog = main_screen.find_child("EnterTextDialog", true, false)
     assert_not_null(dialog)
+    assert_eq(dialog.title, "New Program")
+    dialog.close()
+
+
+func test_can_open_Delete_Program_dialog() -> void:
+    main_screen._on_delete_program_button_pressed()
+    var dialog: SelectionDialog = main_screen.find_child("SelectionDialog", true, false)
+    assert_not_null(dialog)
+    assert_eq(dialog.title, "Delete Program")
     dialog.close()
 
 
@@ -84,4 +116,5 @@ func test_can_open_New_Program_Group_dialog() -> void:
     main_screen._on_new_group_button_pressed()
     var dialog: EnterTextDialog = main_screen.find_child("EnterTextDialog", true, false)
     assert_not_null(dialog)
+    assert_eq(dialog.title, "New Program Group")
     dialog.close()
