@@ -106,7 +106,7 @@ func test_programgroup_has_name() -> void:
 
 
 func test_can_rename_programgroup() -> void:
-    programgroup._on_rename_group_dialog_submitted(null, "New Name")
+    programgroup._on_rename_group_dialog_submitted(null, {"programgroup_name": "New Name"})
     assert_eq(programgroup.programgroup_name, "New Name")
     assert_eq(programgroup._db.select_value("programgroup", "programgroup_id=%d" % programgroup._programgroup_id, "name"), "New Name")
 

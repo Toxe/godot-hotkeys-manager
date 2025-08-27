@@ -28,11 +28,11 @@ func setup(db: Database, programgroup_id: int, command_id: int, user_hotkeys: Di
 
 
 func _on_user_hotkey_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Change Hotkey", "Enter the new Hotkey.", _on_change_user_hotkey_dialog_submitted, ($VBoxContainer/UserHotkeyButton as Button).text)
+    EnterTextDialog.open_dialog(self, "Change Hotkey", "Enter the new Hotkey.", {"hotkey": "Hotkey"}, _on_change_user_hotkey_dialog_submitted, {"hotkey": ($VBoxContainer/UserHotkeyButton as Button).text})
 
 
 func _on_create_user_hotkey_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Create Hotkey", "Enter the new Hotkey.", _on_create_user_hotkey_dialog_submitted)
+    EnterTextDialog.open_dialog(self, "Create Hotkey", "Enter the new Hotkey.", {"hotkey": "Hotkey"}, _on_create_user_hotkey_dialog_submitted)
 
 
 func _on_delete_user_hotkey_button_pressed() -> void:
@@ -40,11 +40,11 @@ func _on_delete_user_hotkey_button_pressed() -> void:
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_change_user_hotkey_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.update_rows("user_hotkey", "user_hotkey_id=%d" % _user_hotkey_id, {"hotkey": text}):
+func _on_change_user_hotkey_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.update_rows("user_hotkey", "user_hotkey_id=%d" % _user_hotkey_id, {"hotkey": values["hotkey"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_create_user_hotkey_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.insert_row("user_hotkey", {"command_id": _command_id, "hotkey": text}):
+func _on_create_user_hotkey_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.insert_row("user_hotkey", {"command_id": _command_id, "hotkey": values["hotkey"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)

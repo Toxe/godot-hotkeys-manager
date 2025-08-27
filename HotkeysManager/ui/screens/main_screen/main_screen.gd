@@ -72,7 +72,7 @@ func _on_quit_button_pressed() -> void:
 
 
 func _on_new_program_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "New Program", "Please enter the name of the new Program.", _on_new_program_dialog_submitted)
+    EnterTextDialog.open_dialog(self, "New Program", "Please enter the name and abbreviation of the new Program.", {"name": "Name", "abbreviation": "Abbreviation"}, _on_new_program_dialog_submitted)
 
 
 func _on_delete_program_button_pressed() -> void:
@@ -80,11 +80,11 @@ func _on_delete_program_button_pressed() -> void:
 
 
 func _on_new_group_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "New Program Group", "Please enter the name of the new Program Group.", _on_new_group_dialog_submitted)
+    EnterTextDialog.open_dialog(self, "New Program Group", "Please enter the name of the new Program Group.", {"programgroup_name": "Program Group Name"}, _on_new_group_dialog_submitted)
 
 
-func _on_new_program_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    _db.insert_row("program", {"name": text})
+func _on_new_program_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    _db.insert_row("program", values)
 
 
 func _on_delete_program_dialog_submitted(_dialog: SelectionDialog, selection: Array) -> void:
@@ -95,11 +95,11 @@ func _on_delete_program_dialog_submitted(_dialog: SelectionDialog, selection: Ar
     Events.switch_to_main_screen.emit.call_deferred()
 
 
-func _on_new_group_dialog_submitted(_dialog: EnterTextDialog, programgroup_name: String) -> void:
-    if _db.insert_row("programgroup", {"name": programgroup_name}):
+func _on_new_group_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.insert_row("programgroup", {"name": values["programgroup_name"]}):
         var programgroup_id := _db.last_insert_rowid()
         var programs := {} # new group is empty
-        add_programgroup(programgroup_id, programgroup_name, programs)
+        add_programgroup(programgroup_id, values["programgroup_name"], programs)
 
 
 func _on_programgroup_deleted(programgroup_id: int) -> void:

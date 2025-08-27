@@ -105,7 +105,7 @@ func _on_add_program_button_pressed() -> void:
 
 
 func _on_rename_group_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Rename Group", "Please enter the new Program Group name.", _on_rename_group_dialog_submitted, programgroup_name)
+    EnterTextDialog.open_dialog(self, "Rename Group", "Please enter the new Program Group name.", {"programgroup_name": "Program Group Name"}, _on_rename_group_dialog_submitted, {"programgroup_name": programgroup_name})
 
 
 func _on_delete_group_button_pressed() -> void:
@@ -130,9 +130,9 @@ func _on_remove_program_button_pressed() -> void:
         select_program_list_item(mini(index, get_program_list().item_count - 1))
 
 
-func _on_rename_group_dialog_submitted(_dialog: EnterTextDialog, new_name: String) -> void:
-    if _db.update_rows("programgroup", "programgroup_id=%d" % _programgroup_id, {"name": new_name}):
-        programgroup_name = new_name
+func _on_rename_group_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.update_rows("programgroup", "programgroup_id=%d" % _programgroup_id, {"name": values["programgroup_name"]}):
+        programgroup_name = values["programgroup_name"]
 
 
 func _on_delete_group_dialog_confirmed(_dialog: VerificationDialog) -> void:

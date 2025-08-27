@@ -52,38 +52,38 @@ func setup(db: Database, programgroup_id: int, command_id: int, program_id: int,
 
 
 func _on_program_command_name_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Change Program Command Name", "Enter the new Program Command name.", _on_change_program_command_name_dialog_submitted, ($VBoxContainer/ProgramCommandNameButton as Button).text)
+    EnterTextDialog.open_dialog(self, "Change Program Command Name", "Enter the new Program Command name.", {"new_name": "Name"}, _on_change_program_command_name_dialog_submitted, {"new_name": ($VBoxContainer/ProgramCommandNameButton as Button).text})
 
 
 func _on_change_program_command_hotkey_button_pressed(program_command_id: int, hotkey: String) -> void:
-    EnterTextDialog.open_dialog(self, "Change Program Command Hotkey", "Enter the new Hotkey.", _on_change_program_command_hotkey_dialog_submitted.bind(program_command_id, hotkey), hotkey)
+    EnterTextDialog.open_dialog(self, "Change Program Command Hotkey", "Enter the new Hotkey.", {"new_hotkey": "Hotkey"}, _on_change_program_command_hotkey_dialog_submitted.bind(program_command_id, hotkey), {"new_hotkey": hotkey})
 
 
 func _on_add_program_command_hotkey_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Add Program Command Hotkey", "Enter the new Hotkey.", _on_add_program_command_hotkey_dialog_submitted)
+    EnterTextDialog.open_dialog(self, "Add Program Command Hotkey", "Enter the new Hotkey.", {"hotkey": "Hotkey"}, _on_add_program_command_hotkey_dialog_submitted)
 
 
 func _on_create_program_command_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "Create Program Command Hotkey", "Enter the Program Command name.", _on_create_program_command_dialog_submitted)
+    EnterTextDialog.open_dialog(self, "Create Program Command Hotkey", "Enter the Program Command name.", {"name": "Name"}, _on_create_program_command_dialog_submitted)
 
 
-func _on_change_program_command_name_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.update_rows("program_command", "program_command_id=%d" % _program_command_id, {"name": text}):
+func _on_change_program_command_name_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.update_rows("program_command", "program_command_id=%d" % _program_command_id, {"name": values["new_name"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_change_program_command_hotkey_dialog_submitted(_dialog: EnterTextDialog, new_hotkey: String, program_command_id: int, old_hotkey: String) -> void:
-    if _db.update_rows("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [program_command_id, old_hotkey], {"hotkey": new_hotkey}):
+func _on_change_program_command_hotkey_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String], program_command_id: int, old_hotkey: String) -> void:
+    if _db.update_rows("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [program_command_id, old_hotkey], {"hotkey": values["new_hotkey"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_add_program_command_hotkey_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.insert_row("program_command_hotkey", {"program_command_id": _program_command_id, "hotkey": text}):
+func _on_add_program_command_hotkey_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.insert_row("program_command_hotkey", {"program_command_id": _program_command_id, "hotkey": values["hotkey"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_create_program_command_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.insert_row("program_command", {"program_id": _program_id, "command_id": _command_id, "name": text}):
+func _on_create_program_command_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.insert_row("program_command", {"program_id": _program_id, "command_id": _command_id, "name": values["name"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 

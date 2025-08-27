@@ -122,13 +122,13 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
 
 
 func _on_rename_command_button_pressed(command_name: String, command_id: int) -> void:
-    var rename_command_dialog := EnterTextDialog.open_dialog(self, "Rename Command", "Enter the new Command name.", _on_rename_command_dialog_submitted, command_name)
+    var rename_command_dialog := EnterTextDialog.open_dialog(self, "Rename Command", "Enter the new Command name.", {"name": "Name"}, _on_rename_command_dialog_submitted, {"name": command_name})
     rename_command_dialog.set_meta("command_id", command_id)
 
 
-func _on_rename_command_dialog_submitted(rename_command_dialog: EnterTextDialog, text: String) -> void:
+func _on_rename_command_dialog_submitted(rename_command_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
     var command_id: int = rename_command_dialog.get_meta("command_id")
-    if _db.update_rows("command", "command_id=%d" % command_id, {"name": text}):
+    if _db.update_rows("command", "command_id=%d" % command_id, {"name": values["name"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 

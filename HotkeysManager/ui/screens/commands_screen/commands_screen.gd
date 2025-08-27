@@ -246,7 +246,7 @@ func _on_quit_button_pressed() -> void:
 
 
 func _on_new_command_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "New Command", "Enter the name of the new Command.", _on_new_command_dialog_submitted)
+    EnterTextDialog.open_dialog(self, "New Command", "Enter the name of the new Command.", {"name": "Name"}, _on_new_command_dialog_submitted)
 
 
 func _on_delete_command_button_pressed() -> void:
@@ -257,8 +257,8 @@ func _on_add_command_button_pressed() -> void:
     AddCommandDialog.open_dialog(self, "Select a Command and assign it to at least one Program.", _on_add_command_dialog_submitted, query_programs(), query_available_commands())
 
 
-func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, text: String) -> void:
-    if _db.insert_row("command", {"name": text}):
+func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    if _db.insert_row("command", {"name": values["name"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
