@@ -41,8 +41,8 @@ func _on_submit_button_pressed() -> void:
     var selection := []
     for index in get_list().get_selected_items():
         selection.append(get_list().get_item_metadata(index))
-    close()
     submitted.emit(self, selection)
+    close()
 
 
 func _on_item_list_multi_selected(_index: int, _selected: bool) -> void:

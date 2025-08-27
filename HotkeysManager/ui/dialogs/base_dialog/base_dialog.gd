@@ -12,5 +12,5 @@ func close() -> void:
 
 
 func _on_cancel_requested() -> void:
-    close()
     canceled.emit(self)
+    close()

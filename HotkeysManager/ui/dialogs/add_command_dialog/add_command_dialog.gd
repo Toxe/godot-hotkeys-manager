@@ -79,8 +79,8 @@ func _on_submit_button_pressed() -> void:
                 "hotkey": row.get_hotkey()}
             program_commands.append(program_command)
 
-    close()
     submitted.emit(self, options)
+    close()
 
 
 func _on_item_list_item_selected(_index: int) -> void:

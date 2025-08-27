@@ -26,5 +26,5 @@ func get_label() -> RichTextLabel:
 
 
 func _on_confirmation_button_pressed() -> void:
-    close()
     confirmed.emit(self)
+    close()

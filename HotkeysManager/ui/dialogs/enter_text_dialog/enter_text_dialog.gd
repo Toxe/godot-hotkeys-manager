@@ -89,13 +89,12 @@ func update_submit_button(text: String) -> void:
 
 
 func _on_submit_button_pressed() -> void:
-    close()
-
     var values: Dictionary[String, String]
     for text_field: LineEdit in $VBoxContainer/InputFieldsGridContainer.find_children("LineEdit_*", "LineEdit", true, false):
         var field_name := text_field.name.trim_prefix("LineEdit_")
         values[field_name] = text_field.text
     submitted.emit(self, values)
+    close()
 
 
 func _on_line_edit_text_changed(_new_text: String) -> void:
