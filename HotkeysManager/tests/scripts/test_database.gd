@@ -33,7 +33,8 @@ func test_select_rows() -> void:
         {"program_id": 3, "command_id": 1, "name": "Go to File"},
     ])
 
-    # return false on database error
+
+func test_select_rows_returns_false_on_database_error() -> void:
     assert_false(db.select_rows("missing_table", "id=99", ["col1", "col2"]))
 
 
@@ -41,13 +42,16 @@ func test_select_row() -> void:
     var row: Variant = db.select_row("user_hotkey", "hotkey='Ctrl+P'", ["command_id", "hotkey"])
     assert_eq_deep(row, {"command_id": 1, "hotkey": "Ctrl+P"})
 
-    # return false on database error
+
+func test_select_row_returns_false_on_database_error() -> void:
     assert_false(db.select_row("missing_table", "id=99", ["col1", "col2"]))
 
-    # return false if there is more than one result row
+
+func test_select_row_returns_false_if_there_is_more_than_one_result_row() -> void:
     assert_false(db.select_row("program_command", "program_id=1", ["name"]))
 
-    # return null if the row doesn't exist
+
+func test_select_row_returns_null_if_the_row_doesnt_exist() -> void:
     assert_null(db.select_row("program_command", "program_id=99", ["program_id", "name"]))
 
 
@@ -55,27 +59,30 @@ func test_select_value() -> void:
     var value: Variant = db.select_value("user_hotkey", "command_id=2", "hotkey")
     assert_eq(value, "Ctrl+PageDown")
 
-    # return false on database error
+
+func test_select_value_returns_false_on_database_error() -> void:
     assert_false(db.select_value("missing_table", "id=99", "col"))
 
-    # return false if there is more than one result row
+
+func test_select_value_returns_false_if_there_is_more_than_one_result_row() -> void:
     assert_false(db.select_value("program_command", "program_id=1", "name"))
 
-    # return null if the row doesn't exist
+
+func test_select_value_returns_null_if_the_row_doesnt_exist() -> void:
     assert_null(db.select_value("program_command", "program_id=99", "name"))
 
 
-func test_select() -> void:
-    # without bindings
-    var rows1: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name='Go to File';")
-    assert_eq_deep(rows1, [
+func test_select_without_bindings() -> void:
+    var rows: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name='Go to File';")
+    assert_eq_deep(rows, [
         {"program_id": 1, "command_id": 1, "name": "Go to File"},
         {"program_id": 3, "command_id": 1, "name": "Go to File"},
     ])
 
-    # with bindings
-    var rows2: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name=?;", ["Go to File"])
-    assert_eq_deep(rows2, [
+
+func test_select_with_bindings() -> void:
+    var rows: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name=?;", ["Go to File"])
+    assert_eq_deep(rows, [
         {"program_id": 1, "command_id": 1, "name": "Go to File"},
         {"program_id": 3, "command_id": 1, "name": "Go to File"},
     ])
