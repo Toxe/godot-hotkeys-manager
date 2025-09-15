@@ -89,7 +89,7 @@ func get_first_text_field() -> LineEdit:
 
 
 func update_submit_button(text: String) -> void:
-    ($VBoxContainer/HBoxContainer/SubmitButton as Button).disabled = text.is_empty()
+    get_submit_button().disabled = text.is_empty()
 
 
 func _on_submit_button_pressed() -> void:

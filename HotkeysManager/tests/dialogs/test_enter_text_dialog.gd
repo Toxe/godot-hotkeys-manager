@@ -100,58 +100,50 @@ func test_first_of_multiple_input_fields_has_focus_and_is_in_edit_mode() -> void
 
 func test_submit_button_is_disabled_if_first_and_only_input_field_is_empty() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field": "Label Text"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
-    assert_true(submit_button.disabled)
+    assert_true(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_is_disabled_if_first_of_multiple_input_fields_is_empty() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field_a": "Field A", "field_b": "Field B", "field_c": "Field C"}, {"field_b": "Some Text B", "field_c": "Some Text C"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
-    assert_true(submit_button.disabled)
+    assert_true(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_is_enabled_if_first_and_only_input_field_was_prefilled() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field": "Label Text"}, {"field": "Prefilled Text"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
-    assert_false(submit_button.disabled)
+    assert_false(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_is_enabled_if_first_of_multiple_input_fields_was_prefilled() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field_a": "Field A", "field_b": "Field B", "field_c": "Field C"}, {"field_a": "Prefilled Text"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
-    assert_false(submit_button.disabled)
+    assert_false(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_gets_enabled_when_entering_text_into_first_and_only_input_field() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field": "Label Text"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
     simulate_text_input(dialog, "field", "hello world")
     assert_eq(dialog.get_text_field("field").text, "hello world")
-    assert_false(submit_button.disabled)
+    assert_false(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_gets_enabled_when_entering_text_into_first_of_multiple_input_fields() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field_a": "Field A", "field_b": "Field B", "field_c": "Field C"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
     simulate_text_input(dialog, "field_a", "hello world")
     assert_eq(dialog.get_text_field("field_a").text, "hello world")
-    assert_false(submit_button.disabled)
+    assert_false(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_gets_disabled_when_deleting_all_text_from_first_and_only_input_field() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field": "Label Text"}, {"field": "Prefilled Text"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
     simulate_text_input(dialog, "field", "")
     assert_eq(dialog.get_text_field("field").text, "")
-    assert_true(submit_button.disabled)
+    assert_true(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_gets_disabled_when_deleting_all_text_from_first_of_multiple_input_fields() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field_a": "Field A", "field_b": "Field B", "field_c": "Field C"}, {"field_a": "Prefilled Text"}))
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
     simulate_text_input(dialog, "field_a", "")
     assert_eq(dialog.get_text_field("field_a").text, "")
-    assert_true(submit_button.disabled)
+    assert_true(dialog.get_submit_button().disabled)
 
 
 func test_submitting_the_dialog_with_one_input_field() -> void:
