@@ -57,6 +57,10 @@ func get_label() -> RichTextLabel:
     return $VBoxContainer/RichTextLabel
 
 
+func get_submit_button() -> Button:
+    return $VBoxContainer/HBoxContainer/SubmitButton
+
+
 func add_input_field(field_name: String, field_label_text: String, field_prefill_text := "") -> void:
     assert(field_name.is_valid_ascii_identifier())
     assert(field_label_text != "")
@@ -93,7 +97,7 @@ func _on_submit_button_pressed() -> void:
     for text_field: LineEdit in $VBoxContainer/InputFieldsGridContainer.find_children("LineEdit_*", "LineEdit", true, false):
         var field_name := text_field.name.trim_prefix("LineEdit_")
         values[field_name] = text_field.text
-    submitted.emit(self, values)
+    submitted.emit.call_deferred(self, values)
     close()
 
 

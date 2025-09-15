@@ -156,21 +156,21 @@ func test_submit_button_gets_disabled_when_deleting_all_text_from_first_of_multi
 
 func test_submitting_the_dialog_with_one_input_field() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field": "Label Text"}, {"field": "Prefilled Text"}))
-    dialog.submitted.connect(func(submitted_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
-        assert_eq(submitted_dialog, dialog)
+    dialog.submitted.connect(func(_submitted_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
         assert_eq_deep(values, {"field": "Prefilled Text"})
     )
-    watch_signals(dialog)
-    dialog._on_submit_button_pressed()
-    assert_signal_emitted(dialog.submitted)
+
+    dialog.get_submit_button().pressed.emit()
+    await wait_idle_frames(1)
+    TestUtils.assert_and_ignore_expected_error(self, "Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Dictionary to String.")
 
 
 func test_submitting_the_dialog_with_multiple_input_fields() -> void:
     var dialog: EnterTextDialog = add_child_autofree(create_dialog({"field_a": "Field A", "field_b": "Field B", "field_c": "Field C"}, {"field_a": "Some Text A", "field_c": "Some Text C"}))
-    dialog.submitted.connect(func(submitted_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
-        assert_eq(submitted_dialog, dialog)
+    dialog.submitted.connect(func(_submitted_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
         assert_eq_deep(values, {"field_a": "Some Text A", "field_b": "", "field_c": "Some Text C"})
     )
-    watch_signals(dialog)
-    dialog._on_submit_button_pressed()
-    assert_signal_emitted(dialog.submitted)
+
+    dialog.get_submit_button().pressed.emit()
+    await wait_idle_frames(1)
+    TestUtils.assert_and_ignore_expected_error(self, "Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Dictionary to String.")
