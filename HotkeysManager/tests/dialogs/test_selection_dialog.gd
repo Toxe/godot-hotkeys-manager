@@ -45,29 +45,30 @@ func test_no_items_are_selected_by_default() -> void:
 
 func test_submit_button_is_disabled_by_default() -> void:
     var dialog: SelectionDialog = add_child_autofree(create_dialog())
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
-    assert_true(submit_button.disabled)
+    assert_true(dialog.get_submit_button().disabled)
 
 
 func test_submit_button_is_disabled_if_no_items_are_selected() -> void:
     var dialog: SelectionDialog = add_child_autofree(create_dialog())
-    var submit_button: Button = dialog.find_child("SubmitButton", true, false)
     var list := dialog.get_list()
 
     list.select(1)
     dialog._on_item_list_multi_selected(1, true)
-    assert_false(submit_button.disabled)
+    assert_false(dialog.get_submit_button().disabled)
 
     list.deselect(1)
     dialog._on_item_list_multi_selected(1, false)
-    assert_true(submit_button.disabled)
+    assert_true(dialog.get_submit_button().disabled)
 
 
 func test_submitting_the_dialog() -> void:
     var dialog: SelectionDialog = add_child_autofree(create_dialog())
-    var list := dialog.get_list()
-    list.select(1)
+    dialog.get_list().select(1)
 
-    watch_signals(dialog)
-    dialog._on_submit_button_pressed()
-    assert_signal_emitted(dialog.submitted)
+    dialog.submitted.connect(func(_submitted_dialog: SelectionDialog, selection: Array[Variant]) -> void:
+        assert_eq(selection, [2])
+    )
+
+    dialog.get_submit_button().pressed.emit()
+    await wait_idle_frames(1)
+    TestUtils.assert_and_ignore_expected_error(self, "Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Array to String.")

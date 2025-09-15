@@ -37,13 +37,17 @@ func get_list() -> ItemList:
     return $VBoxContainer/VBoxContainer/ItemList
 
 
+func get_submit_button() -> Button:
+    return $VBoxContainer/HBoxContainer/SubmitButton
+
+
 func _on_submit_button_pressed() -> void:
     var selection := []
     for index in get_list().get_selected_items():
         selection.append(get_list().get_item_metadata(index))
-    submitted.emit(self, selection)
+    submitted.emit.call_deferred(self, selection)
     close()
 
 
 func _on_item_list_multi_selected(_index: int, _selected: bool) -> void:
-    ($VBoxContainer/HBoxContainer/SubmitButton as Button).disabled = !get_list().is_anything_selected()
+    get_submit_button().disabled = !get_list().is_anything_selected()
