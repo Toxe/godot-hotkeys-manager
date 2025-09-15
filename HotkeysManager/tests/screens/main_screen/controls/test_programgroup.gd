@@ -143,6 +143,7 @@ func test_cannot_add_a_program_twice() -> void:
 func test_cannot_add_unavailable_programs() -> void:
     programgroup._on_add_program_dialog_submitted(null, [1001, 1002])
     check_has_all_programs(["CLion", "Visual Studio", "Visual Studio Code", "Obsidian"])
+    TestUtils.assert_and_ignore_expected_error(self, "FOREIGN KEY constraint failed")
 
 
 func test_can_remove_a_program() -> void:
