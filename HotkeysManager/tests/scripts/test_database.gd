@@ -8,19 +8,6 @@ func before_each() -> void:
     db.open(":memory:")
 
 
-func assert_and_ignore_sqlite_error(expected_sqlite_error: String) -> void:
-    var errors: Array = get_errors()
-    assert_gt(errors.size(), 0)
-
-    for err: GutTrackedError in get_errors():
-        var err_msg: String = err.code
-        if err_msg.contains(expected_sqlite_error):
-            err.handled = true
-            return
-
-    fail_test("expected SQLite to raise error \"%s\"" % expected_sqlite_error)
-
-
 func test_insert_rows() -> void:
     assert_true(db.insert_rows("program", [ {"name": "test1"}, {"name": "test2"}]))
     assert_eq(db.last_insert_rowid(), 12)
