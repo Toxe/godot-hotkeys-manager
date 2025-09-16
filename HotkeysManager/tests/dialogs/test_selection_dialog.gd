@@ -71,4 +71,4 @@ func test_submitting_the_dialog() -> void:
 
     dialog.get_submit_button().pressed.emit()
     await wait_idle_frames(1)
-    TestUtils.assert_and_ignore_expected_error(self, "Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Array to String.")
+    assert_engine_error("Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Array to String.")

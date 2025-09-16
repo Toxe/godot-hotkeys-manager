@@ -154,7 +154,7 @@ func test_submitting_the_dialog_with_one_input_field() -> void:
 
     dialog.get_submit_button().pressed.emit()
     await wait_idle_frames(1)
-    TestUtils.assert_and_ignore_expected_error(self, "Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Dictionary to String.")
+    assert_engine_error("Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Dictionary to String.")
 
 
 func test_submitting_the_dialog_with_multiple_input_fields() -> void:
@@ -165,4 +165,4 @@ func test_submitting_the_dialog_with_multiple_input_fields() -> void:
 
     dialog.get_submit_button().pressed.emit()
     await wait_idle_frames(1)
-    TestUtils.assert_and_ignore_expected_error(self, "Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Dictionary to String.")
+    assert_engine_error("Error calling from signal 'submitted' to callable: 'GDScript::<anonymous lambda>': Cannot convert argument 2 from Dictionary to String.")

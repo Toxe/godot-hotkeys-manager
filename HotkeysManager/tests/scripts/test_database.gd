@@ -36,7 +36,7 @@ func test_select_rows() -> void:
 
 func test_select_rows_returns_false_on_database_error() -> void:
     assert_false(db.select_rows("missing_table", "id=99", ["col1", "col2"]))
-    TestUtils.assert_and_ignore_expected_error(self, "no such table: missing_table")
+    assert_engine_error("no such table: missing_table")
 
 
 func test_select_row() -> void:
@@ -46,7 +46,7 @@ func test_select_row() -> void:
 
 func test_select_row_returns_false_on_database_error() -> void:
     assert_false(db.select_row("missing_table", "id=99", ["col1", "col2"]))
-    TestUtils.assert_and_ignore_expected_error(self, "no such table: missing_table")
+    assert_engine_error("no such table: missing_table")
 
 
 func test_select_row_returns_false_if_there_is_more_than_one_result_row() -> void:
@@ -64,7 +64,7 @@ func test_select_value() -> void:
 
 func test_select_value_returns_false_on_database_error() -> void:
     assert_false(db.select_value("missing_table", "id=99", "col"))
-    TestUtils.assert_and_ignore_expected_error(self, "no such table: missing_table")
+    assert_engine_error("no such table: missing_table")
 
 
 func test_select_value_returns_false_if_there_is_more_than_one_result_row() -> void:
