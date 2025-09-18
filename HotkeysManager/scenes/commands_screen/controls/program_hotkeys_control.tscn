@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dq4m5hd12nvxh"]
 
-[ext_resource type="Script" uid="uid://c6t0y4c2p4148" path="res://ui/screens/commands_screen/controls/program_hotkeys_control.gd" id="1_wc045"]
+[ext_resource type="Script" uid="uid://c6t0y4c2p4148" path="res://scenes/commands_screen/controls/program_hotkeys_control.gd" id="1_wc045"]
 
 [node name="ProgramHotkeysControl" type="PanelContainer"]
 anchors_preset = 15

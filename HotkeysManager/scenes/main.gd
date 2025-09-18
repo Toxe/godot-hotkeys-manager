@@ -1,8 +1,8 @@
 extends Control
 
-const main_screen_scene = preload("res://ui/screens/main_screen/main_screen.tscn")
-const commands_screen_scene = preload("res://ui/screens/commands_screen/commands_screen.tscn")
-const hotkeys_screen_scene = preload("res://ui/screens/hotkeys_screen/hotkeys_screen.tscn")
+const main_screen_scene = preload("uid://b2csr7tbxjl3k")
+const commands_screen_scene = preload("uid://de72ge75p8811")
+const hotkeys_screen_scene = preload("uid://b3a0qoyhinuec")
 
 var _db: Database = Database.new()
 

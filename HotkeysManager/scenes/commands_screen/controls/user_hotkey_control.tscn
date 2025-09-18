@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://brad514ehxj7r"]
 
-[ext_resource type="Script" uid="uid://dedk2rr46hshw" path="res://ui/screens/commands_screen/controls/user_hotkey_control.gd" id="1_tu2bi"]
+[ext_resource type="Script" uid="uid://dedk2rr46hshw" path="res://scenes/commands_screen/controls/user_hotkey_control.gd" id="1_tu2bi"]
 
 [node name="UserHotkeyControl" type="PanelContainer"]
 anchors_preset = 15
