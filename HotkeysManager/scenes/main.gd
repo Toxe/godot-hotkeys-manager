@@ -7,6 +7,8 @@ var _db: Database = Database.new()
 
 
 func _ready() -> void:
+    update_window_title()
+
     (get_node("/root/ConsoleLogger") as ConsoleLogger).log_level = ConsoleLogger.LogLevel.NORMAL
 
     Events.switch_to_main_screen.connect(switch_to_main_screen)
@@ -14,6 +16,10 @@ func _ready() -> void:
 
     if _db.open("user://hotkeys.sqlite"):
         switch_to_main_screen()
+
+
+func update_window_title() -> void:
+    get_window().title = "%s v%s" % [ProjectSettings.get_setting("application/config/name"), ProjectSettings.get_setting("application/config/version")]
 
 
 func load_screen(scene: PackedScene) -> Control:
