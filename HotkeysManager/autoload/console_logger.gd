@@ -16,7 +16,7 @@ func _ready() -> void:
 
 
 func build_prefix() -> String:
-    return "%s #%d |" % [Time.get_time_string_from_system(), Engine.get_process_frames()]
+    return "[%0.6f #%d]" % [Time.get_ticks_usec() / 1_000_000.0, Engine.get_process_frames()]
 
 
 func _on_error(error_message: String) -> void:
