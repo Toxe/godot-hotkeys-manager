@@ -4,7 +4,6 @@ extends Node
 
 signal switch_to_main_screen
 signal switch_to_commands_screen(programgroup_id: int)
-signal switch_to_hotkeys_screen
 signal error(error_message: String)
 signal database_query_succeeded(query_type: StringName, dur: float, num_rows: int)
 signal database_query_failed(query_type: StringName, dur: float, error_message: String)

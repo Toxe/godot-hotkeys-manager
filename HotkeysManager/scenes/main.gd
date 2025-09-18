@@ -2,7 +2,6 @@ extends Control
 
 const main_screen_scene = preload("uid://b2csr7tbxjl3k")
 const commands_screen_scene = preload("uid://de72ge75p8811")
-const hotkeys_screen_scene = preload("uid://b3a0qoyhinuec")
 
 var _db: Database = Database.new()
 
@@ -12,7 +11,6 @@ func _ready() -> void:
 
     Events.switch_to_main_screen.connect(switch_to_main_screen)
     Events.switch_to_commands_screen.connect(switch_to_commands_screen)
-    Events.switch_to_hotkeys_screen.connect(switch_to_hotkeys_screen)
 
     if _db.open("user://hotkeys.sqlite"):
         switch_to_main_screen()
@@ -38,10 +36,4 @@ func switch_to_main_screen() -> void:
 func switch_to_commands_screen(programgroup_id: int) -> void:
     var screen: CommandsScreen = load_screen(commands_screen_scene)
     screen.setup(_db, programgroup_id)
-    switch_screen(screen)
-
-
-func switch_to_hotkeys_screen() -> void:
-    var screen: HotkeysScreen = load_screen(hotkeys_screen_scene)
-    screen.setup(_db)
     switch_screen(screen)
