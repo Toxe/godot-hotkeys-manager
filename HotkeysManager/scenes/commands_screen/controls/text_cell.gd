@@ -17,6 +17,7 @@ func _on_editing_toggled(toggled_on: bool) -> void:
     if !toggled_on:
         editing_stopped.emit(text)
 
+        text = text.strip_edges()
         if _old_text != text:
             changed.emit(_old_text, text)
             _old_text = text
