@@ -91,6 +91,18 @@ func test_select_with_bindings() -> void:
     ])
 
 
+func test_rows_exist_returns_true_if_a_condition_returns_one_row() -> void:
+    assert_true(db.rows_exist("program", "program_id=6"))
+
+
+func test_rows_exist_returns_true_if_a_condition_returns_multiple_rows() -> void:
+    assert_true(db.rows_exist("program_command", "command_id=2"))
+
+
+func test_rows_exist_returns_false_if_a_condition_returns_no_rows() -> void:
+    assert_false(db.rows_exist("program", "program_id=99"))
+
+
 func test_query() -> void:
     var sql := "CREATE TABLE `foo` (`id` integer PRIMARY KEY NOT NULL, `name` varchar(255)); INSERT INTO `foo` (`name`) VALUES ('first'), ('second');"
     assert_true(db.query(sql))

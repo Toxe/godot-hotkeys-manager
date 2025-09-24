@@ -146,6 +146,11 @@ func select(sql: String, bindings: Array = []) -> Variant:
         return false
 
 
+func rows_exist(table: String, conditions: String) -> bool:
+    var result: Array[Dictionary] = select("SELECT EXISTS (SELECT 1 FROM `%s` WHERE %s);" % [table, conditions])
+    return result[0].values().get(0) == 1
+
+
 ## A general query function, when there is no better fit.
 func query(sql: String, bindings: Array = []) -> bool:
     return exec_call(&"QUERY", func() -> void: _db.query_with_bindings(sql, bindings))
