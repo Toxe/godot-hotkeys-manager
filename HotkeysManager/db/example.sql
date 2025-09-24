@@ -59,6 +59,7 @@ INSERT INTO program_command (program_id, command_id, name) VALUES
 (3, 2, 'View: Open Next Editor'),
 (4, 2, 'Go to next tab'),
 (8, 3, 'New Tab'),
+(9, 5, 'Close Tab'),
 (10, 5, 'Close Tab');
 
 INSERT INTO program_command_hotkey (program_command_id, hotkey) VALUES
@@ -75,7 +76,9 @@ INSERT INTO program_command_hotkey (program_command_id, hotkey) VALUES
 (7, 'Ctrl+PageDown'),
 (8, 'Ctrl+PageDown'),
 (9, 'Ctrl+T'),
-(10, 'Ctrl+W');
+(10, 'Ctrl+W'),
+(10, 'Ctrl+F4'),
+(11, 'Ctrl+W');
 
 INSERT INTO comment (comment_text) VALUES
 ('Öffnet ein Suchfeld, in dem man nach Dateinamen suchen kann.'),
@@ -93,7 +96,7 @@ INSERT INTO program_command_comment (program_command_id, comment_id) VALUES
 INSERT INTO user_hotkey (command_id, hotkey) VALUES
 (1, 'Ctrl+P'),
 (2, 'Ctrl+PageDown'),
-(5, 'Ctrl+W'),
+(5, 'Ctrl+F4'),
 (4, 'Ctrl+N');
 
 INSERT INTO user_hotkey_program (user_hotkey_id, program_id) VALUES

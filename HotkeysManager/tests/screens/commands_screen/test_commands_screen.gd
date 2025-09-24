@@ -57,23 +57,33 @@ func test_query_commands() -> void:
 func test_query_program_commands() -> void:
     var program_commands := commands_screen.query_program_commands()
     assert_eq_deep(program_commands, {
-          3: {8: {"program_command_id": 9, "program_command_name": "New Tab"}},
-          5: {10: {"program_command_id": 10, "program_command_name": "Close Tab"}},
+        3: {
+            8: {"program_command_id": 9, "program_command_name": "New Tab"},
+        },
+        5: {
+            9: {"program_command_id": 10, "program_command_name": "Close Tab"},
+            10: {"program_command_id": 11, "program_command_name": "Close Tab"},
+        },
     })
 
 
 func test_query_program_command_hotkeys() -> void:
     var program_command_hotkeys := commands_screen.query_program_command_hotkeys()
     assert_eq_deep(program_command_hotkeys, {
-          3: {8: ["Ctrl+T"]},
-          5: {10: ["Ctrl+W"]},
+        3: {
+            8: ["Ctrl+T"],
+        },
+        5: {
+            9: ["Ctrl+W", "Ctrl+F4"],
+            10: ["Ctrl+W"],
+        },
     })
 
 
 func test_query_user_hotkeys_by_commands() -> void:
     var user_hotkeys_by_commands := commands_screen.query_user_hotkeys_by_commands()
     assert_eq_deep(user_hotkeys_by_commands, {
-          5: {"user_hotkey_id": 3, "user_hotkey": "Ctrl+W", "command_name": "Close Tab"},
+          5: {"user_hotkey_id": 3, "user_hotkey": "Ctrl+F4", "command_name": "Close Tab"},
     })
 
 
@@ -81,7 +91,7 @@ func test_query_user_hotkeys_by_programs() -> void:
     var user_hotkeys_by_programs := commands_screen.query_user_hotkeys_by_programs()
     assert_eq_deep(user_hotkeys_by_programs, {
           4: {"user_hotkey_id": 4, "user_hotkey": "Ctrl+N", "command_name": "New Window"},
-          5: {"user_hotkey_id": 3, "user_hotkey": "Ctrl+W", "command_name": "Close Tab"},
+          5: {"user_hotkey_id": 3, "user_hotkey": "Ctrl+F4", "command_name": "Close Tab"},
     })
 
 
