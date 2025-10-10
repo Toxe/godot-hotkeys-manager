@@ -6,7 +6,7 @@ var commands_screen: CommandsScreen = null
 var command_grid: CommandGrid = null
 
 
-func before_all() -> void:
+func before_each() -> void:
     var db: Database = Database.new()
     db.open(":memory:")
 
@@ -17,23 +17,174 @@ func before_all() -> void:
     command_grid = commands_screen.find_child("CommandGrid", true, false)
 
 
-func after_all() -> void:
+func after_each() -> void:
     commands_screen.queue_free()
 
 
-func test_number_of_grid_cells() -> void:
-    assert_eq(command_grid.get_child_count(), 4 * 10)
+func enter_text_and_emit_changed_signal(cell: TextCell, new_text: String) -> void:
+    var old_text := cell.text
+    cell.text = new_text
+    cell.changed.emit(old_text, new_text)
 
 
-func test_command_button_titles() -> void:
+func test_grid_child_count() -> void:
+    assert_eq(command_grid.get_child_count(), 5 * 10)
+
+
+func test_number_of_rows() -> void:
+    assert_eq(command_grid.rows, 4)
+
+
+func test_number_of_columns() -> void:
+    assert_eq(command_grid.cols, 10)
+
+
+func test_get_cell_returns_grid_controls() -> void:
+    assert_is(command_grid.get_cell(0, 0), TextCell)
+    assert_is(command_grid.get_cell(1, 0), TextCell)
+    assert_is(command_grid.get_cell(2, 0), Control)
+    assert_is(command_grid.get_cell(3, 0), TextCell)
+    assert_is(command_grid.get_cell(0, 9), Label)
+    assert_is(command_grid.get_cell(1, 9), Label)
+    assert_is(command_grid.get_cell(2, 9), Control)
+    assert_is(command_grid.get_cell(3, 9), Label)
+
+
+func test_get_cell_returns_null_for_non_existing_cells() -> void:
+    assert_null(command_grid.get_cell(-1, 0))
+    assert_null(command_grid.get_cell(0, -1))
+    assert_null(command_grid.get_cell(command_grid.rows, 0))
+    assert_null(command_grid.get_cell(command_grid.rows + 1, 0))
+    assert_null(command_grid.get_cell(0, command_grid.cols))
+    assert_null(command_grid.get_cell(0, command_grid.cols + 1))
+
+
+func test_command_name_cell_titles() -> void:
     var expected_titles: Array[String] = ["New Tab", "Close Tab", "New Window"]
-    var command_button_titles: Array[String] = []
+    var command_name_cell_titles: Array[String] = []
 
-    for button: Button in command_grid.find_children("*", "Button", true, false):
-        if button.theme_type_variation == "CommandButton":
-            command_button_titles.append(button.text)
+    for row in command_grid.rows:
+        var cell := command_grid.get_cell(row, 0)
+        if cell is TextCell:
+            command_name_cell_titles.append((cell as TextCell).text)
 
-    assert_eq(command_button_titles.size(), expected_titles.size())
+    assert_eq_deep(command_name_cell_titles, expected_titles)
 
-    for title in expected_titles:
-        assert_has(command_button_titles, title)
+
+func test_can_enter_and_save_a_new_command_name() -> void:
+    var cell: TextCell = command_grid.get_cell(1, 0)
+    enter_text_and_emit_changed_signal(cell, "New Command Name")
+    assert_eq(command_grid._db.select_value("command", "command_id=5", "name"), "New Command Name")
+
+
+func test_cannot_save_an_empty_command_name() -> void:
+    var cell: TextCell = command_grid.get_cell(1, 0)
+    enter_text_and_emit_changed_signal(cell, "")
+    assert_eq(command_grid._db.select_value("command", "command_id=5", "name"), "Close Tab")
+
+
+func test_entering_an_empty_command_name_will_change_the_cell_text_back_to_the_old_name() -> void:
+    var cell: TextCell = command_grid.get_cell(1, 0)
+    enter_text_and_emit_changed_signal(cell, "")
+    assert_eq(cell.text, "Close Tab")
+
+
+func test_can_change_and_save_a_program_command_hotkey() -> void:
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
+    var old_program_command_id := cell.program_command_id
+    enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
+    # cell program_command_id has not changed
+    assert_eq(cell.program_command_id, old_program_command_id)
+    # new, saved hotkey
+    assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, "Ctrl+F4"]))
+    # old, deleted hotkey
+    assert_false(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, "Ctrl+W"]))
+
+
+func test_cannot_change_a_program_command_hotkey_to_an_already_existing_one() -> void:
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 3)
+    var old_program_command_id := cell.program_command_id
+    enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
+    # database error
+    assert_engine_error("UNIQUE constraint failed")
+    # cell text changed back to the old hotkey
+    assert_eq(cell.text, "Ctrl+W")
+    # cell program_command_id has not changed
+    assert_eq(cell.program_command_id, old_program_command_id)
+    # old and new hotkeys still exist
+    assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, "Ctrl+W"]))
+    assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, "Ctrl+F4"]))
+
+
+func test_can_delete_an_existing_program_command_hotkey_by_removing_all_text_from_a_cell_belonging_to_an_existing_program_command() -> void:
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
+    var old_program_command_id := cell.program_command_id
+    enter_text_and_emit_changed_signal(cell, "")
+    # cell program_command_id has not changed and is still valid
+    assert_eq(cell.program_command_id, old_program_command_id)
+    assert_gt(cell.program_command_id, 0)
+    # deleted hotkey
+    assert_false(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, "Ctrl+W"]))
+    # making sure no empty hotkey was created
+    assert_false(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, ""]))
+
+
+func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty_cell_belonging_to_an_existing_program_command() -> void:
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
+    var old_program_command_id := cell.program_command_id
+    enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
+    # cell program_command_id has not changed
+    assert_eq(cell.program_command_id, old_program_command_id)
+    # new hotkey was added
+    assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, "Ctrl+F4"]))
+
+
+func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty_cell_that_doesnt_belong_to_an_existing_program_command() -> void:
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(3, 4)
+    enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
+    # cell program_command_id has now a valid ID
+    assert_gt(cell.program_command_id, 0)
+    # new proggram command was added
+    assert_true(command_grid._db.rows_exist("program_command", "program_command_id=%d AND command_id=%d AND program_id=%d" % [cell.program_command_id, cell.command_id, cell.program_id]))
+    # new hotkey was added
+    assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, "Ctrl+F4"]))
+
+
+func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_this_program_command() -> void:
+    var existing_hotkey_cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
+    enter_text_and_emit_changed_signal(cell, "Ctrl+W")
+    # database error
+    assert_engine_error("UNIQUE constraint failed")
+    # cell text changed back to being empty
+    assert_eq(cell.text, "")
+    # cell program_command_id didn't change
+    assert_eq(cell.program_command_id, existing_hotkey_cell.program_command_id)
+    # hotkey was not added
+    var rows: Array = command_grid._db.select_rows("program_command_hotkey", "program_command_id=%d" % existing_hotkey_cell.program_command_id, ["hotkey"])
+    assert_eq(rows.size(), 1)
+
+
+func test_can_change_a_user_hotkey() -> void:
+    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    enter_text_and_emit_changed_signal(cell, "Ctrl+W")
+    # new, saved hotkey
+    assert_true(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+W"]))
+    # old, deleted hotkey
+    assert_false(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+F4"]))
+
+
+func test_can_delete_a_user_hotkey_by_clearing_the_cell() -> void:
+    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    enter_text_and_emit_changed_signal(cell, "")
+    # deleted hotkey
+    assert_false(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+F4"]))
+    # making sure no empty hotkey was created
+    assert_false(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, ""]))
+
+
+func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void:
+    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
+    enter_text_and_emit_changed_signal(cell, "Ctrl+T")
+    # new hotkey
+    assert_true(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+T"]))
