@@ -1,6 +1,5 @@
 class_name CommandGrid extends GridContainer
 
-const program_hotkeys_control_scene: PackedScene = preload("uid://dq4m5hd12nvxh")
 const user_hotkey_control_scene: PackedScene = preload("uid://brad514ehxj7r")
 
 var _db: Database = null
