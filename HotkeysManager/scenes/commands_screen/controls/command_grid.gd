@@ -1,10 +1,7 @@
 class_name CommandGrid extends GridContainer
 
-const user_hotkey_control_scene: PackedScene = preload("uid://brad514ehxj7r")
-
 var _db: Database = null
 var _programgroup_id: int = -1
-
 var rows := 0 # number of table rows, not including the header row
 var cols := 0 # number of table columns, including the first command name column
 
