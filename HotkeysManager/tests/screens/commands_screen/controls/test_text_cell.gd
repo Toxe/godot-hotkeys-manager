@@ -1,6 +1,11 @@
 extends GutTest
 
 
+func _on_changed_check_expected_arguments(old_text: String, new_text: String, expected_old_text: String, expected_new_text: String) -> void:
+    assert_eq(old_text, expected_old_text)
+    assert_eq(new_text, expected_new_text)
+
+
 func test_a_new_cell_is_empty() -> void:
     var cell: TextCell = add_child_autofree(TextCell.new())
     assert_eq(cell.text, "")
@@ -8,10 +13,7 @@ func test_a_new_cell_is_empty() -> void:
 
 func test_empty_cell_sends_changed_signal_after_entering_text() -> void:
     var cell: TextCell = TextCell.new()
-    cell.changed.connect(func(old_text: String, new_text: String) -> void:
-        assert_eq(old_text, "")
-        assert_eq(new_text, "hello world")
-    )
+    cell.changed.connect(_on_changed_check_expected_arguments.bind("", "hello world"))
     add_child_autofree(cell)
 
     cell.grab_focus()
@@ -22,10 +24,7 @@ func test_empty_cell_sends_changed_signal_after_entering_text() -> void:
 func test_prefilled_cell_sends_changed_signal_after_entering_text() -> void:
     var cell: TextCell = TextCell.new()
     cell.text = "old text"
-    cell.changed.connect(func(old_text: String, new_text: String) -> void:
-        assert_eq(old_text, "old text")
-        assert_eq(new_text, "hello world")
-    )
+    cell.changed.connect(_on_changed_check_expected_arguments.bind("old text", "hello world"))
     add_child_autofree(cell)
 
     cell.grab_focus()
@@ -36,10 +35,7 @@ func test_prefilled_cell_sends_changed_signal_after_entering_text() -> void:
 func test_automatically_trim_spaces_from_beginning_and_end_of_entered_text(text: String = use_parameters([" new text", "   new text", "new text ", "new text   ", " new text ", "   new text   "])) -> void:
     var cell: TextCell = TextCell.new()
     cell.text = "old text"
-    cell.changed.connect(func(old_text: String, new_text: String) -> void:
-        assert_eq(old_text, "old text")
-        assert_eq(new_text, "new text")
-    )
+    cell.changed.connect(_on_changed_check_expected_arguments.bind("old text", "new text"))
     add_child_autofree(cell)
 
     cell.grab_focus()
@@ -50,10 +46,7 @@ func test_automatically_trim_spaces_from_beginning_and_end_of_entered_text(text:
 func test_text_field_contains_the_trimmed_text_after_input_has_finished() -> void:
     var cell: TextCell = TextCell.new()
     cell.text = "old text"
-    cell.changed.connect(func(old_text: String, new_text: String) -> void:
-        assert_eq(old_text, "old text")
-        assert_eq(new_text, "input")
-    )
+    cell.changed.connect(_on_changed_check_expected_arguments.bind("old text", "input"))
     add_child_autofree(cell)
 
     cell.grab_focus()
@@ -66,10 +59,7 @@ func test_text_field_contains_the_trimmed_text_after_input_has_finished() -> voi
 func test_prefilled_cell_sends_changed_signal_after_deleting_all_text(text: String = use_parameters(["", " ", "   "])) -> void:
     var cell: TextCell = TextCell.new()
     cell.text = "old text"
-    cell.changed.connect(func(old_text: String, new_text: String) -> void:
-        assert_eq(old_text, "old text")
-        assert_eq(new_text, "")
-    )
+    cell.changed.connect(_on_changed_check_expected_arguments.bind("old text", ""))
     add_child_autofree(cell)
 
     cell.grab_focus()
