@@ -1,7 +1,7 @@
 extends GutTest
 
 
-func test_a_new_cell_if_empty() -> void:
+func test_a_new_cell_is_empty() -> void:
     var cell: TextCell = add_child_autofree(TextCell.new())
     assert_eq(cell.text, "")
 
