@@ -24,7 +24,7 @@ func after_each() -> void:
 func enter_text_and_emit_changed_signal(cell: TextCell, new_text: String) -> void:
     var old_text := cell.text
     cell.text = new_text
-    cell.changed.emit(old_text, new_text)
+    cell.changed.emit(cell, old_text, new_text)
 
 
 func test_grid_child_count() -> void:

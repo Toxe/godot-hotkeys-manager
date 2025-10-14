@@ -1,7 +1,8 @@
 extends GutTest
 
 
-func _on_changed_check_expected_arguments(old_text: String, new_text: String, expected_old_text: String, expected_new_text: String) -> void:
+func _on_changed_check_expected_arguments(cell: TextCell, old_text: String, new_text: String, expected_old_text: String, expected_new_text: String) -> void:
+    assert_not_null(cell)
     assert_eq(old_text, expected_old_text)
     assert_eq(new_text, expected_new_text)
 

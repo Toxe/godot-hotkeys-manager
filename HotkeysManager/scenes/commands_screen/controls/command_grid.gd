@@ -110,7 +110,7 @@ func add_command_name_cell(row: int, command_id: int, command_name: String) -> v
     if row == 0:
         var cell := TextCell.new()
         cell.text = command_name
-        cell.changed.connect(_on_command_name_cell_changed.bind(cell, command_id))
+        cell.changed.connect(_on_command_name_cell_changed.bind(command_id))
         add_cell(cell)
     else:
         add_empty_cell()
@@ -120,7 +120,7 @@ func add_program_command_hotkey_cells(row: int, programs: Dictionary[int, String
     for program_id in programs:
         var cells: Array[ProgramHotkeyTextCell] = program_hotkey_cells[program_id]
         var cell := cells[row]
-        cell.changed.connect(_on_program_command_hotkey_cell_changed.bind(cell))
+        cell.changed.connect(_on_program_command_hotkey_cell_changed)
         add_cell(cell)
 
 
@@ -128,7 +128,7 @@ func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[in
     if row == 0:
         var cell := UserHotkeyTextCell.new()
         cell.command_id = command_id
-        cell.changed.connect(_on_user_hotkey_cell_changed.bind(cell))
+        cell.changed.connect(_on_user_hotkey_cell_changed)
         if command_id in user_hotkeys:
             var user_hotkey_data: Dictionary = user_hotkeys[command_id]
             var user_hotkey: String = user_hotkey_data["user_hotkey"]
@@ -215,7 +215,7 @@ func _on_user_hotkey_program_checkbox_gui_input(event: InputEvent, user_hotkey_i
             Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
-func _on_command_name_cell_changed(old_name: String, new_name: String, cell: TextCell, command_id: int) -> void:
+func _on_command_name_cell_changed(cell: TextCell, old_name: String, new_name: String, command_id: int) -> void:
     if new_name != "":
         _db.update_rows("command", "command_id=%d" % command_id, {"name": new_name})
     else:
@@ -223,7 +223,7 @@ func _on_command_name_cell_changed(old_name: String, new_name: String, cell: Tex
         printerr("Command name must not be empty!")
 
 
-func _on_program_command_hotkey_cell_changed(old_hotkey: String, new_hotkey: String, cell: ProgramHotkeyTextCell) -> void:
+func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
     var success := true
     if cell.program_command_id > 0:
         if old_hotkey != "" && new_hotkey != "":
@@ -246,7 +246,7 @@ func _on_program_command_hotkey_cell_changed(old_hotkey: String, new_hotkey: Str
         cell.text = old_hotkey
 
 
-func _on_user_hotkey_cell_changed(old_hotkey: String, new_hotkey: String, cell: UserHotkeyTextCell) -> void:
+func _on_user_hotkey_cell_changed(cell: UserHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
     assert(cell.command_id > 0)
 
     if old_hotkey != "" && new_hotkey != "":
