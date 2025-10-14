@@ -1,6 +1,5 @@
 class_name TextCell extends LineEdit
 
-signal editing_stopped(text: String)
 signal changed(old_text: String, new_text: String)
 
 var _old_text: String
@@ -15,8 +14,6 @@ func _ready() -> void:
 
 func _on_editing_toggled(toggled_on: bool) -> void:
     if !toggled_on:
-        editing_stopped.emit(text)
-
         text = text.strip_edges()
         if _old_text != text:
             changed.emit(_old_text, text)
