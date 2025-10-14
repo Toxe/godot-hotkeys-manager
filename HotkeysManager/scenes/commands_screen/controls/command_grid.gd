@@ -168,28 +168,16 @@ func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, p
 
         if command_id in program_command_hotkeys and program_id in program_command_hotkeys[command_id]:
             for hotkey: String in program_command_hotkeys[command_id][program_id]:
-                var cell := ProgramHotkeyTextCell.new()
+                var cell := ProgramHotkeyTextCell.new(command_id, program_id, program_command_id)
                 cell.text = hotkey
-                cell.command_id = command_id
-                cell.program_id = program_id
-                cell.program_command_id = program_command_id
                 cells.append(cell)
-
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                var cell := ProgramHotkeyTextCell.new()
-                cell.command_id = command_id
-                cell.program_id = program_id
-                cell.program_command_id = program_command_id
-                cells.append(cell)
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, program_command_id))
     else:
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                var cell := ProgramHotkeyTextCell.new()
-                cell.command_id = command_id
-                cell.program_id = program_id
-                cell.program_command_id = 0
-                cells.append(cell)
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, 0))
 
     return cells
 
