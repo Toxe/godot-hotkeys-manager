@@ -126,8 +126,7 @@ func add_program_command_hotkey_cells(row: int, programs: Dictionary[int, String
 
 func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[int, Dictionary]) -> void:
     if row == 0:
-        var cell := UserHotkeyTextCell.new()
-        cell.command_id = command_id
+        var cell := UserHotkeyTextCell.new(command_id)
         cell.changed.connect(_on_user_hotkey_cell_changed)
         if command_id in user_hotkeys:
             var user_hotkey_data: Dictionary = user_hotkeys[command_id]
