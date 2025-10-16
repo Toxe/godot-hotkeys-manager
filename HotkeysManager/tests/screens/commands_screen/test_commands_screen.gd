@@ -58,11 +58,11 @@ func test_query_program_commands() -> void:
     var program_commands := commands_screen.query_program_commands()
     assert_eq_deep(program_commands, {
         3: {
-            8: {"program_command_id": 9, "program_command_name": "New Tab"},
+            8: {"program_command_name": "New Tab"},
         },
         5: {
-            9: {"program_command_id": 10, "program_command_name": "Close Tab"},
-            10: {"program_command_id": 11, "program_command_name": "Close Tab"},
+            9: {"program_command_name": "Close Tab"},
+            10: {"program_command_name": "Close Tab"},
         },
     })
 
@@ -74,7 +74,7 @@ func test_query_program_command_hotkeys() -> void:
             8: ["Ctrl+T"],
         },
         5: {
-            9: ["Ctrl+W", "Ctrl+F4"],
+            9: ["Ctrl+F4", "Ctrl+W"],
             10: ["Ctrl+W"],
         },
     })

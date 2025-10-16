@@ -62,23 +62,23 @@ INSERT INTO program_command (program_id, command_id, name) VALUES
 (9, 5, 'Close Tab'),
 (10, 5, 'Close Tab');
 
-INSERT INTO program_command_hotkey (program_command_id, hotkey) VALUES
-(1, 'Ctrl+Shift+N'),
-(2, 'Ctrl+1 F'),
-(2, 'Ctrl+1 Ctrl+F'),
-(2, 'Ctrl+Shift+T'),
-(3, 'Ctrl+P'),
-(3, 'Ctrl+,'),
-(3, 'Ctrl+E Ctrl+E'),
-(4, 'Ctrl+O'),
-(5, 'Alt+Right'),
-(6, 'Ctrl+Alt+PageDown'),
-(7, 'Ctrl+PageDown'),
-(8, 'Ctrl+PageDown'),
-(9, 'Ctrl+T'),
-(10, 'Ctrl+W'),
-(10, 'Ctrl+F4'),
-(11, 'Ctrl+W');
+INSERT INTO program_command_hotkey (program_id, command_id, hotkey) VALUES
+(1, 1, 'Ctrl+Shift+N'),
+(2, 1, 'Ctrl+1 F'),
+(2, 1, 'Ctrl+1 Ctrl+F'),
+(2, 1, 'Ctrl+Shift+T'),
+(3, 1, 'Ctrl+P'),
+(3, 1, 'Ctrl+,'),
+(3, 1, 'Ctrl+E Ctrl+E'),
+(4, 1, 'Ctrl+O'),
+(1, 2, 'Alt+Right'),
+(2, 2, 'Ctrl+Alt+PageDown'),
+(3, 2, 'Ctrl+PageDown'),
+(4, 2, 'Ctrl+PageDown'),
+(8, 3, 'Ctrl+T'),
+(9, 5, 'Ctrl+W'),
+(9, 5, 'Ctrl+F4'),
+(10, 5, 'Ctrl+W');
 
 INSERT INTO comment (comment_text) VALUES
 ('Öffnet ein Suchfeld, in dem man nach Dateinamen suchen kann.'),
@@ -90,8 +90,8 @@ INSERT INTO command_comment (command_id, comment_id) VALUES
 (1, 1),
 (2, 2);
 
-INSERT INTO program_command_comment (program_command_id, comment_id) VALUES
-(4, 3);
+INSERT INTO program_command_comment (program_id, command_id, comment_id) VALUES
+(4, 1, 3);
 
 INSERT INTO user_hotkey (command_id, hotkey) VALUES
 (1, 'Ctrl+P'),

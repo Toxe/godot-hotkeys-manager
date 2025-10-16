@@ -108,7 +108,7 @@ GROUP BY c.command_id;"
 
 func query_program_commands() -> Dictionary[int, Dictionary]:
     var program_commands: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT pc.program_id, pc.command_id, pc.program_command_id, pc.name AS program_command_name
+    var sql := "SELECT pc.program_id, pc.command_id, pc.name AS program_command_name
 FROM program_command pc
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
@@ -118,11 +118,10 @@ WHERE pp.programgroup_id = ?;"
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
             var command_id: int = row["command_id"]
-            var program_command_id: int = row["program_command_id"]
             var program_command_name: String = row["program_command_name"]
 
             var command_data: Dictionary = program_commands.get_or_add(command_id, {})
-            command_data[program_id] = {"program_command_id": program_command_id, "program_command_name": program_command_name}
+            command_data[program_id] = {"program_command_name": program_command_name}
     return program_commands
 
 
@@ -130,7 +129,7 @@ func query_program_command_hotkeys() -> Dictionary[int, Dictionary]:
     var program_command_hotkeys: Dictionary[int, Dictionary] = {}
     var sql := "SELECT pc.program_id, pc.command_id, pch.hotkey AS program_command_hotkey
 FROM program_command pc
-INNER JOIN program_command_hotkey pch USING (program_command_id)
+INNER JOIN program_command_hotkey pch USING (program_id, command_id)
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
 
@@ -273,8 +272,7 @@ func _on_delete_command_dialog_submitted(_dialog: SelectionDialog, selection: Ar
 func _on_add_command_dialog_submitted(_dialog: AddCommandDialog, options: Dictionary[String, Variant]) -> void:
     var command_id: int = options["command"]
     for program_command: Dictionary[String, Variant] in options["program_commands"]:
-        if _db.insert_row("program_command", {"command_id": command_id, "program_id": program_command["program_id"], "name": program_command["title"]}):
-            var program_command_id := _db.last_insert_rowid()
-            if !_db.insert_row("program_command_hotkey", {"program_command_id": program_command_id, "hotkey": program_command["hotkey"]}):
+        if _db.insert_row("program_command", {"program_id": program_command["program_id"], "command_id": command_id, "name": program_command["title"]}):
+            if !_db.insert_row("program_command_hotkey", {"program_id": program_command["program_id"], "command_id": command_id, "hotkey": program_command["hotkey"]}):
                 return
     Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)

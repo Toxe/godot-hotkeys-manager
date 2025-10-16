@@ -162,21 +162,18 @@ func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, p
     var cells: Array[ProgramHotkeyTextCell] = []
 
     if command_id in program_commands and program_id in program_commands[command_id]:
-        var program_command_data: Dictionary = program_commands[command_id][program_id]
-        var program_command_id: int = program_command_data["program_command_id"]
-
         if command_id in program_command_hotkeys and program_id in program_command_hotkeys[command_id]:
             for hotkey: String in program_command_hotkeys[command_id][program_id]:
-                var cell := ProgramHotkeyTextCell.new(command_id, program_id, program_command_id)
+                var cell := ProgramHotkeyTextCell.new(command_id, program_id, hotkey)
                 cell.text = hotkey
                 cells.append(cell)
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, program_command_id))
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, ""))
     else:
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, 0))
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, null))
 
     return cells
 
@@ -212,23 +209,23 @@ func _on_command_name_cell_changed(cell: TextCell, old_name: String, new_name: S
 
 func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
     var success := true
-    if cell.program_command_id > 0:
+    if cell.hotkey != null:
         if old_hotkey != "" && new_hotkey != "":
-            success = _db.update_rows("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, old_hotkey], {"hotkey": new_hotkey})
+            success = _db.update_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey], {"hotkey": new_hotkey})
         elif old_hotkey == "" && new_hotkey != "":
-            success = _db.insert_row("program_command_hotkey", {"program_command_id": cell.program_command_id, "hotkey": new_hotkey})
+            success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
         elif old_hotkey != "" && new_hotkey == "":
-            success = _db.delete_rows("program_command_hotkey", "program_command_id=%d AND hotkey='%s'" % [cell.program_command_id, old_hotkey])
+            success = _db.delete_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey])
         else:
-            printerr("_on_program_command_hotkey_cell_changed error %d: %d, '%s', '%s' (c: %d, p: %d)" % [1, cell.program_command_id, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
+            printerr("_on_program_command_hotkey_cell_changed error %d: '%s', '%s' (c: %d, p: %d)" % [1, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
     else:
         if old_hotkey == "" && new_hotkey != "":
             success = _db.insert_row("program_command", {"program_id": cell.program_id, "command_id": cell.command_id})
-            var program_command_id := _db.last_insert_rowid()
-            success = _db.insert_row("program_command_hotkey", {"program_command_id": program_command_id, "hotkey": new_hotkey})
-            cell.program_command_id = program_command_id
+            if success:
+                success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
+                cell.hotkey = new_hotkey
         else:
-            printerr("_on_program_command_hotkey_cell_changed error %d: %d, '%s', '%s' (c: %d, p: %d)" % [2, cell.program_command_id, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
+            printerr("_on_program_command_hotkey_cell_changed error %d: '%s', '%s' (c: %d, p: %d)" % [2, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
     if !success:
         cell.text = old_hotkey
 

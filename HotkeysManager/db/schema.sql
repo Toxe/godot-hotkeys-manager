@@ -43,19 +43,21 @@ CREATE TABLE command_category (
 ) WITHOUT ROWID;
 
 CREATE TABLE program_command (
-    program_command_id integer PRIMARY KEY NOT NULL,
     program_id integer NOT NULL,
     command_id integer NOT NULL,
     name varchar(255),
+    PRIMARY KEY (program_id, command_id),
     FOREIGN KEY (program_id) REFERENCES program (program_id) ON DELETE CASCADE,
     FOREIGN KEY (command_id) REFERENCES command (command_id) ON DELETE CASCADE
 );
 
 CREATE TABLE program_command_hotkey (
-    program_command_id integer NOT NULL,
+    program_id integer NOT NULL,
+    command_id integer NOT NULL,
     hotkey varchar(64) NOT NULL,
-    PRIMARY KEY (program_command_id, hotkey),
-    FOREIGN KEY (program_command_id) REFERENCES program_command (program_command_id) ON DELETE CASCADE
+    PRIMARY KEY (program_id, command_id, hotkey),
+    FOREIGN KEY (program_id) REFERENCES program (program_id) ON DELETE CASCADE,
+    FOREIGN KEY (command_id) REFERENCES command (command_id) ON DELETE CASCADE
 );
 
 CREATE TABLE comment (
@@ -74,10 +76,12 @@ CREATE TABLE command_comment (
 ) WITHOUT ROWID;
 
 CREATE TABLE program_command_comment (
-    program_command_id integer NOT NULL,
+    program_id integer NOT NULL,
+    command_id integer NOT NULL,
     comment_id integer NOT NULL,
-    PRIMARY KEY (program_command_id, comment_id),
-    FOREIGN KEY (program_command_id) REFERENCES program_command (program_command_id) ON DELETE CASCADE,
+    PRIMARY KEY (program_id, command_id, comment_id),
+    FOREIGN KEY (program_id) REFERENCES program (program_id) ON DELETE CASCADE,
+    FOREIGN KEY (command_id) REFERENCES command (command_id) ON DELETE CASCADE,
     FOREIGN KEY (comment_id) REFERENCES comment (comment_id) ON DELETE CASCADE
 ) WITHOUT ROWID;
 
