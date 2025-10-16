@@ -28,6 +28,7 @@ func test_delete_rows() -> void:
 
 func test_select_rows() -> void:
     var rows: Variant = db.select_rows("program_command", "name='Go to File'", ["program_id", "command_id", "name"])
+    @warning_ignore("unsafe_call_argument")
     assert_eq_deep(rows, [
         {"program_id": 1, "command_id": 1, "name": "Go to File"},
         {"program_id": 3, "command_id": 1, "name": "Go to File"},
@@ -35,48 +36,58 @@ func test_select_rows() -> void:
 
 
 func test_select_rows_returns_false_on_database_error() -> void:
+    @warning_ignore("unsafe_call_argument")
     assert_false(db.select_rows("missing_table", "id=99", ["col1", "col2"]))
     assert_engine_error("no such table: missing_table")
 
 
 func test_select_row() -> void:
     var row: Variant = db.select_row("user_hotkey", "hotkey='Ctrl+P'", ["command_id", "hotkey"])
+    @warning_ignore("unsafe_call_argument")
     assert_eq_deep(row, {"command_id": 1, "hotkey": "Ctrl+P"})
 
 
 func test_select_row_returns_false_on_database_error() -> void:
+    @warning_ignore("unsafe_call_argument")
     assert_false(db.select_row("missing_table", "id=99", ["col1", "col2"]))
     assert_engine_error("no such table: missing_table")
 
 
 func test_select_row_returns_false_if_there_is_more_than_one_result_row() -> void:
+    @warning_ignore("unsafe_call_argument")
     assert_false(db.select_row("program_command", "program_id=1", ["name"]))
 
 
 func test_select_row_returns_null_if_the_row_doesnt_exist() -> void:
+    @warning_ignore("unsafe_call_argument")
     assert_null(db.select_row("program_command", "program_id=99", ["program_id", "name"]))
 
 
 func test_select_value() -> void:
     var value: Variant = db.select_value("user_hotkey", "command_id=2", "hotkey")
+    @warning_ignore("unsafe_call_argument")
     assert_eq(value, "Ctrl+PageDown")
 
 
 func test_select_value_returns_false_on_database_error() -> void:
+    @warning_ignore("unsafe_call_argument")
     assert_false(db.select_value("missing_table", "id=99", "col"))
     assert_engine_error("no such table: missing_table")
 
 
 func test_select_value_returns_false_if_there_is_more_than_one_result_row() -> void:
+    @warning_ignore("unsafe_call_argument")
     assert_false(db.select_value("program_command", "program_id=1", "name"))
 
 
 func test_select_value_returns_null_if_the_row_doesnt_exist() -> void:
+    @warning_ignore("unsafe_call_argument")
     assert_null(db.select_value("program_command", "program_id=99", "name"))
 
 
 func test_select_without_bindings() -> void:
     var rows: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name='Go to File';")
+    @warning_ignore("unsafe_call_argument")
     assert_eq_deep(rows, [
         {"program_id": 1, "command_id": 1, "name": "Go to File"},
         {"program_id": 3, "command_id": 1, "name": "Go to File"},
@@ -85,6 +96,7 @@ func test_select_without_bindings() -> void:
 
 func test_select_with_bindings() -> void:
     var rows: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name=?;", ["Go to File"])
+    @warning_ignore("unsafe_call_argument")
     assert_eq_deep(rows, [
         {"program_id": 1, "command_id": 1, "name": "Go to File"},
         {"program_id": 3, "command_id": 1, "name": "Go to File"},

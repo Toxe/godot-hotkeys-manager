@@ -108,6 +108,7 @@ func test_programgroup_has_name() -> void:
 func test_can_rename_programgroup() -> void:
     programgroup._on_rename_group_dialog_submitted(null, {"programgroup_name": "New Name"})
     assert_eq(programgroup.programgroup_name, "New Name")
+    @warning_ignore("unsafe_call_argument")
     assert_eq(programgroup._db.select_value("programgroup", "programgroup_id=%d" % programgroup._programgroup_id, "name"), "New Name")
 
 
@@ -115,6 +116,7 @@ func test_can_delete_programgroup() -> void:
     watch_signals(programgroup)
     programgroup._on_delete_group_dialog_confirmed(null)
     assert_signal_emitted(programgroup.programgroup_deleted)
+    @warning_ignore("unsafe_call_argument")
     assert_null(programgroup._db.select_value("programgroup", "programgroup_id=%d" % programgroup._programgroup_id, "programgroup_id"))
 
 

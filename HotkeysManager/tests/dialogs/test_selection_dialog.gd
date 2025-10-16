@@ -32,9 +32,11 @@ func test_shows_list_with_options() -> void:
     assert_eq(list.get_item_text(1), "Two")
     assert_eq(list.get_item_text(2), "Three")
 
+    @warning_ignore_start("unsafe_call_argument")
     assert_eq(list.get_item_metadata(0), 1)
     assert_eq(list.get_item_metadata(1), 2)
     assert_eq(list.get_item_metadata(2), 3)
+    @warning_ignore_restore("unsafe_call_argument")
 
 
 func test_no_items_are_selected_by_default() -> void:
