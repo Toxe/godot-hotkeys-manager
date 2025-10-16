@@ -223,7 +223,7 @@ func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_ho
             printerr("_on_program_command_hotkey_cell_changed error %d: %d, '%s', '%s' (c: %d, p: %d)" % [1, cell.program_command_id, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
     else:
         if old_hotkey == "" && new_hotkey != "":
-            success = _db.insert_row("program_command", {"program_id": cell.program_id, "command_id": cell.command_id, "name": "?"})
+            success = _db.insert_row("program_command", {"program_id": cell.program_id, "command_id": cell.command_id})
             var program_command_id := _db.last_insert_rowid()
             success = _db.insert_row("program_command_hotkey", {"program_command_id": program_command_id, "hotkey": new_hotkey})
             cell.program_command_id = program_command_id
