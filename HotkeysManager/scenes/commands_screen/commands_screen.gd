@@ -21,7 +21,7 @@ func _ready() -> void:
     var programs := query_programs()
     var program_abbreviations := query_program_abbreviations()
     var commands := query_commands()
-    var program_commands := query_program_commands()
+    var program_command_names := query_program_command_names()
     var program_command_hotkeys := query_program_command_hotkeys()
     var user_hotkeys_by_commands := query_user_hotkeys_by_commands()
     var user_hotkeys_by_programs := query_user_hotkeys_by_programs()
@@ -42,7 +42,7 @@ func _ready() -> void:
         combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
 
     var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
-    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 func query_all_commands() -> Dictionary[int, String]:
@@ -106,9 +106,9 @@ GROUP BY c.command_id;"
     return commands
 
 
-func query_program_commands() -> Dictionary[int, Dictionary]:
+func query_program_command_names() -> Dictionary[int, Dictionary]:
     var program_commands: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT pc.program_id, pc.command_id, pc.name AS program_command_name
+    var sql := "SELECT pc.program_id, pc.command_id, pc.name
 FROM program_command pc
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
@@ -118,10 +118,10 @@ WHERE pp.programgroup_id = ?;"
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
             var command_id: int = row["command_id"]
-            var program_command_name: String = row["program_command_name"]
+            var program_command_name: String = row["name"]
 
             var command_data: Dictionary = program_commands.get_or_add(command_id, {})
-            command_data[program_id] = {"program_command_name": program_command_name}
+            command_data[program_id] = program_command_name
     return program_commands
 
 

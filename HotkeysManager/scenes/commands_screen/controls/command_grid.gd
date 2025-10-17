@@ -6,7 +6,7 @@ var rows := 0 # number of table rows, not including the header row
 var cols := 0 # number of table columns, including the first command name column
 
 
-func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
+func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
     assert(db != null)
     assert(db.is_open())
     assert(programgroup_id > 0)
@@ -18,7 +18,7 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     add_header_row(programs, program_abbreviations)
 
     for command_id in commands:
-        rows += add_command_cells(command_id, programs, commands, program_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+        rows += add_command_cells(command_id, programs, commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
     cols = columns
 
@@ -53,12 +53,12 @@ func add_header_row(programs: Dictionary[int, String], program_abbreviations: Di
         add_header_program_abbreviation(programs[program_id], program_abbreviations[program_id])
 
 
-func add_command_cells(command_id: int, programs: Dictionary[int, String], commands: Dictionary[int, String], program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> int:
+func add_command_cells(command_id: int, programs: Dictionary[int, String], commands: Dictionary[int, String], program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> int:
     var necessary_rows := count_necessary_command_hotkey_rows(command_id, program_command_hotkeys)
 
     var program_hotkey_cells: Dictionary = {}
     for program_id in programs:
-        program_hotkey_cells[program_id] = create_program_command_hotkey_cells(necessary_rows, command_id, program_id, program_commands, program_command_hotkeys)
+        program_hotkey_cells[program_id] = create_program_command_hotkey_cells(necessary_rows, command_id, program_id, program_command_names, program_command_hotkeys)
 
     for row in necessary_rows:
         add_command_name_cell(row, command_id, commands[command_id])
@@ -158,10 +158,10 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
                 add_empty_cell()
 
 
-func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, program_id: int, program_commands: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> Array[ProgramHotkeyTextCell]:
+func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, program_id: int, program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> Array[ProgramHotkeyTextCell]:
     var cells: Array[ProgramHotkeyTextCell] = []
 
-    if command_id in program_commands and program_id in program_commands[command_id]:
+    if command_id in program_command_names and program_id in program_command_names[command_id]:
         if command_id in program_command_hotkeys and program_id in program_command_hotkeys[command_id]:
             for hotkey: String in program_command_hotkeys[command_id][program_id]:
                 var cell := ProgramHotkeyTextCell.new(command_id, program_id, hotkey)

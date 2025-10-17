@@ -54,15 +54,15 @@ func test_query_commands() -> void:
     })
 
 
-func test_query_program_commands() -> void:
-    var program_commands := commands_screen.query_program_commands()
+func test_query_program_command_names() -> void:
+    var program_commands := commands_screen.query_program_command_names()
     assert_eq_deep(program_commands, {
         3: {
-            8: {"program_command_name": "New Tab"},
+            8: "New Tab",
         },
         5: {
-            9: {"program_command_name": "Close Tab"},
-            10: {"program_command_name": "Close Tab"},
+            9: "Close Tab",
+            10: "Close Tab",
         },
     })
 
