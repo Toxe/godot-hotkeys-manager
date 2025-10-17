@@ -61,6 +61,7 @@ func test_query_program_command_names() -> void:
             8: "New Tab",
         },
         5: {
+            8: null,
             9: "Close Tab",
             10: "Close Tab",
         },
@@ -74,6 +75,7 @@ func test_query_program_command_hotkeys() -> void:
             8: ["Ctrl+T"],
         },
         5: {
+            8: ["Ctrl+F4"],
             9: ["Ctrl+F4", "Ctrl+W"],
             10: ["Ctrl+W"],
         },

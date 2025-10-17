@@ -118,7 +118,7 @@ WHERE pp.programgroup_id = ?;"
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
             var command_id: int = row["command_id"]
-            var program_command_name: String = row["name"]
+            var program_command_name: Variant = row["name"] # name can be null
 
             var command_data: Dictionary = program_commands.get_or_add(command_id, {})
             command_data[program_id] = program_command_name

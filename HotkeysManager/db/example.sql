@@ -59,6 +59,7 @@ INSERT INTO program_command (program_id, command_id, name) VALUES
 (3, 2, 'View: Open Next Editor'),
 (4, 2, 'Go to next tab'),
 (8, 3, 'New Tab'),
+(8, 5, NULL),
 (9, 5, 'Close Tab'),
 (10, 5, 'Close Tab');
 
@@ -76,6 +77,7 @@ INSERT INTO program_command_hotkey (program_id, command_id, hotkey) VALUES
 (3, 2, 'Ctrl+PageDown'),
 (4, 2, 'Ctrl+PageDown'),
 (8, 3, 'Ctrl+T'),
+(8, 5, 'Ctrl+F4'),
 (9, 5, 'Ctrl+W'),
 (9, 5, 'Ctrl+F4'),
 (10, 5, 'Ctrl+W');
