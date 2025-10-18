@@ -164,16 +164,16 @@ func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, p
     if command_id in program_command_names and program_id in program_command_names[command_id]:
         if command_id in program_command_hotkeys and program_id in program_command_hotkeys[command_id]:
             for hotkey: String in program_command_hotkeys[command_id][program_id]:
-                var cell := ProgramHotkeyTextCell.new(command_id, program_id, hotkey)
+                var cell := ProgramHotkeyTextCell.new(command_id, program_id, true)
                 cell.text = hotkey
                 cells.append(cell)
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, ""))
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, true))
     else:
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, null))
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, false))
 
     return cells
 
@@ -209,7 +209,7 @@ func _on_command_name_cell_changed(cell: TextCell, old_name: String, new_name: S
 
 func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
     var success := true
-    if cell.hotkey != null:
+    if cell.is_bound:
         if old_hotkey != "" && new_hotkey != "":
             success = _db.update_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey], {"hotkey": new_hotkey})
         elif old_hotkey == "" && new_hotkey != "":
@@ -223,7 +223,7 @@ func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_ho
             success = _db.insert_row("program_command", {"program_id": cell.program_id, "command_id": cell.command_id})
             if success:
                 success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
-                cell.hotkey = new_hotkey
+                cell.is_bound = true
         else:
             printerr("_on_program_command_hotkey_cell_changed error %d: '%s', '%s' (c: %d, p: %d)" % [2, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
     if !success:

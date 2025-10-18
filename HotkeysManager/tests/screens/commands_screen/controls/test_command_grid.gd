@@ -93,11 +93,10 @@ func test_entering_an_empty_command_name_will_change_the_cell_text_back_to_the_o
 
 func test_can_change_and_save_a_program_command_hotkey() -> void:
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
-    var old_cell_hotkey: Variant = cell.hotkey
+    var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
-    # cell hotkey has not changed
-    @warning_ignore("unsafe_call_argument")
-    assert_eq(cell.hotkey, old_cell_hotkey)
+    # cell is_bound has not changed
+    assert_eq(cell.is_bound, was_bound)
     # new, saved hotkey
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, "Ctrl+F4"]))
     # old, deleted hotkey
@@ -106,15 +105,14 @@ func test_can_change_and_save_a_program_command_hotkey() -> void:
 
 func test_cannot_change_a_program_command_hotkey_to_an_already_existing_one() -> void:
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 3)
-    var old_cell_hotkey: Variant = cell.hotkey
+    var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
     # database error
     assert_engine_error("UNIQUE constraint failed")
     # cell text changed back to the old hotkey
     assert_eq(cell.text, "Ctrl+F4")
-    # cell hotkey has not changed
-    @warning_ignore("unsafe_call_argument")
-    assert_eq(cell.hotkey, old_cell_hotkey)
+    # cell is_bound has not changed
+    assert_eq(cell.is_bound, was_bound)
     # old and new hotkeys still exist
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, "Ctrl+W"]))
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, "Ctrl+F4"]))
@@ -122,13 +120,11 @@ func test_cannot_change_a_program_command_hotkey_to_an_already_existing_one() ->
 
 func test_can_delete_an_existing_program_command_hotkey_by_removing_all_text_from_a_cell_belonging_to_an_existing_program_command() -> void:
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
-    var old_cell_hotkey: Variant = cell.hotkey
+    var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "")
-    # cell hotkey has not changed and is still valid
-    @warning_ignore("unsafe_call_argument")
-    assert_eq(cell.hotkey, old_cell_hotkey)
-    @warning_ignore("unsafe_call_argument")
-    assert_not_null(cell.hotkey)
+    # cell is_bound has not changed and the cell is still bound to a program command
+    assert_eq(cell.is_bound, was_bound)
+    assert_true(cell.is_bound)
     # deleted hotkey
     assert_false(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, "Ctrl+W"]))
     # making sure no empty hotkey was created
@@ -137,11 +133,10 @@ func test_can_delete_an_existing_program_command_hotkey_by_removing_all_text_fro
 
 func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty_cell_belonging_to_an_existing_program_command() -> void:
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
-    var old_cell_hotkey: Variant = cell.hotkey
+    var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
-    # cell hotkey has not changed
-    @warning_ignore("unsafe_call_argument")
-    assert_eq(cell.hotkey, old_cell_hotkey)
+    # cell is_bound has not changed
+    assert_eq(cell.is_bound, was_bound)
     # new hotkey was added
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, "Ctrl+F4"]))
 
@@ -149,12 +144,8 @@ func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty
 func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty_cell_that_doesnt_belong_to_an_existing_program_command() -> void:
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(3, 4)
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
-    # cell hotkey is no longer null
-    @warning_ignore("unsafe_call_argument")
-    assert_not_null(cell.hotkey)
-    # cell hotkey contains a valid text
-    var text: String = cell.hotkey
-    assert_false(text.is_empty())
+    # cell is now bound to a program command
+    assert_true(cell.is_bound)
     # new proggram command was added
     assert_true(command_grid._db.rows_exist("program_command", "program_id=%d AND command_id=%d" % [cell.program_id, cell.command_id]))
     # new hotkey was added
@@ -163,15 +154,14 @@ func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty
 
 func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_this_program_command() -> void:
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
-    var old_cell_hotkey: Variant = cell.hotkey
+    var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
     # database error
     assert_engine_error("UNIQUE constraint failed")
     # cell text changed back to being empty
     assert_eq(cell.text, "")
-    # cell hotkey has not changed
-    @warning_ignore("unsafe_call_argument")
-    assert_eq(cell.hotkey, old_cell_hotkey)
+    # cell is_bound has not changed
+    assert_eq(cell.is_bound, was_bound)
     # hotkey was not added
     var rows: Array = command_grid._db.select_rows("program_command_hotkey", "program_id=%d AND command_id=%d" % [cell.program_id, cell.command_id], ["hotkey"])
     assert_eq(rows.size(), 1)
