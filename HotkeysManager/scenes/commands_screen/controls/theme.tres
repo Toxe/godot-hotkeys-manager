@@ -13,9 +13,6 @@ border_width_bottom = 1
 border_color = Color(0.27265528, 0.27265534, 0.27265516, 1)
 
 [resource]
-CommandButton/base_type = &"Button"
-CommandButton/colors/font_color = Color(0, 1, 1, 1)
-CommandButton/font_sizes/font_size = 20
 GridContainer/constants/h_separation = 20
 GridContainer/constants/v_separation = 10
 HeaderCommandLabel/base_type = &"Label"
