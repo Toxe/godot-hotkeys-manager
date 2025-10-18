@@ -1,4 +1,7 @@
-[gd_resource type="Theme" load_steps=2 format=3 uid="uid://dpqsa2k1ma2sl"]
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://dpqsa2k1ma2sl"]
+
+[sub_resource type="SystemFont" id="SystemFont_g3hx5"]
+font_names = PackedStringArray("Courier New")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3jvpu"]
 content_margin_left = 8.0
@@ -26,4 +29,6 @@ HeaderProgramLabel/font_sizes/font_size = 24
 HeaderUserHotkeyLabel/base_type = &"Label"
 HeaderUserHotkeyLabel/colors/font_color = Color(0.36152095, 0.55944246, 1, 1)
 HeaderUserHotkeyLabel/font_sizes/font_size = 24
+LineEdit/font_sizes/font_size = 18
+LineEdit/fonts/font = SubResource("SystemFont_g3hx5")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_3jvpu")
