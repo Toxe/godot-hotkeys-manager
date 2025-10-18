@@ -188,6 +188,13 @@ func count_necessary_command_hotkey_rows(command_id: int, program_command_hotkey
     return necessary_rows
 
 
+func bind_program_command_cells(program_id: int, command_id: int) -> void:
+    var cells := find_children("*", "ProgramHotkeyTextCell", false, false)
+    for cell: ProgramHotkeyTextCell in cells:
+        if cell.program_id == program_id && cell.command_id && !cell.is_bound:
+            cell.is_bound = true
+
+
 func _on_user_hotkey_program_checkbox_gui_input(event: InputEvent, user_hotkey_id: int, program_id: int, label: Label) -> void:
     if event is InputEventMouseButton:
         var mouse_button_event: InputEventMouseButton = event
@@ -223,7 +230,8 @@ func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_ho
             success = _db.insert_row("program_command", {"program_id": cell.program_id, "command_id": cell.command_id})
             if success:
                 success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
-                cell.is_bound = true
+                if success:
+                    bind_program_command_cells(cell.program_id, cell.command_id)
         else:
             printerr("_on_program_command_hotkey_cell_changed error %d: '%s', '%s' (c: %d, p: %d)" % [2, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
     if !success:

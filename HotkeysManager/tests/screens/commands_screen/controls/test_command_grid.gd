@@ -152,6 +152,19 @@ func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, "Ctrl+F4"]))
 
 
+func test_can_add_a_second_hotkey_after_creating_a_new_program_command_hotkey() -> void:
+    var cell1: ProgramHotkeyTextCell = command_grid.get_cell(1, 1)
+    var cell2: ProgramHotkeyTextCell = command_grid.get_cell(2, 1)
+    assert_false(cell1.is_bound)
+    assert_false(cell2.is_bound)
+    enter_text_and_emit_changed_signal(cell1, "Shift+1")
+    assert_true(cell1.is_bound)
+    assert_true(cell2.is_bound)
+    enter_text_and_emit_changed_signal(cell2, "Shift+2")
+    assert_true(cell1.is_bound)
+    assert_true(cell2.is_bound)
+
+
 func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_this_program_command() -> void:
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
     var was_bound := cell.is_bound
