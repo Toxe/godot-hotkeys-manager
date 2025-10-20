@@ -107,6 +107,7 @@ func add_command_name_cell(row: int, command_id: int, command_name: String) -> v
     if row == 0:
         var cell := TextCell.new()
         cell.text = command_name
+        cell.theme_type_variation = "CommandNameLineEdit"
         cell.changed.connect(_on_command_name_cell_changed.bind(command_id))
         add_cell(cell)
     else:
@@ -117,6 +118,7 @@ func add_program_command_hotkey_cells(row: int, programs: Dictionary[int, String
     for program_id in programs:
         var cells: Array[ProgramHotkeyTextCell] = program_hotkey_cells[program_id]
         var cell := cells[row]
+        cell.expand_to_text_length = true
         cell.changed.connect(_on_program_command_hotkey_cell_changed)
         add_cell(cell)
 
