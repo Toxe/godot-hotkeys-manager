@@ -50,7 +50,7 @@ func add_header_row(programs: Dictionary[int, String], program_abbreviations: Di
     add_header_user_hotkey_label("User Hotkey")
 
     for program_id: int in programs:
-        add_header_program_abbreviation(programs[program_id], program_abbreviations[program_id])
+        add_header_program_abbreviation_label(programs[program_id], program_abbreviations[program_id])
 
 
 func add_command_cells(command_id: int, programs: Dictionary[int, String], commands: Dictionary[int, String], program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> int:
@@ -69,38 +69,33 @@ func add_command_cells(command_id: int, programs: Dictionary[int, String], comma
     return necessary_rows
 
 
-func add_label(text: String) -> Label:
+func add_header_label(text: String, label_theme_type_variation: String, label_horizontal_alignment: HorizontalAlignment) -> Label:
     var label := Label.new()
     label.text = text
-    label.size_flags_vertical = Control.SIZE_FILL
-    add_cell(label)
+    label.horizontal_alignment = label_horizontal_alignment
+    label.theme_type_variation = label_theme_type_variation
+
+    var margin_container := MarginContainer.new()
+    margin_container.add_child(label)
+    add_cell(margin_container)
+
     return label
 
 
 func add_header_command_label(text: String) -> Label:
-    var label := add_label(text)
-    label.theme_type_variation = "HeaderCommandLabel"
-    return label
+    return add_header_label(text, "HeaderCommandLabel", HORIZONTAL_ALIGNMENT_LEFT)
 
 
 func add_header_user_hotkey_label(text: String) -> Label:
-    var label := add_label(text)
-    label.theme_type_variation = "HeaderUserHotkeyLabel"
-    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    return label
+    return add_header_label(text, "HeaderUserHotkeyLabel", HORIZONTAL_ALIGNMENT_CENTER)
 
 
 func add_header_program_label(text: String) -> Label:
-    var label := add_label(text)
-    label.theme_type_variation = "HeaderProgramLabel"
-    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    return label
+    return add_header_label(text, "HeaderProgramLabel", HORIZONTAL_ALIGNMENT_CENTER)
 
 
-func add_header_program_abbreviation(program_name: String, program_abbr: String) -> Label:
-    var label := add_label(program_abbr)
-    label.theme_type_variation = "HeaderProgramAbbreviation"
-    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+func add_header_program_abbreviation_label(program_name: String, program_abbr: String) -> Label:
+    var label := add_header_label(program_abbr, "HeaderProgramAbbreviation", HORIZONTAL_ALIGNMENT_CENTER)
     label.tooltip_text = program_name
     label.mouse_filter = MOUSE_FILTER_PASS
     return label
@@ -144,16 +139,21 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
 
         for program_id in programs:
             if row == 0:
-                var s := "✔️" if program_id in hotkeys else "❌"
-                var label := add_label(s)
+                var label := Label.new()
+                label.text = "✔️" if program_id in hotkeys else "❌"
+                label.size_flags_vertical = Control.SIZE_FILL
                 label.mouse_filter = Control.MOUSE_FILTER_PASS
                 label.gui_input.connect(_on_user_hotkey_program_checkbox_gui_input.bind(user_hotkey_id, program_id, label))
+                add_cell(label)
             else:
                 add_empty_cell()
     else:
         for program_id in programs:
             if row == 0:
-                add_label("–")
+                var label := Label.new()
+                label.text = "–"
+                label.size_flags_vertical = Control.SIZE_FILL
+                add_cell(label)
             else:
                 add_empty_cell()
 
