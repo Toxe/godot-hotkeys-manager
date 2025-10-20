@@ -138,29 +138,23 @@ func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[in
 
 
 func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int, String], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary], row: int) -> void:
-    if command_id in user_hotkeys:
-        var user_hotkey_id: int = user_hotkeys[command_id]["user_hotkey_id"]
-        var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
+    for program_id in programs:
+        if row == 0:
+            var label := Label.new()
+            label.size_flags_vertical = Control.SIZE_FILL
 
-        for program_id in programs:
-            if row == 0:
-                var label := Label.new()
+            if command_id in user_hotkeys:
+                var user_hotkey_id: int = user_hotkeys[command_id]["user_hotkey_id"]
+                var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
                 label.text = "✔️" if program_id in hotkeys else "❌"
-                label.size_flags_vertical = Control.SIZE_FILL
                 label.mouse_filter = Control.MOUSE_FILTER_PASS
                 label.gui_input.connect(_on_user_hotkey_program_checkbox_gui_input.bind(user_hotkey_id, program_id, label))
-                add_cell(label)
             else:
-                add_empty_cell()
-    else:
-        for program_id in programs:
-            if row == 0:
-                var label := Label.new()
                 label.text = "–"
-                label.size_flags_vertical = Control.SIZE_FILL
-                add_cell(label)
-            else:
-                add_empty_cell()
+
+            add_cell(label)
+        else:
+            add_empty_cell()
 
 
 func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, program_id: int, program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> Array[ProgramHotkeyTextCell]:
