@@ -25,7 +25,9 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
 
 func add_cell(cell: Control) -> void:
     assert(cell != null)
-    add_child(cell)
+    var panel_container := PanelContainer.new()
+    panel_container.add_child(cell)
+    add_child(panel_container)
 
 
 func add_empty_cell() -> void:
