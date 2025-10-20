@@ -44,10 +44,10 @@ func test_get_cell_returns_grid_controls() -> void:
     assert_is(command_grid.get_cell(1, 0), TextCell)
     assert_is(command_grid.get_cell(2, 0), Control)
     assert_is(command_grid.get_cell(3, 0), TextCell)
-    assert_is(command_grid.get_cell(0, 9), Label)
-    assert_is(command_grid.get_cell(1, 9), Label)
+    assert_is(command_grid.get_cell(0, 9), CheckBox)
+    assert_is(command_grid.get_cell(1, 9), CheckBox)
     assert_is(command_grid.get_cell(2, 9), Control)
-    assert_is(command_grid.get_cell(3, 9), Label)
+    assert_is(command_grid.get_cell(3, 9), CheckBox)
 
 
 func test_get_cell_returns_null_for_non_existing_cells() -> void:

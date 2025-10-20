@@ -140,19 +140,19 @@ func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[in
 func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int, String], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary], row: int) -> void:
     for program_id in programs:
         if row == 0:
-            var label := Label.new()
-            label.size_flags_vertical = Control.SIZE_FILL
+            var checkbox := CheckBox.new()
+            checkbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+            checkbox.size_flags_vertical = Control.SIZE_FILL
 
             if command_id in user_hotkeys:
                 var user_hotkey_id: int = user_hotkeys[command_id]["user_hotkey_id"]
                 var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
-                label.text = "✔️" if program_id in hotkeys else "❌"
-                label.mouse_filter = Control.MOUSE_FILTER_PASS
-                label.gui_input.connect(_on_user_hotkey_program_checkbox_gui_input.bind(user_hotkey_id, program_id, label))
+                checkbox.button_pressed = program_id in hotkeys
+                checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(user_hotkey_id, program_id))
             else:
-                label.text = "–"
+                checkbox.disabled = true
 
-            add_cell(label)
+            add_cell(checkbox)
         else:
             add_empty_cell()
 
@@ -194,15 +194,12 @@ func bind_program_command_cells(program_id: int, command_id: int) -> void:
             cell.is_bound = true
 
 
-func _on_user_hotkey_program_checkbox_gui_input(event: InputEvent, user_hotkey_id: int, program_id: int, label: Label) -> void:
-    if event is InputEventMouseButton:
-        var mouse_button_event: InputEventMouseButton = event
-        if mouse_button_event.pressed && mouse_button_event.button_index == 1:
-            if label.text == "✔️":
-                _db.delete_rows("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [user_hotkey_id, program_id])
-            elif label.text == "❌":
-                _db.insert_row("user_hotkey_program", {"user_hotkey_id": user_hotkey_id, "program_id": program_id})
-            Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
+func _on_user_hotkey_program_checkbox_toggled(toggled_on: bool, user_hotkey_id: int, program_id: int) -> void:
+    if toggled_on:
+        _db.insert_row("user_hotkey_program", {"user_hotkey_id": user_hotkey_id, "program_id": program_id})
+    else:
+        _db.delete_rows("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [user_hotkey_id, program_id])
+    Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
 
 
 func _on_command_name_cell_changed(cell: TextCell, old_name: String, new_name: String, command_id: int) -> void:
