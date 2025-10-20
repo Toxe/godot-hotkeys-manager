@@ -40,7 +40,8 @@ func get_cell(row: int, col: int) -> Control:
 
     var children := get_children()
     assert(children.size() == (rows + 1) * cols)
-    return children[(row + 1) * cols + col]
+    var panel_container: PanelContainer = children[(row + 1) * cols + col]
+    return panel_container.get_child(0)
 
 
 func add_header_row(programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String]) -> void:
@@ -193,7 +194,7 @@ func count_necessary_command_hotkey_rows(command_id: int, program_command_hotkey
 
 
 func bind_program_command_cells(program_id: int, command_id: int) -> void:
-    var cells := find_children("*", "ProgramHotkeyTextCell", false, false)
+    var cells := find_children("*", "ProgramHotkeyTextCell", true, false)
     for cell: ProgramHotkeyTextCell in cells:
         if cell.program_id == program_id && cell.command_id && !cell.is_bound:
             cell.is_bound = true
