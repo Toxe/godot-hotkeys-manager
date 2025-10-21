@@ -44,10 +44,10 @@ func test_get_cell_returns_grid_controls() -> void:
     assert_is(command_grid.get_cell(1, 0), TextCell)
     assert_is(command_grid.get_cell(2, 0), Control)
     assert_is(command_grid.get_cell(3, 0), TextCell)
-    assert_is(command_grid.get_cell(0, 9), CheckBox)
-    assert_is(command_grid.get_cell(1, 9), CheckBox)
+    assert_is(command_grid.get_cell(0, 9), UserHotkeyProgramCheckbox)
+    assert_is(command_grid.get_cell(1, 9), UserHotkeyProgramCheckbox)
     assert_is(command_grid.get_cell(2, 9), Control)
-    assert_is(command_grid.get_cell(3, 9), CheckBox)
+    assert_is(command_grid.get_cell(3, 9), UserHotkeyProgramCheckbox)
 
 
 func test_get_cell_returns_null_for_non_existing_cells() -> void:
@@ -203,3 +203,17 @@ func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void
     enter_text_and_emit_changed_signal(cell, "Ctrl+T")
     # new hotkey
     assert_true(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+T"]))
+
+
+func test_can_assign_user_hotkey_program() -> void:
+    var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, 8)
+    checkbox.button_pressed = true
+    assert_true(checkbox.button_pressed)
+    assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [checkbox.user_hotkey_id, checkbox.program_id]))
+
+
+func test_can_unassign_user_hotkey_program() -> void:
+    var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, 7)
+    checkbox.button_pressed = false
+    assert_false(checkbox.button_pressed)
+    assert_false(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [checkbox.user_hotkey_id, checkbox.program_id]))
