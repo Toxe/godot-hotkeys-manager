@@ -32,11 +32,11 @@ func test_grid_child_count() -> void:
 
 
 func test_number_of_rows() -> void:
-    assert_eq(command_grid.rows, 4)
+    assert_eq(command_grid._rows, 4)
 
 
 func test_number_of_columns() -> void:
-    assert_eq(command_grid.cols, 10)
+    assert_eq(command_grid._cols, 10)
 
 
 func test_get_cell_returns_grid_controls() -> void:
@@ -53,10 +53,10 @@ func test_get_cell_returns_grid_controls() -> void:
 func test_get_cell_returns_null_for_non_existing_cells() -> void:
     assert_null(command_grid.get_cell(-1, 0))
     assert_null(command_grid.get_cell(0, -1))
-    assert_null(command_grid.get_cell(command_grid.rows, 0))
-    assert_null(command_grid.get_cell(command_grid.rows + 1, 0))
-    assert_null(command_grid.get_cell(0, command_grid.cols))
-    assert_null(command_grid.get_cell(0, command_grid.cols + 1))
+    assert_null(command_grid.get_cell(command_grid._rows, 0))
+    assert_null(command_grid.get_cell(command_grid._rows + 1, 0))
+    assert_null(command_grid.get_cell(0, command_grid._cols))
+    assert_null(command_grid.get_cell(0, command_grid._cols + 1))
 
 
 func test_number_of_programs() -> void:
@@ -67,7 +67,7 @@ func test_command_name_cell_titles() -> void:
     var expected_titles: Array[String] = ["New Tab", "Close Tab", "New Window"]
     var command_name_cell_titles: Array[String] = []
 
-    for row in command_grid.rows:
+    for row in command_grid._rows:
         var cell := command_grid.get_cell(row, 0)
         if cell is TextCell:
             command_name_cell_titles.append((cell as TextCell).text)

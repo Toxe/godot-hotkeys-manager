@@ -3,8 +3,8 @@ class_name CommandGrid extends GridContainer
 var _db: Database = null
 var _programgroup_id: int = -1
 var _num_programs := 0
-var rows := 0 # number of table rows, not including the header row
-var cols := 0 # number of table columns, including the first command name column
+var _rows := 0 # number of table rows, not including the header row
+var _cols := 0 # number of table columns, including the first command name column
 
 
 func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
@@ -20,9 +20,9 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     add_header_row(programs, program_abbreviations)
 
     for command_id in commands:
-        rows += add_command_cells(command_id, programs, commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+        _rows += add_command_cells(command_id, programs, commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
-    cols = columns
+    _cols = columns
 
 
 func add_cell(cell: Control) -> void:
@@ -37,12 +37,12 @@ func add_empty_cell() -> void:
 
 
 func get_cell(row: int, col: int) -> Control:
-    if row < 0 || col < 0 || row >= rows || col >= cols:
+    if row < 0 || col < 0 || row >= _rows || col >= _cols:
         return null
 
     var children := get_children()
-    assert(children.size() == (rows + 1) * cols)
-    var panel_container: PanelContainer = children[(row + 1) * cols + col]
+    assert(children.size() == (_rows + 1) * _cols)
+    var panel_container: PanelContainer = children[(row + 1) * _cols + col]
     return panel_container.get_child(0)
 
 
@@ -202,12 +202,12 @@ func update_user_hotkey_program_checkboxes(user_hotkey_id: int, disabled: bool, 
     assert(new_id >= 0)
 
     # find row of the user hotkey cell user_hotkey_id
-    for row in range(0, rows):
+    for row in range(0, _rows):
         var cell: UserHotkeyTextCell = get_cell(row, _num_programs + 1) as UserHotkeyTextCell
         if cell:
             if cell.user_hotkey_id == user_hotkey_id:
                 # update checkboxes of this row
-                for col in range(_num_programs + 2, cols):
+                for col in range(_num_programs + 2, _cols):
                     var checkbox: UserHotkeyProgramCheckbox = get_cell(row, col)
                     checkbox.user_hotkey_id = new_id
                     checkbox.disabled = disabled
