@@ -130,8 +130,8 @@ func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[in
         cell.changed.connect(_on_user_hotkey_cell_changed)
         if command_id in user_hotkeys:
             var user_hotkey_data: Dictionary = user_hotkeys[command_id]
-            var user_hotkey: String = user_hotkey_data["user_hotkey"]
-            cell.text = user_hotkey
+            cell.text = user_hotkey_data["user_hotkey"]
+            cell.user_hotkey_id = user_hotkey_data["user_hotkey_id"]
         add_cell(cell)
     else:
         add_empty_cell()
@@ -240,8 +240,10 @@ func _on_user_hotkey_cell_changed(cell: UserHotkeyTextCell, old_hotkey: String, 
     if old_hotkey != "" && new_hotkey != "":
         _db.update_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey], {"hotkey": new_hotkey})
     elif old_hotkey == "" && new_hotkey != "":
-        _db.insert_row("user_hotkey", {"command_id": cell.command_id, "hotkey": new_hotkey})
+        if _db.insert_row("user_hotkey", {"command_id": cell.command_id, "hotkey": new_hotkey}):
+            cell.user_hotkey_id = _db.last_insert_rowid()
     elif old_hotkey != "" && new_hotkey == "":
-        _db.delete_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey])
+        if _db.delete_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey]):
+            cell.user_hotkey_id = 0
     else:
         printerr("_on_user_hotkey_cell_changed error: %d, '%s', '%s'" % [1, cell.command_id, old_hotkey, new_hotkey])

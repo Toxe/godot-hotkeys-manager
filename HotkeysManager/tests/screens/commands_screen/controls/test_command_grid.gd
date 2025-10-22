@@ -182,7 +182,11 @@ func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_th
 
 func test_can_change_a_user_hotkey() -> void:
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    var old_user_hotkey_id := cell.user_hotkey_id
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
+    # user_hotkey_id of the cell has not changed
+    assert_gt(cell.user_hotkey_id, 0)
+    assert_eq(cell.user_hotkey_id, old_user_hotkey_id)
     # new, saved hotkey
     assert_true(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+W"]))
     # old, deleted hotkey
@@ -192,6 +196,8 @@ func test_can_change_a_user_hotkey() -> void:
 func test_can_delete_a_user_hotkey_by_clearing_the_cell() -> void:
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
     enter_text_and_emit_changed_signal(cell, "")
+    # user_hotkey_id of the cell is now zero
+    assert_eq(cell.user_hotkey_id, 0)
     # deleted hotkey
     assert_false(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+F4"]))
     # making sure no empty hotkey was created
@@ -201,6 +207,8 @@ func test_can_delete_a_user_hotkey_by_clearing_the_cell() -> void:
 func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void:
     var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+T")
+    # assign new user_hotkey_id to cell
+    assert_gt(cell.user_hotkey_id, 0)
     # new hotkey
     assert_true(command_grid._db.rows_exist("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, "Ctrl+T"]))
 
