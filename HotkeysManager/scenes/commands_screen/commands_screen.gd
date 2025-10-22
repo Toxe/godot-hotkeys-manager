@@ -41,7 +41,7 @@ func _ready() -> void:
     for command_id in user_hotkeys_by_programs:
         combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
 
-    var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/VBoxContainer/CommandGrid
+    var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/CommandGrid
     command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
@@ -252,10 +252,6 @@ func _on_delete_command_button_pressed() -> void:
     SelectionDialog.open_dialog(self, "Delete Command", "Select the Commands that you want to delete.\n\nNote: This will completely delete the Commands and also all associated program and user Hotkeys!", _on_delete_command_dialog_submitted, query_all_commands())
 
 
-func _on_add_command_button_pressed() -> void:
-    AddCommandDialog.open_dialog(self, "Select a Command and assign it to at least one Program.", _on_add_command_dialog_submitted, query_programs(), query_available_commands())
-
-
 func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
     if _db.insert_row("command", {"name": values["name"]}):
         Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
@@ -266,13 +262,4 @@ func _on_delete_command_dialog_submitted(_dialog: SelectionDialog, selection: Ar
         var command_id: int = id
         if !_db.delete_rows("command", "command_id=%d" % command_id):
             return
-    Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
-
-
-func _on_add_command_dialog_submitted(_dialog: AddCommandDialog, options: Dictionary[String, Variant]) -> void:
-    var command_id: int = options["command"]
-    for program_command: Dictionary[String, Variant] in options["program_commands"]:
-        if _db.insert_row("program_command", {"program_id": program_command["program_id"], "command_id": command_id, "name": program_command["title"]}):
-            if !_db.insert_row("program_command_hotkey", {"program_id": program_command["program_id"], "command_id": command_id, "hotkey": program_command["hotkey"]}):
-                return
     Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)
