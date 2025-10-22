@@ -2,6 +2,7 @@ class_name CommandGrid extends GridContainer
 
 var _db: Database = null
 var _programgroup_id: int = -1
+var _num_programs := 0
 var rows := 0 # number of table rows, not including the header row
 var cols := 0 # number of table columns, including the first command name column
 
@@ -13,6 +14,7 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
 
     _db = db
     _programgroup_id = programgroup_id
+    _num_programs = programs.size()
     columns = 1 + programs.size() + 1 + programs.size()
 
     add_header_row(programs, program_abbreviations)

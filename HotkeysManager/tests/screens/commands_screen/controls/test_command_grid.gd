@@ -59,6 +59,10 @@ func test_get_cell_returns_null_for_non_existing_cells() -> void:
     assert_null(command_grid.get_cell(0, command_grid.cols + 1))
 
 
+func test_number_of_programs() -> void:
+    assert_eq(command_grid._num_programs, 4)
+
+
 func test_command_name_cell_titles() -> void:
     var expected_titles: Array[String] = ["New Tab", "Close Tab", "New Window"]
     var command_name_cell_titles: Array[String] = []
