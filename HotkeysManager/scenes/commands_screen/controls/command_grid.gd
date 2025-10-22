@@ -188,6 +188,9 @@ func count_necessary_command_hotkey_rows(command_id: int, program_command_hotkey
 
 
 func bind_program_command_cells(program_id: int, command_id: int) -> void:
+    assert(program_id > 0)
+    assert(command_id > 0)
+
     var cells := find_children("*", "ProgramHotkeyTextCell", true, false)
     for cell: ProgramHotkeyTextCell in cells:
         if cell.program_id == program_id && cell.command_id && !cell.is_bound:
@@ -255,8 +258,6 @@ func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_ho
 
 
 func _on_user_hotkey_cell_changed(cell: UserHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
-    assert(cell.command_id > 0)
-
     if old_hotkey != "" && new_hotkey != "":
         _db.update_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey], {"hotkey": new_hotkey})
     elif old_hotkey == "" && new_hotkey != "":
