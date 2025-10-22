@@ -194,6 +194,24 @@ func bind_program_command_cells(program_id: int, command_id: int) -> void:
             cell.is_bound = true
 
 
+func update_user_hotkey_program_checkboxes(user_hotkey_id: int, disabled: bool, button_pressed: bool, new_id: int) -> void:
+    assert(user_hotkey_id > 0)
+    assert(new_id >= 0)
+
+    # find row of the user hotkey cell user_hotkey_id
+    for row in range(0, rows):
+        var cell: UserHotkeyTextCell = get_cell(row, _num_programs + 1) as UserHotkeyTextCell
+        if cell:
+            if cell.user_hotkey_id == user_hotkey_id:
+                # update checkboxes of this row
+                for col in range(_num_programs + 2, cols):
+                    var checkbox: UserHotkeyProgramCheckbox = get_cell(row, col)
+                    checkbox.user_hotkey_id = new_id
+                    checkbox.disabled = disabled
+                    checkbox.set_pressed_no_signal(button_pressed)
+                return
+
+
 func _on_user_hotkey_program_checkbox_toggled(toggled_on: bool, checkbox: UserHotkeyProgramCheckbox) -> void:
     var success := true
     if toggled_on:
@@ -244,8 +262,10 @@ func _on_user_hotkey_cell_changed(cell: UserHotkeyTextCell, old_hotkey: String, 
     elif old_hotkey == "" && new_hotkey != "":
         if _db.insert_row("user_hotkey", {"command_id": cell.command_id, "hotkey": new_hotkey}):
             cell.user_hotkey_id = _db.last_insert_rowid()
+            update_user_hotkey_program_checkboxes(cell.user_hotkey_id, false, false, cell.user_hotkey_id)
     elif old_hotkey != "" && new_hotkey == "":
         if _db.delete_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey]):
+            update_user_hotkey_program_checkboxes(cell.user_hotkey_id, true, false, 0)
             cell.user_hotkey_id = 0
     else:
         printerr("_on_user_hotkey_cell_changed error: %d, '%s', '%s'" % [1, cell.command_id, old_hotkey, new_hotkey])

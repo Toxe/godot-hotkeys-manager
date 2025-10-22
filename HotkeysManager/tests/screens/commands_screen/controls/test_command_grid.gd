@@ -229,3 +229,39 @@ func test_can_unassign_user_hotkey_program() -> void:
     checkbox.button_pressed = false
     assert_false(checkbox.button_pressed)
     assert_false(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [checkbox.user_hotkey_id, checkbox.program_id]))
+
+
+func test_after_creating_a_new_user_hotkey_the_checkboxes_in_the_same_row_are_enabled_and_unchecked() -> void:
+    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
+    enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
+    for col in range(6, 10):
+        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(0, col)
+        assert_eq(checkbox.user_hotkey_id, cell.user_hotkey_id)
+        assert_false(checkbox.disabled)
+        assert_false(checkbox.button_pressed)
+
+
+func test_after_deleting_a_user_hotkey_the_checkboxes_in_the_same_row_are_disabled_and_unchecked() -> void:
+    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    enter_text_and_emit_changed_signal(cell, "")
+    for col in range(6, 10):
+        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, col)
+        assert_eq(checkbox.user_hotkey_id, 0)
+        assert_true(checkbox.disabled)
+        assert_false(checkbox.button_pressed)
+
+
+func test_after_changing_a_user_hotkey_the_checkboxes_in_the_same_row_dont_change() -> void:
+    @warning_ignore_start("unsafe_call_argument")
+    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    var old_state: Dictionary[int, Dictionary]
+    for col in range(6, 10):
+        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, col)
+        old_state[col] = {"user_hotkey_id": checkbox.user_hotkey_id, "disabled": checkbox.disabled, "button_pressed": checkbox.button_pressed}
+    enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
+    for col in range(6, 10):
+        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, col)
+        assert_eq(checkbox.user_hotkey_id, old_state[col]["user_hotkey_id"])
+        assert_eq(checkbox.disabled, old_state[col]["disabled"])
+        assert_eq(checkbox.button_pressed, old_state[col]["button_pressed"])
+    @warning_ignore_restore("unsafe_call_argument")
