@@ -24,6 +24,7 @@ func test_update_rows() -> void:
 
 func test_delete_rows() -> void:
     assert_true(db.delete_rows("program_command", "name='Go to File'"))
+    assert_true(db.delete_rows("program_command", "*"))
 
 
 func test_select_rows() -> void:
@@ -113,6 +114,19 @@ func test_rows_exist_returns_true_if_a_condition_returns_multiple_rows() -> void
 
 func test_rows_exist_returns_false_if_a_condition_returns_no_rows() -> void:
     assert_false(db.rows_exist("program", "program_id=99"))
+
+
+func test_count_rows_returns_the_number_of_rows() -> void:
+    assert_eq(db.count_rows("command"), 6)
+    assert_eq(db.count_rows("program"), 10)
+    assert_eq(db.count_rows("program_command"), 12)
+
+
+func test_count_rows_returns_zero_if_a_table_is_empty() -> void:
+    db.delete_rows("properties", "*")
+    db.delete_rows("command_comment", "*")
+    assert_eq(db.count_rows("properties"), 0)
+    assert_eq(db.count_rows("command_comment"), 0)
 
 
 func test_query() -> void:

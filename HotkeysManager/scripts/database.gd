@@ -151,6 +151,11 @@ func rows_exist(table: String, conditions: String) -> bool:
     return result[0].values().get(0) == 1
 
 
+func count_rows(table: String) -> int:
+    var result: Array[Dictionary] = select("SELECT COUNT(*) FROM `%s`;" % [table])
+    return result[0].values().get(0)
+
+
 ## A general query function, when there is no better fit.
 func query(sql: String, bindings: Array = []) -> bool:
     return exec_call(&"QUERY", func() -> void: _db.query_with_bindings(sql, bindings))
