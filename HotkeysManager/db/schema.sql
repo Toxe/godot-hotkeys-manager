@@ -6,13 +6,13 @@ CREATE TABLE properties (
 
 CREATE TABLE programgroup (
     programgroup_id integer PRIMARY KEY NOT NULL,
-    name varchar(255)
+    name varchar(255) COLLATE nocase
 );
 
 CREATE TABLE program (
     program_id integer PRIMARY KEY NOT NULL,
-    name varchar(255),
-    abbreviation varchar(16),
+    name varchar(255) COLLATE nocase,
+    abbreviation varchar(16) COLLATE nocase,
     icon blob
 );
 
@@ -26,12 +26,12 @@ CREATE TABLE programgroup_program (
 
 CREATE TABLE category (
     category_id integer PRIMARY KEY NOT NULL,
-    name varchar(255)
+    name varchar(255) COLLATE nocase
 );
 
 CREATE TABLE command (
     command_id integer PRIMARY KEY NOT NULL,
-    name varchar(255)
+    name varchar(255) COLLATE nocase
 );
 
 CREATE TABLE command_category (
