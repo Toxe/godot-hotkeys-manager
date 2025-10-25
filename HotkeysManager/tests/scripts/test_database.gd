@@ -117,7 +117,7 @@ func test_rows_exist_returns_false_if_a_condition_returns_no_rows() -> void:
 
 
 func test_count_rows_returns_the_number_of_rows() -> void:
-    assert_eq(db.count_rows("command"), 6)
+    assert_eq(db.count_rows("command"), 7)
     assert_eq(db.count_rows("program"), 10)
     assert_eq(db.count_rows("program_command"), 12)
 

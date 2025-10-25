@@ -42,7 +42,8 @@ INSERT INTO command (name) VALUES
 ('New Tab'),
 ('New Window'),
 ('Close Tab'),
-('Close All Tabs');
+('Close All Tabs'),
+('Quit');
 
 INSERT INTO command_category (command_id, category_id) VALUES
 (1, 1),

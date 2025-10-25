@@ -23,6 +23,7 @@ func test_query_all_commands() -> void:
         4: "New Window",
         5: "Close Tab",
         6: "Close All Tabs",
+        7: "Quit",
     })
 
 
