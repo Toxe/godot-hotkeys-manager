@@ -15,7 +15,7 @@ func before_each() -> void:
 
 
 func test_query_all_commands() -> void:
-    var commands := commands_screen.query_all_commands()
+    var commands := CommandsScreen.query_all_commands(commands_screen._db)
     assert_eq_deep(commands, {
         1: "Go to File",
         2: "Go to Next Editor Tab",
@@ -28,7 +28,7 @@ func test_query_all_commands() -> void:
 
 
 func test_query_programs() -> void:
-    var programs := commands_screen.query_programs()
+    var programs := CommandsScreen.query_programs(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(programs, {
         7: "Krita",
         8: "Firefox",
@@ -38,7 +38,7 @@ func test_query_programs() -> void:
 
 
 func test_query_program_abbreviations() -> void:
-    var program_abbreviations := commands_screen.query_program_abbreviations()
+    var program_abbreviations := CommandsScreen.query_program_abbreviations(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(program_abbreviations, {
           7: "Kr",
           8: "FF",
@@ -48,7 +48,7 @@ func test_query_program_abbreviations() -> void:
 
 
 func test_query_commands() -> void:
-    var commands := commands_screen.query_commands()
+    var commands := CommandsScreen.query_commands(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(commands, {
           3: "New Tab",
           5: "Close Tab",
@@ -56,7 +56,7 @@ func test_query_commands() -> void:
 
 
 func test_query_program_command_names() -> void:
-    var program_commands := commands_screen.query_program_command_names()
+    var program_commands := CommandsScreen.query_program_command_names(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(program_commands, {
         3: {
             8: "New Tab",
@@ -70,7 +70,7 @@ func test_query_program_command_names() -> void:
 
 
 func test_query_program_command_hotkeys() -> void:
-    var program_command_hotkeys := commands_screen.query_program_command_hotkeys()
+    var program_command_hotkeys := CommandsScreen.query_program_command_hotkeys(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(program_command_hotkeys, {
         3: {
             8: ["Ctrl+T"],
@@ -84,14 +84,14 @@ func test_query_program_command_hotkeys() -> void:
 
 
 func test_query_user_hotkeys_by_commands() -> void:
-    var user_hotkeys_by_commands := commands_screen.query_user_hotkeys_by_commands()
+    var user_hotkeys_by_commands := CommandsScreen.query_user_hotkeys_by_commands(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(user_hotkeys_by_commands, {
           5: {"user_hotkey_id": 3, "user_hotkey": "Ctrl+F4", "command_name": "Close Tab"},
     })
 
 
 func test_query_user_hotkeys_by_programs() -> void:
-    var user_hotkeys_by_programs := commands_screen.query_user_hotkeys_by_programs()
+    var user_hotkeys_by_programs := CommandsScreen.query_user_hotkeys_by_programs(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(user_hotkeys_by_programs, {
           4: {"user_hotkey_id": 4, "user_hotkey": "Ctrl+N", "command_name": "New Window"},
           5: {"user_hotkey_id": 3, "user_hotkey": "Ctrl+F4", "command_name": "Close Tab"},
@@ -99,7 +99,7 @@ func test_query_user_hotkeys_by_programs() -> void:
 
 
 func test_query_user_hotkey_programs() -> void:
-    var user_hotkey_programs := commands_screen.query_user_hotkey_programs()
+    var user_hotkey_programs := CommandsScreen.query_user_hotkey_programs(commands_screen._db, commands_screen._programgroup_id)
     assert_eq_deep(user_hotkey_programs, {
           4: {"user_hotkey_id": 4, "hotkeys": [9]},
           5: {"user_hotkey_id": 3, "hotkeys": [7, 8]},
@@ -107,9 +107,9 @@ func test_query_user_hotkey_programs() -> void:
 
 
 func test_can_delete_command() -> void:
-    var old_count := commands_screen.query_all_commands().size()
+    var old_count := CommandsScreen.query_all_commands(commands_screen._db).size()
     commands_screen._on_delete_command_dialog_submitted(null, [1, 3])
-    var new_count := commands_screen.query_all_commands().size()
+    var new_count := CommandsScreen.query_all_commands(commands_screen._db).size()
     assert_eq(new_count, old_count - 2)
 
 
