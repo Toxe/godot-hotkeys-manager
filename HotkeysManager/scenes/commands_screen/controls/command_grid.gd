@@ -179,16 +179,12 @@ func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[in
 func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int, String], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary], row: int) -> void:
     for program_id in programs:
         if row == 0:
-            var checkbox := UserHotkeyProgramCheckbox.new(program_id)
-
+            var checkbox := UserHotkeyProgramCheckbox.new(program_id) # automatically disabled
             if command_id in user_hotkeys:
                 checkbox.user_hotkey_id = user_hotkeys[command_id]["user_hotkey_id"]
                 var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
                 checkbox.set_pressed_no_signal(program_id in hotkeys)
                 checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
-            else:
-                checkbox.disabled = true
-
             add_cell(checkbox)
         else:
             add_empty_cell()
@@ -239,7 +235,6 @@ func add_command_row(command_name: String) -> void:
     for program_id in programs:
         var checkbox := UserHotkeyProgramCheckbox.new(program_id, user_hotkey_id)
         checkbox.button_pressed = program_id in assigned_programs
-        checkbox.disabled = user_hotkey_id == 0
         checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
         sibling = add_sibling_cell(sibling, checkbox)
 
@@ -286,7 +281,7 @@ func bind_program_command_cells(program_id: int, command_id: int) -> void:
             cell.is_bound = true
 
 
-func update_user_hotkey_program_checkboxes(user_hotkey_id: int, disabled: bool, button_pressed: bool, new_id: int) -> void:
+func update_user_hotkey_program_checkboxes(user_hotkey_id: int, button_pressed: bool, new_id: int) -> void:
     assert(user_hotkey_id > 0)
     assert(new_id >= 0)
 
@@ -299,7 +294,6 @@ func update_user_hotkey_program_checkboxes(user_hotkey_id: int, disabled: bool, 
                 for col in range(_num_programs + 2, _cols):
                     var checkbox: UserHotkeyProgramCheckbox = get_cell(row, col)
                     checkbox.user_hotkey_id = new_id
-                    checkbox.disabled = disabled
                     checkbox.set_pressed_no_signal(button_pressed)
                 return
 
@@ -352,10 +346,10 @@ func _on_user_hotkey_cell_changed(cell: UserHotkeyTextCell, old_hotkey: String, 
     elif old_hotkey == "" && new_hotkey != "":
         if _db.insert_row("user_hotkey", {"command_id": cell.command_id, "hotkey": new_hotkey}):
             cell.user_hotkey_id = _db.last_insert_rowid()
-            update_user_hotkey_program_checkboxes(cell.user_hotkey_id, false, false, cell.user_hotkey_id)
+            update_user_hotkey_program_checkboxes(cell.user_hotkey_id, false, cell.user_hotkey_id)
     elif old_hotkey != "" && new_hotkey == "":
         if _db.delete_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey]):
-            update_user_hotkey_program_checkboxes(cell.user_hotkey_id, true, false, 0)
+            update_user_hotkey_program_checkboxes(cell.user_hotkey_id, false, 0)
             cell.user_hotkey_id = 0
     else:
         printerr("_on_user_hotkey_cell_changed error: %d, '%s', '%s'" % [1, cell.command_id, old_hotkey, new_hotkey])
