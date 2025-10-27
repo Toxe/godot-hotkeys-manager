@@ -39,10 +39,8 @@ func add_empty_cell() -> void:
 func get_cell(row: int, col: int) -> Control:
     if row < 0 || col < 0 || row >= _rows || col >= _cols:
         return null
-
-    var children := get_children()
-    assert(children.size() == (_rows + 1) * _cols)
-    var panel_container: PanelContainer = children[(row + 1) * _cols + col]
+    assert(get_child_count() == (_rows + 1) * _cols)
+    var panel_container: PanelContainer = get_child((row + 1) * _cols + col)
     return panel_container.get_child(0)
 
 
