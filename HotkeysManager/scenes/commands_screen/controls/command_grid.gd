@@ -104,13 +104,17 @@ func add_header_program_abbreviation_label(program_name: String, program_abbr: S
     return label
 
 
+func create_command_name_cell(command_id: int, command_name: String) -> TextCell:
+    var cell := TextCell.new()
+    cell.text = command_name
+    cell.theme_type_variation = "CommandNameLineEdit"
+    cell.changed.connect(_on_command_name_cell_changed.bind(command_id))
+    return cell
+
+
 func add_command_name_cell(row: int, command_id: int, command_name: String) -> void:
     if row == 0:
-        var cell := TextCell.new()
-        cell.text = command_name
-        cell.theme_type_variation = "CommandNameLineEdit"
-        cell.changed.connect(_on_command_name_cell_changed.bind(command_id))
-        add_cell(cell)
+        add_cell(create_command_name_cell(command_id, command_name))
     else:
         add_empty_cell()
 
