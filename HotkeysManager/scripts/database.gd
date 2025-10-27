@@ -90,7 +90,7 @@ func exec_call(query_type: StringName, fn_query: Callable) -> bool:
     return success
 
 
-func insert_rows(table: String, rows: Array[Dictionary]) -> bool:
+func insert_rows(table: String, rows: Array) -> bool:
     return exec_call(&"INSERT", func() -> void: _db.insert_rows(table, rows))
 
 
