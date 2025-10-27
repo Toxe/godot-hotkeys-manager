@@ -158,7 +158,6 @@ func add_program_command_hotkey_cells(row: int, programs: Dictionary[int, String
     for program_id in programs:
         var cells: Array[ProgramHotkeyTextCell] = program_hotkey_cells[program_id]
         var cell := cells[row]
-        cell.expand_to_text_length = true
         cell.changed.connect(_on_program_command_hotkey_cell_changed)
         add_cell(cell)
 
@@ -215,7 +214,6 @@ func add_command_row(command_name: String) -> void:
     # add program hotkey cells
     for program_id in programs:
         var program_hotkey_cell := ProgramHotkeyTextCell.new(command_id, program_id, false)
-        program_hotkey_cell.expand_to_text_length = true
         program_hotkey_cell.changed.connect(_on_program_command_hotkey_cell_changed)
         sibling = add_sibling_cell(sibling, program_hotkey_cell)
 
