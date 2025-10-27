@@ -1,7 +1,8 @@
-[gd_resource type="Theme" load_steps=6 format=3 uid="uid://dpqsa2k1ma2sl"]
+[gd_resource type="Theme" load_steps=7 format=3 uid="uid://dpqsa2k1ma2sl"]
 
 [ext_resource type="Texture2D" uid="uid://bxp1yqs0lcpps" path="res://assets/icons/checkbox_checked.svg" id="1_3ia3y"]
 [ext_resource type="Texture2D" uid="uid://550ejqbmt7x6" path="res://assets/icons/checkbox_unchecked.svg" id="2_3ia3y"]
+[ext_resource type="Texture2D" uid="uid://cg16rbld7tabu" path="res://assets/icons/checkbox_disabled.svg" id="3_rgkhk"]
 
 [sub_resource type="SystemFont" id="SystemFont_sifa0"]
 
@@ -22,6 +23,7 @@ CheckBox/colors/checkbox_checked_color = Color(0.5, 1, 0.5, 1)
 CheckBox/colors/checkbox_unchecked_color = Color(0.25, 0.25, 0.25, 1)
 CheckBox/icons/checked = ExtResource("1_3ia3y")
 CheckBox/icons/unchecked = ExtResource("2_3ia3y")
+CheckBox/icons/unchecked_disabled = ExtResource("3_rgkhk")
 CommandNameLineEdit/base_type = &"LineEdit"
 CommandNameLineEdit/colors/font_color = Color(1, 1, 0, 1)
 CommandNameLineEdit/font_sizes/font_size = 24
