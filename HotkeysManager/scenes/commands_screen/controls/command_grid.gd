@@ -3,7 +3,7 @@ class_name CommandGrid extends GridContainer
 var _db: Database = null
 var _programgroup_id: int = -1
 var _num_programs := 0
-var _rows := 0 # number of table rows, not including the header row
+var _rows := 0 # number of table rows, not including the header and bottom row
 var _cols := 0 # number of table columns, including the first command name column
 
 
@@ -15,14 +15,15 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     _db = db
     _programgroup_id = programgroup_id
     _num_programs = programs.size()
-    columns = 1 + programs.size() + 1 + programs.size()
+    _cols = 1 + programs.size() + 1 + programs.size()
+    columns = _cols
 
     add_header_row(programs, program_abbreviations)
 
     for command_id in commands:
         _rows += add_command_cells(command_id, programs, commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
-    _cols = columns
+    add_bottom_row()
 
 
 func add_cell(cell: Control) -> void:
@@ -32,6 +33,15 @@ func add_cell(cell: Control) -> void:
     add_child(panel_container)
 
 
+func add_sibling_cell(sibling: Control, cell: Control) -> Control:
+    assert(sibling != null)
+    assert(cell != null)
+    var panel_container := PanelContainer.new()
+    panel_container.add_child(cell)
+    sibling.add_sibling(panel_container)
+    return panel_container
+
+
 func add_empty_cell() -> void:
     add_cell(Control.new())
 
@@ -39,9 +49,22 @@ func add_empty_cell() -> void:
 func get_cell(row: int, col: int) -> Control:
     if row < 0 || col < 0 || row >= _rows || col >= _cols:
         return null
-    assert(get_child_count() == (_rows + 1) * _cols)
+    assert(get_child_count() == (_rows + 2) * _cols) # +2 == header + bottom row
     var panel_container: PanelContainer = get_child((row + 1) * _cols + col)
     return panel_container.get_child(0)
+
+
+func get_add_command_cell() -> TextCell:
+    var panel_container: PanelContainer = get_child((_rows + 1) * _cols)
+    return panel_container.get_child(0)
+
+
+func find_command_row(command_name: String) -> int:
+    for row in _rows:
+        var cell: TextCell = get_cell(row, 0) as TextCell
+        if cell && cell.text.nocasecmp_to(command_name) == 0:
+            return row
+    return -1
 
 
 func add_header_row(programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String]) -> void:
@@ -54,6 +77,18 @@ func add_header_row(programs: Dictionary[int, String], program_abbreviations: Di
 
     for program_id: int in programs:
         add_header_program_abbreviation_label(programs[program_id], program_abbreviations[program_id])
+
+
+func add_bottom_row() -> void:
+    # input field
+    var cell := TextCell.new()
+    cell.placeholder_text = "Add Command…"
+    cell.theme_type_variation = "CommandNameLineEdit"
+    cell.changed.connect(_on_add_command_cell_changed)
+    add_cell(cell)
+    # empty cells
+    for i in range(1, _cols):
+        add_empty_cell()
 
 
 func add_command_cells(command_id: int, programs: Dictionary[int, String], commands: Dictionary[int, String], program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> int:
@@ -157,6 +192,58 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
             add_cell(checkbox)
         else:
             add_empty_cell()
+
+
+func add_command_row(command_name: String) -> void:
+    var row: Variant = _db.select_row("command", "name='%s'" % command_name, ["command_id"])
+    var command_id: int = row["command_id"]
+
+    var user_hotkey_id := 0
+    var user_hotkey := ""
+    row = _db.select_row("user_hotkey", "command_id=%d" % command_id, ["user_hotkey_id", "hotkey"])
+    if row:
+        user_hotkey_id = row["user_hotkey_id"]
+        user_hotkey = row["hotkey"]
+
+    var programs: Array[int]
+    if _db.select("SELECT p.program_id FROM program p INNER JOIN programgroup_program pp USING (program_id) WHERE pp.programgroup_id = ?;", [_programgroup_id]):
+        for d: Dictionary in _db.query_result():
+            var program_id: int = d["program_id"]
+            programs.append(program_id)
+
+    var sibling: Control = get_child((_rows + 1) * _cols - 1)
+
+    # add command name cell
+    sibling = add_sibling_cell(sibling, create_command_name_cell(command_id, command_name))
+
+    # add program hotkey cells
+    for program_id in programs:
+        var program_hotkey_cell := ProgramHotkeyTextCell.new(command_id, program_id, false)
+        program_hotkey_cell.expand_to_text_length = true
+        program_hotkey_cell.changed.connect(_on_program_command_hotkey_cell_changed)
+        sibling = add_sibling_cell(sibling, program_hotkey_cell)
+
+    # add user hotkey cell
+    var user_hotkey_cell := UserHotkeyTextCell.new(command_id, user_hotkey_id)
+    user_hotkey_cell.text = user_hotkey
+    user_hotkey_cell.changed.connect(_on_user_hotkey_cell_changed)
+    sibling = add_sibling_cell(sibling, user_hotkey_cell)
+
+    # add user hotkey program assignment checkboxes
+    var assigned_programs: Array[int]
+    if _db.select_rows("user_hotkey_program", "user_hotkey_id=%d" % user_hotkey_id, ["program_id"]):
+        for d: Dictionary in _db.query_result():
+            var program_id: int = d["program_id"]
+            assigned_programs.append(program_id)
+
+    for program_id in programs:
+        var checkbox := UserHotkeyProgramCheckbox.new(program_id, user_hotkey_id)
+        checkbox.button_pressed = program_id in assigned_programs
+        checkbox.disabled = user_hotkey_id == 0
+        checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
+        sibling = add_sibling_cell(sibling, checkbox)
+
+    _rows += 1
 
 
 func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, program_id: int, program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> Array[ProgramHotkeyTextCell]:
@@ -272,3 +359,20 @@ func _on_user_hotkey_cell_changed(cell: UserHotkeyTextCell, old_hotkey: String, 
             cell.user_hotkey_id = 0
     else:
         printerr("_on_user_hotkey_cell_changed error: %d, '%s', '%s'" % [1, cell.command_id, old_hotkey, new_hotkey])
+
+
+func _on_add_command_cell_changed(cell: TextCell, old_text: String, new_text: String) -> void:
+    if old_text == "" && new_text != "":
+        cell.text = ""
+        var row := find_command_row(new_text)
+        if row >= 0:
+            return # command already in the table
+        # create a new command if it doesn't already exist in the database
+        var command_name := new_text
+        var result: Variant = _db.select_value("command", "name='%s'" % new_text, "name")
+        if result:
+            command_name = result
+        else:
+            if !_db.insert_row("command", {"name": command_name}):
+                return
+        add_command_row(command_name)
