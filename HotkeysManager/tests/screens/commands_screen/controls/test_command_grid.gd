@@ -1,24 +1,49 @@
 extends GutTest
 
-const commands_screen_scene: PackedScene = preload("uid://de72ge75p8811")
-
-var commands_screen: CommandsScreen = null
+var create_command_grid_func: Callable # call to create a new CommandGrid instance each run
 var command_grid: CommandGrid = null
+
+
+func before_all() -> void:
+    const programgroup_id := 3
+
+    var db: Database = Database.new()
+    db.open(":memory:")
+
+    var programs := CommandsScreen.query_programs(db, programgroup_id)
+    var program_abbreviations := CommandsScreen.query_program_abbreviations(db, programgroup_id)
+    var commands := CommandsScreen.query_commands(db, programgroup_id)
+    var program_command_names := CommandsScreen.query_program_command_names(db, programgroup_id)
+    var program_command_hotkeys := CommandsScreen.query_program_command_hotkeys(db, programgroup_id)
+    var user_hotkeys_by_commands := CommandsScreen.query_user_hotkeys_by_commands(db, programgroup_id)
+    var user_hotkeys_by_programs := CommandsScreen.query_user_hotkeys_by_programs(db, programgroup_id)
+    var user_hotkey_programs := CommandsScreen.query_user_hotkey_programs(db, programgroup_id)
+
+    var user_hotkeys: Dictionary[int, Dictionary] = {}
+    for command_id in user_hotkeys_by_commands:
+        user_hotkeys[command_id] = user_hotkeys_by_commands[command_id]
+    for command_id in user_hotkeys_by_programs:
+        user_hotkeys[command_id] = user_hotkeys_by_programs[command_id]
+
+    var combined_commands: Dictionary[int, String] = {}
+    for command_id in commands:
+        combined_commands[command_id] = commands[command_id]
+    for command_id in user_hotkeys_by_commands:
+        combined_commands[command_id] = user_hotkeys_by_commands[command_id]["command_name"]
+    for command_id in user_hotkeys_by_programs:
+        combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
+
+    create_command_grid_func = func(db_for_test_run: Database) -> CommandGrid:
+        var grid := CommandGrid.new()
+        grid.setup(db_for_test_run, programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+        return grid
 
 
 func before_each() -> void:
     var db: Database = Database.new()
     db.open(":memory:")
-
-    const programgroup_id := 3
-    commands_screen = commands_screen_scene.instantiate()
-    commands_screen.setup(db, programgroup_id)
-    add_child(commands_screen)
-    command_grid = commands_screen.find_child("CommandGrid", true, false)
-
-
-func after_each() -> void:
-    commands_screen.queue_free()
+    @warning_ignore("unsafe_call_argument")
+    command_grid = add_child_autofree(create_command_grid_func.call(db))
 
 
 func enter_text_and_emit_changed_signal(cell: TextCell, new_text: String) -> void:
