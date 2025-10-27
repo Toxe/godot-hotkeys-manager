@@ -179,11 +179,11 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
     for program_id in programs:
         if row == 0:
             var checkbox := UserHotkeyProgramCheckbox.new(program_id) # automatically disabled
+            checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
             if command_id in user_hotkeys:
                 checkbox.user_hotkey_id = user_hotkeys[command_id]["user_hotkey_id"]
                 var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
                 checkbox.set_pressed_no_signal(program_id in hotkeys)
-                checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
             add_cell(checkbox)
         else:
             add_empty_cell()
