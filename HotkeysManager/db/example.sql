@@ -4,7 +4,8 @@ INSERT INTO programgroup (name) VALUES
 ('Texteditoren'),
 ('Grafikprogramme'),
 ('Group 3'),
-('Group 4');
+('Group 4'),
+('Group 5');
 
 INSERT INTO program (name, abbreviation) VALUES
 ('CLion', 'CL'),
@@ -29,7 +30,8 @@ INSERT INTO programgroup_program (programgroup_id, program_id) VALUES
 (3, 7),
 (3, 8),
 (3, 9),
-(3, 10);
+(3, 10),
+(5, 5);
 
 INSERT INTO category (name) VALUES
 ('Navigation'),
