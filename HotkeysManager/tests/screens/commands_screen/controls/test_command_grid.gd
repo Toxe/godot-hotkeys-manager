@@ -320,7 +320,7 @@ func test_after_changing_a_user_hotkey_the_program_assignment_checkboxes_dont_ch
 
 var test_entering_a_command_into_the_add_command_cell_params := [
     {
-        # entering a new command creates a new command and adds it to the table
+        "_": "entering a new command creates a new command and adds it to the table",
         "assign_programs_to_user_hotkey": [],
         "command_name_input": "New Command",
         "command_name_expected": "New Command",
@@ -332,7 +332,7 @@ var test_entering_a_command_into_the_add_command_cell_params := [
         "expected_checked_checkboxes": {7: false, 8: false, 9: false, 10: false},
     },
     {
-        # entering an existing command without an assigned user hotkey adds it to the table and disables the checkboxes
+        "_": "entering an existing command without an assigned user hotkey adds it to the table and disables the checkboxes",
         "assign_programs_to_user_hotkey": [],
         "command_name_input": "Quit",
         "command_name_expected": "Quit",
@@ -344,7 +344,7 @@ var test_entering_a_command_into_the_add_command_cell_params := [
         "expected_checked_checkboxes": {7: false, 8: false, 9: false, 10: false},
     },
     {
-        # entering an existing command with an assigned user hotkey but no assigned programs adds it to the table and enables the checkboxes without checking them
+        "_": "entering an existing command with an assigned user hotkey but no assigned programs adds it to the table and enables the checkboxes without checking them",
         "assign_programs_to_user_hotkey": [],
         "command_name_input": "go to file",
         "command_name_expected": "Go to File",
@@ -356,7 +356,7 @@ var test_entering_a_command_into_the_add_command_cell_params := [
         "expected_checked_checkboxes": {7: false, 8: false, 9: false, 10: false},
     },
     {
-        # entering an existing command with an assigned user hotkey and assigned programs adds it to the table and enables the checkboxes and checks some of them
+        "_": "entering an existing command with an assigned user hotkey and assigned programs adds it to the table and enables the checkboxes and checks some of them",
         "assign_programs_to_user_hotkey": [ {"user_hotkey_id": 1, "program_id": 8}, {"user_hotkey_id": 1, "program_id": 9}],
         "command_name_input": "go to file",
         "command_name_expected": "Go to File",
