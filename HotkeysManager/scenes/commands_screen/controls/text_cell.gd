@@ -12,9 +12,13 @@ func _ready() -> void:
     editing_toggled.connect(_on_editing_toggled)
 
 
+func change_text(new_text: String) -> void:
+    text = new_text.strip_edges()
+    if _old_text != text:
+        changed.emit(self, _old_text, text)
+        _old_text = text
+
+
 func _on_editing_toggled(toggled_on: bool) -> void:
     if !toggled_on:
-        text = text.strip_edges()
-        if _old_text != text:
-            changed.emit(self, _old_text, text)
-            _old_text = text
+        change_text(text)
