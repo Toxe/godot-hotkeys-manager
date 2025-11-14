@@ -1,12 +1,7 @@
 extends GutTest
 
-var create_command_grid_func: Callable # call to create a new CommandGrid instance each run
-var command_grid: CommandGrid = null
 
-
-func before_all() -> void:
-    const programgroup_id := 3
-
+func create_command_grid(programgroup_id: int) -> CommandGrid:
     var db: Database = Database.new()
     db.open(":memory:")
 
@@ -33,17 +28,9 @@ func before_all() -> void:
     for command_id in user_hotkeys_by_programs:
         combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
 
-    create_command_grid_func = func(db_for_test_run: Database) -> CommandGrid:
-        var grid := CommandGrid.new()
-        grid.setup(db_for_test_run, programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
-        return grid
-
-
-func before_each() -> void:
-    var db: Database = Database.new()
-    db.open(":memory:")
-    @warning_ignore("unsafe_call_argument")
-    command_grid = add_child_autofree(create_command_grid_func.call(db))
+    var command_grid := CommandGrid.new()
+    command_grid.setup(db, programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    return add_child_autofree(command_grid)
 
 
 func enter_text_and_emit_changed_signal(cell: TextCell, new_text: String) -> void:
@@ -53,22 +40,27 @@ func enter_text_and_emit_changed_signal(cell: TextCell, new_text: String) -> voi
 
 
 func test_grid_child_count() -> void:
+    var command_grid := create_command_grid(3)
     assert_eq(command_grid.get_child_count(), (4 + 2) * 10) # 4 cell rows + header + bottom
 
 
 func test_number_of_rows() -> void:
+    var command_grid := create_command_grid(3)
     assert_eq(command_grid._rows, 4)
 
 
 func test_number_of_columns() -> void:
+    var command_grid := create_command_grid(3)
     assert_eq(command_grid._cols, 10)
 
 
 func test_number_of_programs() -> void:
+    var command_grid := create_command_grid(3)
     assert_eq(command_grid._num_programs, 4)
 
 
 func test_get_cell_returns_grid_controls() -> void:
+    var command_grid := create_command_grid(3)
     assert_is(command_grid.get_cell(0, 0), TextCell)
     assert_is(command_grid.get_cell(1, 0), TextCell)
     assert_is(command_grid.get_cell(2, 0), Control)
@@ -80,6 +72,7 @@ func test_get_cell_returns_grid_controls() -> void:
 
 
 func test_get_cell_returns_null_for_non_existing_cells() -> void:
+    var command_grid := create_command_grid(3)
     assert_null(command_grid.get_cell(-1, 0))
     assert_null(command_grid.get_cell(0, -1))
     assert_null(command_grid.get_cell(command_grid._rows, 0))
@@ -89,6 +82,7 @@ func test_get_cell_returns_null_for_non_existing_cells() -> void:
 
 
 func test_get_add_command_cell() -> void:
+    var command_grid := create_command_grid(3)
     var cell := command_grid.get_add_command_cell()
     assert_not_null(cell)
     if cell != null:
@@ -96,6 +90,7 @@ func test_get_add_command_cell() -> void:
 
 
 func test_command_name_cell_titles() -> void:
+    var command_grid := create_command_grid(3)
     var expected_titles: Array[String] = ["New Tab", "Close Tab", "New Window"]
     var command_name_cell_titles: Array[String] = []
 
@@ -108,6 +103,7 @@ func test_command_name_cell_titles() -> void:
 
 
 func test_find_command_row() -> void:
+    var command_grid := create_command_grid(3)
     assert_eq(command_grid.find_command_row("New Tab"), 0)
     assert_eq(command_grid.find_command_row("new tab"), 0)
     assert_eq(command_grid.find_command_row("Close Tab"), 1)
@@ -118,6 +114,7 @@ func test_find_command_row() -> void:
 
 
 func test_can_enter_and_save_a_new_command_name() -> void:
+    var command_grid := create_command_grid(3)
     var cell: TextCell = command_grid.get_cell(1, 0)
     enter_text_and_emit_changed_signal(cell, "New Command Name")
     @warning_ignore("unsafe_call_argument")
@@ -125,6 +122,7 @@ func test_can_enter_and_save_a_new_command_name() -> void:
 
 
 func test_cannot_save_an_empty_command_name() -> void:
+    var command_grid := create_command_grid(3)
     var cell: TextCell = command_grid.get_cell(1, 0)
     enter_text_and_emit_changed_signal(cell, "")
     @warning_ignore("unsafe_call_argument")
@@ -132,12 +130,14 @@ func test_cannot_save_an_empty_command_name() -> void:
 
 
 func test_entering_an_empty_command_name_will_change_the_cell_text_back_to_the_old_name() -> void:
+    var command_grid := create_command_grid(3)
     var cell: TextCell = command_grid.get_cell(1, 0)
     enter_text_and_emit_changed_signal(cell, "")
     assert_eq(cell.text, "Close Tab")
 
 
 func test_can_change_and_save_a_program_command_hotkey() -> void:
+    var command_grid := create_command_grid(3)
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
     var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
@@ -150,6 +150,7 @@ func test_can_change_and_save_a_program_command_hotkey() -> void:
 
 
 func test_cannot_change_a_program_command_hotkey_to_an_already_existing_one() -> void:
+    var command_grid := create_command_grid(3)
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 3)
     var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
@@ -165,6 +166,7 @@ func test_cannot_change_a_program_command_hotkey_to_an_already_existing_one() ->
 
 
 func test_can_delete_an_existing_program_command_hotkey_by_removing_all_text_from_a_cell_belonging_to_an_existing_program_command() -> void:
+    var command_grid := create_command_grid(3)
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
     var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "")
@@ -178,6 +180,7 @@ func test_can_delete_an_existing_program_command_hotkey_by_removing_all_text_fro
 
 
 func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty_cell_belonging_to_an_existing_program_command() -> void:
+    var command_grid := create_command_grid(3)
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
     var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
@@ -188,6 +191,7 @@ func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty
 
 
 func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty_cell_that_doesnt_belong_to_an_existing_program_command() -> void:
+    var command_grid := create_command_grid(3)
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(3, 4)
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
     # cell is now bound to a program command
@@ -199,6 +203,7 @@ func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty
 
 
 func test_can_add_a_second_hotkey_after_creating_a_new_program_command_hotkey() -> void:
+    var command_grid := create_command_grid(3)
     var cell1: ProgramHotkeyTextCell = command_grid.get_cell(1, 1)
     var cell2: ProgramHotkeyTextCell = command_grid.get_cell(2, 1)
     assert_false(cell1.is_bound)
@@ -212,6 +217,7 @@ func test_can_add_a_second_hotkey_after_creating_a_new_program_command_hotkey() 
 
 
 func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_this_program_command() -> void:
+    var command_grid := create_command_grid(3)
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
     var was_bound := cell.is_bound
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
@@ -227,6 +233,7 @@ func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_th
 
 
 func test_can_change_a_user_hotkey() -> void:
+    var command_grid := create_command_grid(3)
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
     var old_user_hotkey_id := cell.user_hotkey_id
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
@@ -240,6 +247,7 @@ func test_can_change_a_user_hotkey() -> void:
 
 
 func test_can_delete_a_user_hotkey_by_clearing_the_cell() -> void:
+    var command_grid := create_command_grid(3)
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
     enter_text_and_emit_changed_signal(cell, "")
     # user_hotkey_id of the cell is now zero
@@ -251,6 +259,7 @@ func test_can_delete_a_user_hotkey_by_clearing_the_cell() -> void:
 
 
 func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void:
+    var command_grid := create_command_grid(3)
     var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+T")
     # assign new user_hotkey_id to cell
@@ -260,6 +269,7 @@ func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void
 
 
 func test_can_assign_user_hotkey_program() -> void:
+    var command_grid := create_command_grid(3)
     var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, 8)
     checkbox.button_pressed = true
     assert_true(checkbox.button_pressed)
@@ -267,6 +277,7 @@ func test_can_assign_user_hotkey_program() -> void:
 
 
 func test_can_unassign_user_hotkey_program() -> void:
+    var command_grid := create_command_grid(3)
     var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, 7)
     checkbox.button_pressed = false
     assert_false(checkbox.button_pressed)
@@ -274,6 +285,7 @@ func test_can_unassign_user_hotkey_program() -> void:
 
 
 func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_are_enabled_and_unchecked() -> void:
+    var command_grid := create_command_grid(3)
     var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
@@ -284,6 +296,7 @@ func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_are
 
 
 func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_work() -> void:
+    var command_grid := create_command_grid(3)
     var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
@@ -293,6 +306,7 @@ func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_wor
 
 
 func test_after_deleting_a_user_hotkey_the_program_assignment_checkboxes_are_disabled_and_unchecked() -> void:
+    var command_grid := create_command_grid(3)
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
     enter_text_and_emit_changed_signal(cell, "")
     for col in range(6, 10):
@@ -303,6 +317,7 @@ func test_after_deleting_a_user_hotkey_the_program_assignment_checkboxes_are_dis
 
 
 func test_after_changing_a_user_hotkey_the_program_assignment_checkboxes_dont_change() -> void:
+    var command_grid := create_command_grid(3)
     @warning_ignore_start("unsafe_call_argument")
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
     var old_state: Dictionary[int, Dictionary]
@@ -371,6 +386,7 @@ var test_entering_a_command_into_the_add_command_cell_params := [
 
 func test_entering_a_command_into_the_add_command_cell(params: Dictionary = use_parameters(test_entering_a_command_into_the_add_command_cell_params)) -> void:
     @warning_ignore_start("unsafe_call_argument")
+    var command_grid := create_command_grid(3)
     var add_command_cell: TextCell = command_grid.get_add_command_cell()
     var old_num_rows := command_grid._rows
     var old_num_children := command_grid.get_child_count()
@@ -430,6 +446,7 @@ func test_entering_a_command_into_the_add_command_cell(params: Dictionary = use_
 
 
 func test_entering_a_command_that_is_already_in_the_table_doesnt_add_a_new_row() -> void:
+    var command_grid := create_command_grid(3)
     var add_command_cell: TextCell = command_grid.get_add_command_cell()
     var old_num_rows := command_grid._rows
     var old_num_children := command_grid.get_child_count()
@@ -447,6 +464,7 @@ func test_entering_a_command_that_is_already_in_the_table_doesnt_add_a_new_row()
 
 
 func test_can_use_the_newly_added_command_cells_after_adding_a_command() -> void:
+    var command_grid := create_command_grid(3)
     var add_command_cell: TextCell = command_grid.get_add_command_cell()
 
     # assign some programs to the "Go to File" command and add it
