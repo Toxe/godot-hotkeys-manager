@@ -213,7 +213,7 @@ func add_command_row(command_name: String) -> void:
 
     # add program hotkey cells
     for program_id in programs:
-        var program_hotkey_cell := ProgramHotkeyTextCell.new(command_id, program_id, false)
+        var program_hotkey_cell := ProgramHotkeyTextCell.new(command_id, program_id)
         program_hotkey_cell.changed.connect(_on_program_command_hotkey_cell_changed)
         sibling = add_sibling_cell(sibling, program_hotkey_cell)
 
@@ -245,16 +245,16 @@ func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, p
     if command_id in program_command_names and program_id in program_command_names[command_id]:
         if command_id in program_command_hotkeys and program_id in program_command_hotkeys[command_id]:
             for hotkey: String in program_command_hotkeys[command_id][program_id]:
-                var cell := ProgramHotkeyTextCell.new(command_id, program_id, true)
+                var cell := ProgramHotkeyTextCell.new(command_id, program_id)
                 cell.text = hotkey
                 cells.append(cell)
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, true))
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id))
     else:
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
-                cells.append(ProgramHotkeyTextCell.new(command_id, program_id, false))
+                cells.append(ProgramHotkeyTextCell.new(command_id, program_id))
 
     return cells
 
@@ -267,16 +267,6 @@ func count_necessary_command_hotkey_rows(command_id: int, program_command_hotkey
             var program_hotkeys: Array = command_data[program_id]
             necessary_rows = maxi(necessary_rows, program_hotkeys.size())
     return necessary_rows
-
-
-func bind_program_command_cells(program_id: int, command_id: int) -> void:
-    assert(program_id > 0)
-    assert(command_id > 0)
-
-    var cells := find_children("*", "ProgramHotkeyTextCell", true, false)
-    for cell: ProgramHotkeyTextCell in cells:
-        if cell.program_id == program_id && cell.command_id && !cell.is_bound:
-            cell.is_bound = true
 
 
 func update_user_hotkey_program_checkboxes(user_hotkey_id: int, button_pressed: bool, new_id: int) -> void:
@@ -316,7 +306,9 @@ func _on_command_name_cell_changed(cell: TextCell, old_name: String, new_name: S
 
 func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
     var success := true
-    if cell.is_bound:
+    var program_command_exists := _db.rows_exist("program_command", "program_id=%d AND command_id=%d" % [cell.program_id, cell.command_id])
+
+    if program_command_exists:
         if old_hotkey != "" && new_hotkey != "":
             success = _db.update_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey], {"hotkey": new_hotkey})
         elif old_hotkey == "" && new_hotkey != "":
@@ -330,8 +322,6 @@ func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_ho
             success = _db.insert_row("program_command", {"program_id": cell.program_id, "command_id": cell.command_id})
             if success:
                 success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
-                if success:
-                    bind_program_command_cells(cell.program_id, cell.command_id)
         else:
             printerr("_on_program_command_hotkey_cell_changed error %d: '%s', '%s' (c: %d, p: %d)" % [2, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
     if !success:
