@@ -39,6 +39,11 @@ func enter_text_and_emit_changed_signal(cell: TextCell, new_text: String) -> voi
     cell.changed.emit(cell, old_text, new_text)
 
 
+func test_no_cell_has_input_focus_by_default() -> void:
+    var command_grid := create_command_grid(3)
+    assert_null(command_grid.get_focus_cell())
+
+
 func test_grid_child_count() -> void:
     var command_grid := create_command_grid(3)
     assert_eq(command_grid.get_child_count(), (4 + 2) * 10) # 4 cell rows + header + bottom
@@ -111,6 +116,33 @@ func test_find_command_row() -> void:
     assert_eq(command_grid.find_command_row("New Window"), 3)
     assert_eq(command_grid.find_command_row("new window"), 3)
     assert_lt(command_grid.find_command_row("unknown command"), 0)
+
+
+func test_get_focus_cell() -> void:
+    var command_grid := create_command_grid(3)
+    var text_cell: TextCell = command_grid.get_cell(0, 0)
+    text_cell.grab_focus()
+    assert_eq(command_grid.get_focus_cell(), text_cell)
+
+    var program_hotkey_text_cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 2)
+    program_hotkey_text_cell.grab_focus()
+    assert_eq(command_grid.get_focus_cell(), program_hotkey_text_cell)
+
+    var user_hotkey_text_cell: UserHotkeyTextCell = command_grid.get_cell(3, 5)
+    user_hotkey_text_cell.grab_focus()
+    assert_eq(command_grid.get_focus_cell(), user_hotkey_text_cell)
+
+    var user_hotkey_program_checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(3, 6)
+    user_hotkey_program_checkbox.grab_focus()
+    assert_eq(command_grid.get_focus_cell(), user_hotkey_program_checkbox)
+
+
+func test_get_focus_cell_returns_null_if_no_cell_has_input_focus() -> void:
+    var command_grid := create_command_grid(3)
+    var cell: Control = command_grid.get_cell(1, 1)
+    cell.grab_focus() # grab and release focus
+    cell.release_focus()
+    assert_null(command_grid.get_focus_cell())
 
 
 func test_can_enter_and_save_a_new_command_name() -> void:

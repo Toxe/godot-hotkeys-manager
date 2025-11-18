@@ -54,6 +54,19 @@ func get_cell(row: int, col: int) -> Control:
     return panel_container.get_child(0)
 
 
+func get_focus_cell() -> Control:
+    var focus_control := get_viewport().gui_get_focus_owner()
+    if !focus_control:
+        return null
+    var parent_panel_container := focus_control.get_parent_control() as PanelContainer
+    if !parent_panel_container:
+        return null
+    var command_grid := parent_panel_container.get_parent_control() as CommandGrid
+    if !command_grid:
+        return null
+    return focus_control
+
+
 func get_add_command_cell() -> TextCell:
     var panel_container: PanelContainer = get_child((_rows + 1) * _cols)
     return panel_container.get_child(0)
