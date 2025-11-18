@@ -20,6 +20,24 @@ func test_a_new_cell_is_empty() -> void:
     assert_eq(cell.text, "")
 
 
+func test_grab_focus_and_enter_edit_mode() -> void:
+    var cell := create_text_cell()
+    assert_false(cell.has_focus())
+    assert_false(cell.is_editing())
+    cell.grab_focus_and_enter_edit_mode()
+    assert_true(cell.has_focus())
+    assert_true(cell.is_editing())
+
+
+func test_grab_focus_without_entering_edit_mode() -> void:
+    var cell := create_text_cell()
+    assert_false(cell.has_focus())
+    assert_false(cell.is_editing())
+    cell.grab_focus_without_entering_edit_mode()
+    assert_true(cell.has_focus())
+    assert_false(cell.is_editing())
+
+
 func test_empty_cell_sends_changed_signal_after_entering_text() -> void:
     var cell := create_text_cell()
     watch_signals(cell)

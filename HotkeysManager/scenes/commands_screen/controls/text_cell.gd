@@ -12,6 +12,15 @@ func _ready() -> void:
     editing_toggled.connect(_on_editing_toggled)
 
 
+func grab_focus_and_enter_edit_mode() -> void:
+    edit()
+
+
+func grab_focus_without_entering_edit_mode() -> void:
+    edit()
+    unedit()
+
+
 func change_text(new_text: String) -> void:
     text = new_text.strip_edges()
     if _old_text != text:
