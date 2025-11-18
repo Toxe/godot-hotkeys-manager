@@ -1,5 +1,12 @@
 extends GutTest
 
+var _input_sender := GutInputSender.new(Input)
+
+
+func after_each() -> void:
+    _input_sender.release_all()
+    _input_sender.clear()
+
 
 func create_text_cell(text: Variant = null) -> TextCell:
     var cell: TextCell = TextCell.new()
@@ -85,4 +92,111 @@ func test_empty_cell_does_not_send_changed_signal_if_no_text_has_been_entered(te
     var cell := create_text_cell()
     watch_signals(cell)
     simulate_entering_text(cell, text)
+    assert_signal_not_emitted(cell.changed)
+
+
+func test_action_BeginEditingCell_starts_editing_cell_not_in_edit_mode() -> void:
+    var cell := create_text_cell("some previous text")
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("begin_editing_cell")
+    _input_sender.action_up("begin_editing_cell")
+    await wait_idle_frames(1)
+    assert_true(cell.is_editing())
+    assert_true(cell.has_focus())
+    assert_eq(cell.text, "some previous text")
+
+
+func test_action_BeginEditingCell_is_ignored_for_cells_in_edit_mode() -> void:
+    var cell := create_text_cell("some previous text")
+    cell.grab_focus_and_enter_edit_mode()
+    _input_sender.action_down("begin_editing_cell")
+    _input_sender.action_up("begin_editing_cell")
+    await wait_idle_frames(1)
+    assert_true(cell.is_editing())
+    assert_true(cell.has_focus())
+    assert_eq(cell.text, "some previous text")
+
+
+func test_action_FinishEditingCell_stops_editing_cell_in_edit_mode() -> void:
+    var cell := create_text_cell("some previous text")
+    cell.grab_focus_and_enter_edit_mode()
+    _input_sender.action_down("finish_editing_cell")
+    _input_sender.action_up("finish_editing_cell")
+    await wait_idle_frames(1)
+    assert_false(cell.is_editing())
+    assert_true(cell.has_focus())
+    assert_eq(cell.text, "some previous text")
+
+
+func test_action_FinishEditingCell_is_ignored_for_cells_not_in_edit_mode() -> void:
+    var cell := create_text_cell("some previous text")
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("finish_editing_cell")
+    _input_sender.action_up("finish_editing_cell")
+    await wait_idle_frames(1)
+    assert_false(cell.is_editing())
+    assert_true(cell.has_focus())
+    assert_eq(cell.text, "some previous text")
+
+
+func test_action_FinishEditingCell_sends_changed_signal_if_text_has_been_changed() -> void:
+    var cell := create_text_cell("old text")
+    watch_signals(cell)
+    cell.text = "new text"
+    cell.grab_focus_and_enter_edit_mode()
+    _input_sender.action_down("finish_editing_cell")
+    _input_sender.action_up("finish_editing_cell")
+    await wait_idle_frames(1)
+    assert_signal_emitted_with_parameters(cell.changed, [cell, "old text", "new text"])
+
+
+func test_action_FinishEditingCell_doesnt_send_changed_signal_if_text_hasnt_been_changed() -> void:
+    var cell := create_text_cell("old text")
+    watch_signals(cell)
+    cell.grab_focus_and_enter_edit_mode()
+    _input_sender.action_down("finish_editing_cell")
+    _input_sender.action_up("finish_editing_cell")
+    await wait_idle_frames(1)
+    assert_signal_not_emitted(cell.changed)
+
+
+func test_action_ClearCell_for_cells_not_in_edit_mode() -> void:
+    var cell := create_text_cell("some previous text")
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("clear_cell")
+    _input_sender.action_up("clear_cell")
+    await wait_idle_frames(1)
+    assert_false(cell.is_editing())
+    assert_true(cell.has_focus())
+    assert_true(cell.text.is_empty())
+
+
+func test_action_ClearCell_is_ignored_for_cells_in_edit_mode() -> void:
+    var cell := create_text_cell("some previous text")
+    cell.grab_focus_and_enter_edit_mode()
+    _input_sender.action_down("clear_cell")
+    _input_sender.action_up("clear_cell")
+    await wait_idle_frames(1)
+    assert_true(cell.is_editing())
+    assert_true(cell.has_focus())
+    assert_eq(cell.text, "some previous text")
+
+
+func test_action_ClearCell_sends_changed_signal_if_text_has_been_deleted() -> void:
+    var cell := create_text_cell("old text")
+    watch_signals(cell)
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("clear_cell")
+    _input_sender.action_up("clear_cell")
+    await wait_idle_frames(1)
+    assert_signal_emitted_with_parameters(cell.changed, [cell, "old text", ""])
+
+
+func test_action_ClearCell_doesnt_send_changed_signal_if_no_text_has_been_deleted() -> void:
+    var cell := create_text_cell("")
+    watch_signals(cell)
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("clear_cell")
+    _input_sender.action_up("clear_cell")
+    await wait_idle_frames(1)
     assert_signal_not_emitted(cell.changed)

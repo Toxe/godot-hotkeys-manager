@@ -1,5 +1,7 @@
 extends GutTest
 
+var _input_sender := GutInputSender.new(Input)
+
 
 func create_command_grid(programgroup_id: int) -> CommandGrid:
     var db: Database = Database.new()
@@ -31,6 +33,11 @@ func create_command_grid(programgroup_id: int) -> CommandGrid:
     var command_grid := CommandGrid.new()
     command_grid.setup(db, programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
     return add_child_autofree(command_grid)
+
+
+func after_each() -> void:
+    _input_sender.release_all()
+    _input_sender.clear()
 
 
 func enter_text_and_emit_changed_signal(cell: TextCell, new_text: String) -> void:
@@ -546,3 +553,236 @@ func test_can_use_the_newly_added_command_cells_after_adding_a_command() -> void
     assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [user_hotkey_id, 8]))
     checkbox.button_pressed = false
     assert_false(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [user_hotkey_id, 8]))
+
+
+var test_add_row_actions_params := [
+    {
+        "_": "action 'add_row_above' for command with multiple rows when on middle row of command",
+        "action": "add_row_above",
+        "programgroup_id": 1,
+        "input_cell_row": 1,
+        "input_cell_column": 1,
+        "check_that_a_new_row_has_been_added_to_the_grid": true,
+        "check_that_no_new_row_has_been_added_to_the_grid": false,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "action 'add_row_above' for command with multiple rows when on last row of command",
+        "action": "add_row_above",
+        "programgroup_id": 1,
+        "input_cell_row": 2,
+        "input_cell_column": 1,
+        "check_that_a_new_row_has_been_added_to_the_grid": true,
+        "check_that_no_new_row_has_been_added_to_the_grid": false,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "action 'add_row_above' when on first row of command adds row to the previous command",
+        "action": "add_row_above",
+        "programgroup_id": 1,
+        "input_cell_row": 3,
+        "input_cell_column": 1,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    # {
+    #     # action "add_row_above" cannot add row if the table is empty
+    #     "action": "add_row_above",
+    #     "programgroup_id": 5,
+    #     "input_cell_row": 0,
+    #     "input_cell_column": 0,
+    #     "expect_to_add_a_new_grid_row": false,
+    # },
+    {
+        "_": "action 'add_row_above' cannot add row if on first table row",
+        "action": "add_row_above",
+        "programgroup_id": 1,
+        "input_cell_row": 0,
+        "input_cell_column": 1,
+        "expect_to_add_a_new_grid_row": false,
+    },
+    {
+        "_": "action 'add_row_below' for command with only one row",
+        "action": "add_row_below",
+        "programgroup_id": 3,
+        "input_cell_row": 0,
+        "input_cell_column": 1,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "action 'add_row_below' for command with multiple rows when on first row of command",
+        "action": "add_row_below",
+        "programgroup_id": 1,
+        "input_cell_row": 0,
+        "input_cell_column": 1,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "action 'add_row_below' for command with multiple rows when on middle row of command",
+        "action": "add_row_below",
+        "programgroup_id": 1,
+        "input_cell_row": 1,
+        "input_cell_column": 1,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "action 'add_row_below' for command with multiple rows when on last row of command",
+        "action": "add_row_below",
+        "programgroup_id": 1,
+        "input_cell_row": 2,
+        "input_cell_column": 1,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "action 'add_row_below' when on last table row",
+        "action": "add_row_below",
+        "programgroup_id": 1,
+        "input_cell_row": 3,
+        "input_cell_column": 1,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    # {
+    #     # action "add_row_below" cannot add row if the table is empty
+    #     "action": "add_row_below",
+    #     "programgroup_id": 5,
+    #     "input_cell_row": 0,
+    #     "input_cell_column": 0,
+    #     "expect_to_add_a_new_grid_row": false,
+    # },
+]
+
+
+func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actions_params)) -> void:
+    @warning_ignore_start("unsafe_call_argument")
+    var command_grid := create_command_grid(params["programgroup_id"])
+    var input_cell: TextCell = command_grid.get_cell(params["input_cell_row"], params["input_cell_column"])
+    var old_num_rows := command_grid._rows
+    var old_num_children := command_grid.get_child_count()
+    var old_command_table_row_count := command_grid._db.count_rows("command")
+    var added_row_offset := 0 if params["action"] == "add_row_above" else 1
+
+    input_cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down(params["action"])
+    _input_sender.action_up(params["action"])
+    await wait_idle_frames(1)
+
+    if params["expect_to_add_a_new_grid_row"]:
+        assert_eq(command_grid._rows, old_num_rows + 1)
+        assert_eq(command_grid.get_child_count(), old_num_children + command_grid._cols)
+    else:
+        assert_eq(command_grid._rows, old_num_rows)
+        assert_eq(command_grid.get_child_count(), old_num_children)
+
+    # no new row has been added to the "command" database table yet
+    assert_eq(command_grid._db.count_rows("command"), old_command_table_row_count)
+
+    # check the new, added empty command row cells
+    if params["expect_to_add_a_new_grid_row"]:
+        var command_name_control: Control = command_grid.get_cell(params["input_cell_row"] + added_row_offset, 0)
+        var user_hotkey_control: Control = command_grid.get_cell(params["input_cell_row"] + added_row_offset, command_grid._num_programs + 1)
+        assert_not_null(command_name_control)
+        assert_not_null(user_hotkey_control)
+        assert_true(command_name_control is Control)
+        assert_true(command_name_control is not TextCell)
+        assert_true(user_hotkey_control is Control)
+        assert_true(user_hotkey_control is not UserHotkeyTextCell)
+
+        for col in range(1, command_grid._num_programs + 1):
+            # the command_id and program_id of the added row cells
+            var added_row_command_id := 0
+            var added_row_program_id := 0
+
+            # get the program hotkey cell of the row above/below the input cell
+            var program_hotkey_cell_above_or_below: ProgramHotkeyTextCell = command_grid.get_cell(params["input_cell_row"] + added_row_offset, col)
+            assert_not_null(program_hotkey_cell_above_or_below)
+            if program_hotkey_cell_above_or_below != null:
+                added_row_command_id = program_hotkey_cell_above_or_below.command_id
+                added_row_program_id = program_hotkey_cell_above_or_below.program_id
+
+            var cell: ProgramHotkeyTextCell = command_grid.get_cell(params["input_cell_row"], col)
+            assert_not_null(cell)
+            assert_eq(cell.command_id, added_row_command_id)
+            assert_eq(cell.program_id, added_row_program_id)
+
+        for col in range(command_grid._num_programs + 2, command_grid._num_programs + 2 + command_grid._num_programs):
+            var control: Control = command_grid.get_cell(params["input_cell_row"] + added_row_offset, col)
+            assert_not_null(control)
+            assert_true(control is Control)
+            assert_true(control is not UserHotkeyProgramCheckbox)
+    @warning_ignore_restore("unsafe_call_argument")
+
+
+var test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params := [
+    {
+        "_": "focus moves to the ProgramHotkeyTextCell in the added row above",
+        "action": "add_row_above",
+        "programgroup_id": 3,
+        "input_cell_row": 2,
+        "input_cell_column": 3,
+        "should_move_focus_to_new_row": true,
+    },
+    {
+        "_": "focus moves to the ProgramHotkeyTextCell in the added row below",
+        "action": "add_row_below",
+        "programgroup_id": 3,
+        "input_cell_row": 2,
+        "input_cell_column": 3,
+        "should_move_focus_to_new_row": true,
+    },
+    {
+        "_": "focus cannot move because the new cell above is empty (Control instead of ProgramHotkeyTextCell)",
+        "action": "add_row_above",
+        "programgroup_id": 3,
+        "input_cell_row": 3,
+        "input_cell_column": 5,
+        "should_move_focus_to_new_row": false,
+    },
+    {
+        "_": "focus cannot move because the new cell below is empty (Control instead of ProgramHotkeyTextCell)",
+        "action": "add_row_below",
+        "programgroup_id": 3,
+        "input_cell_row": 1,
+        "input_cell_column": 5,
+        "should_move_focus_to_new_row": false,
+    },
+]
+
+
+func test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible(params: Dictionary = use_parameters(test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params)) -> void:
+    @warning_ignore_start("unsafe_call_argument")
+    var command_grid := create_command_grid(params["programgroup_id"])
+    var input_cell: TextCell = command_grid.get_cell(params["input_cell_row"], params["input_cell_column"])
+    input_cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down(params["action"])
+    _input_sender.action_up(params["action"])
+    await wait_idle_frames(1)
+
+    if params["should_move_focus_to_new_row"]:
+        # the current focus cell moved to the new row
+        if params["action"] == "add_row_above":
+            assert_eq(command_grid.get_focus_cell(), command_grid.get_cell(params["input_cell_row"], params["input_cell_column"]))
+        else:
+            assert_eq(command_grid.get_focus_cell(), command_grid.get_cell(params["input_cell_row"] + 1, params["input_cell_column"]))
+    else:
+        # focus cell stayed on its old row
+        if params["action"] == "add_row_above":
+            assert_eq(command_grid.get_focus_cell(), command_grid.get_cell(params["input_cell_row"] + 1, params["input_cell_column"]))
+        else:
+            assert_eq(command_grid.get_focus_cell(), command_grid.get_cell(params["input_cell_row"], params["input_cell_column"]))
+    @warning_ignore_restore("unsafe_call_argument")
+
+
+var test_after_adding_a_new_row_focus_text_cells_are_not_in_edit_mode_params := [
+    "add_row_above",
+    "add_row_below"
+]
+
+
+func test_after_adding_a_new_row_focus_text_cells_are_not_in_edit_mode(action: String = use_parameters(test_after_adding_a_new_row_focus_text_cells_are_not_in_edit_mode_params)) -> void:
+    var command_grid := create_command_grid(3)
+    var input_cell: TextCell = command_grid.get_cell(2, 3)
+    input_cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down(action)
+    _input_sender.action_up(action)
+    await wait_idle_frames(1)
+    var focus_cell: TextCell = command_grid.get_focus_cell()
+    assert_false(focus_cell.is_editing())

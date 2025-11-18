@@ -46,6 +46,10 @@ func add_empty_cell() -> void:
     add_cell(Control.new())
 
 
+func add_empty_sibling_cell(sibling: Control) -> Control:
+    return add_sibling_cell(sibling, Control.new())
+
+
 func get_cell(row: int, col: int) -> Control:
     if row < 0 || col < 0 || row >= _rows || col >= _cols:
         return null
@@ -176,6 +180,7 @@ func create_command_name_cell(command_id: int, command_name: String) -> TextCell
     cell.text = command_name
     cell.theme_type_variation = "CommandNameLineEdit"
     cell.changed.connect(_on_command_name_cell_changed.bind(command_id))
+    cell.add_row.connect(_on_add_row)
     return cell
 
 
@@ -191,6 +196,7 @@ func add_program_command_hotkey_cells(row: int, programs: Dictionary[int, String
         var cells: Array[ProgramHotkeyTextCell] = program_hotkey_cells[program_id]
         var cell := cells[row]
         cell.changed.connect(_on_program_command_hotkey_cell_changed)
+        cell.add_row.connect(_on_add_row)
         add_cell(cell)
 
 
@@ -198,6 +204,7 @@ func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[in
     if row == 0:
         var cell := UserHotkeyTextCell.new(command_id)
         cell.changed.connect(_on_user_hotkey_cell_changed)
+        cell.add_row.connect(_on_add_row)
         if command_id in user_hotkeys:
             var user_hotkey_data: Dictionary = user_hotkeys[command_id]
             cell.text = user_hotkey_data["user_hotkey"]
@@ -245,12 +252,14 @@ func add_command_row(command_name: String) -> void:
     for program_id in programs:
         var program_hotkey_cell := ProgramHotkeyTextCell.new(command_id, program_id)
         program_hotkey_cell.changed.connect(_on_program_command_hotkey_cell_changed)
+        program_hotkey_cell.add_row.connect(_on_add_row)
         sibling = add_sibling_cell(sibling, program_hotkey_cell)
 
     # add user hotkey cell
     var user_hotkey_cell := UserHotkeyTextCell.new(command_id, user_hotkey_id)
     user_hotkey_cell.text = user_hotkey
     user_hotkey_cell.changed.connect(_on_user_hotkey_cell_changed)
+    user_hotkey_cell.add_row.connect(_on_add_row)
     sibling = add_sibling_cell(sibling, user_hotkey_cell)
 
     # add user hotkey program assignment checkboxes
@@ -265,6 +274,43 @@ func add_command_row(command_name: String) -> void:
         checkbox.button_pressed = program_id in assigned_programs
         checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
         sibling = add_sibling_cell(sibling, checkbox)
+
+    _rows += 1
+
+
+func insert_row_after(previous_row: int) -> void:
+    assert(previous_row >= 0)
+
+    # get the first program hotkey cell of the previous_row
+    var previous_row_program_hotkey_cell: ProgramHotkeyTextCell = get_cell(previous_row, 1) as ProgramHotkeyTextCell
+    assert(previous_row_program_hotkey_cell != null)
+
+    # the command_id of the added row
+    var command_id := previous_row_program_hotkey_cell.command_id
+
+    var programs: Array[int]
+    if _db.select("SELECT p.program_id FROM program p INNER JOIN programgroup_program pp USING (program_id) WHERE pp.programgroup_id = ?;", [_programgroup_id]):
+        for d: Dictionary in _db.query_result():
+            var program_id: int = d["program_id"]
+            programs.append(program_id)
+
+    # add empty command name cell
+    var sibling: Control = get_cell(previous_row, _cols - 1).get_parent_control()
+    sibling = add_empty_sibling_cell(sibling)
+
+    # add program hotkey cells
+    for program_id in programs:
+        var program_hotkey_cell := ProgramHotkeyTextCell.new(command_id, program_id)
+        program_hotkey_cell.changed.connect(_on_program_command_hotkey_cell_changed)
+        program_hotkey_cell.add_row.connect(_on_add_row)
+        sibling = add_sibling_cell(sibling, program_hotkey_cell)
+
+    # add empty user hotkey cell
+    sibling = add_empty_sibling_cell(sibling)
+
+    # add empty user hotkey program assignment checkboxes
+    for program_id in programs:
+        sibling = add_empty_sibling_cell(sibling)
 
     _rows += 1
 
@@ -388,3 +434,21 @@ func _on_add_command_cell_changed(cell: TextCell, old_text: String, new_text: St
             if !_db.insert_row("command", {"name": command_name}):
                 return
         add_command_row(command_name)
+
+
+func _on_add_row(cell: Control, add_above: bool) -> void:
+    var cell_coords := get_cell_coords(cell)
+    var cell_row := cell_coords.y
+    var next_focus_text_cell: TextCell = null
+
+    if add_above:
+        if cell_row > 0:
+            insert_row_after(cell_row - 1)
+            next_focus_text_cell = get_cell(cell_coords.y, cell_coords.x) as TextCell
+    else:
+        insert_row_after(cell_row)
+        next_focus_text_cell = get_cell(cell_coords.y + 1, cell_coords.x) as TextCell
+
+    # move focus to cell in new row, if it's a TextCell
+    if next_focus_text_cell:
+        next_focus_text_cell.grab_focus_without_entering_edit_mode()
