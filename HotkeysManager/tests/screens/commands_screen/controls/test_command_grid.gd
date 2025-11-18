@@ -145,6 +145,14 @@ func test_get_focus_cell_returns_null_if_no_cell_has_input_focus() -> void:
     assert_null(command_grid.get_focus_cell())
 
 
+func test_get_cell_coords() -> void:
+    var command_grid := create_command_grid(3)
+    assert_eq(command_grid.get_cell_coords(command_grid.get_cell(0, 3)), Vector2i(3, 0))
+    assert_eq(command_grid.get_cell_coords(command_grid.get_cell(1, 3)), Vector2i(3, 1))
+    assert_eq(command_grid.get_cell_coords(command_grid.get_cell(2, 3)), Vector2i(3, 2))
+    assert_eq(command_grid.get_cell_coords(command_grid.get_cell(3, 3)), Vector2i(3, 3))
+
+
 func test_can_enter_and_save_a_new_command_name() -> void:
     var command_grid := create_command_grid(3)
     var cell: TextCell = command_grid.get_cell(1, 0)

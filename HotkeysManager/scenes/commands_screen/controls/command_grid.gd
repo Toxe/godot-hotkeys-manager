@@ -67,6 +67,25 @@ func get_focus_cell() -> Control:
     return focus_control
 
 
+## Return table index without the header controls.
+func _get_cell_index(cell: Control) -> int:
+    assert(cell != null)
+    var parent_panel_container := cell.get_parent_control() as PanelContainer
+    assert(parent_panel_container != null)
+    var index_without_header_controls := parent_panel_container.get_index() - _cols
+    assert(index_without_header_controls >= 0)
+    return index_without_header_controls
+
+
+func get_cell_coords(cell: Control) -> Vector2i:
+    assert(cell != null)
+    var index_without_header_controls := _get_cell_index(cell)
+    @warning_ignore("integer_division")
+    var row := index_without_header_controls / _cols
+    var col := index_without_header_controls - row * _cols
+    return Vector2i(col, row)
+
+
 func get_add_command_cell() -> TextCell:
     var panel_container: PanelContainer = get_child((_rows + 1) * _cols)
     return panel_container.get_child(0)
