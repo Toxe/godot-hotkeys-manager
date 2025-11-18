@@ -190,12 +190,10 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
 
 
 func add_command_row(command_name: String) -> void:
-    var row: Variant = _db.select_row("command", "name='%s'" % command_name, ["command_id"])
-    var command_id: int = row["command_id"]
-
+    var command_id: int = _db.select_value("command", "name='%s'" % command_name, "command_id")
     var user_hotkey_id := 0
     var user_hotkey := ""
-    row = _db.select_row("user_hotkey", "command_id=%d" % command_id, ["user_hotkey_id", "hotkey"])
+    var row: Variant = _db.select_row("user_hotkey", "command_id=%d" % command_id, ["user_hotkey_id", "hotkey"])
     if row:
         user_hotkey_id = row["user_hotkey_id"]
         user_hotkey = row["hotkey"]
