@@ -562,8 +562,6 @@ var test_add_row_actions_params := [
         "programgroup_id": 1,
         "input_cell_row": 1,
         "input_cell_column": 1,
-        "check_that_a_new_row_has_been_added_to_the_grid": true,
-        "check_that_no_new_row_has_been_added_to_the_grid": false,
         "expect_to_add_a_new_grid_row": true,
     },
     {
@@ -572,8 +570,6 @@ var test_add_row_actions_params := [
         "programgroup_id": 1,
         "input_cell_row": 2,
         "input_cell_column": 1,
-        "check_that_a_new_row_has_been_added_to_the_grid": true,
-        "check_that_no_new_row_has_been_added_to_the_grid": false,
         "expect_to_add_a_new_grid_row": true,
     },
     {
