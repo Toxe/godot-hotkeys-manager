@@ -584,14 +584,6 @@ var test_add_row_actions_params := [
         "input_cell_column": 1,
         "expect_to_add_a_new_grid_row": true,
     },
-    # {
-    #     # action "add_row_above" cannot add row if the table is empty
-    #     "action": "add_row_above",
-    #     "programgroup_id": 5,
-    #     "input_cell_row": 0,
-    #     "input_cell_column": 0,
-    #     "expect_to_add_a_new_grid_row": false,
-    # },
     {
         "_": "action 'add_row_above' cannot add row if on first table row",
         "action": "add_row_above",
@@ -640,24 +632,50 @@ var test_add_row_actions_params := [
         "input_cell_column": 1,
         "expect_to_add_a_new_grid_row": true,
     },
-    # {
-    #     # action "add_row_below" cannot add row if the table is empty
-    #     "action": "add_row_below",
-    #     "programgroup_id": 5,
-    #     "input_cell_row": 0,
-    #     "input_cell_column": 0,
-    #     "expect_to_add_a_new_grid_row": false,
-    # },
+    {
+        "_": "can add row above when on the AddCommand input field",
+        "action": "add_row_above",
+        "programgroup_id": 3,
+        "focus_AddCommand_input_field": true,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "cannot add row below when on the AddCommand input field",
+        "action": "add_row_below",
+        "programgroup_id": 3,
+        "focus_AddCommand_input_field": true,
+        "expect_to_add_a_new_grid_row": false,
+    },
+    {
+        "_": "cannot add row above if the table is empty",
+        "action": "add_row_above",
+        "programgroup_id": 5,
+        "focus_AddCommand_input_field": true,
+        "expect_to_add_a_new_grid_row": false,
+    },
+    {
+        "_": "cannot add row below if the table is empty",
+        "action": "add_row_below",
+        "programgroup_id": 5,
+        "focus_AddCommand_input_field": true,
+        "expect_to_add_a_new_grid_row": false,
+    },
 ]
 
 
 func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actions_params)) -> void:
     @warning_ignore_start("unsafe_call_argument")
     var command_grid := create_command_grid(params["programgroup_id"])
-    var old_input_cell : TextCell = command_grid.get_cell(params["input_cell_row"], params["input_cell_column"])
     var old_num_rows := command_grid._rows
     var old_num_children := command_grid.get_child_count()
     var old_command_table_row_count := command_grid._db.count_rows("command")
+
+    var old_input_cell: TextCell
+    if params.get("focus_AddCommand_input_field", false):
+        old_input_cell = command_grid.get_add_command_cell()
+    else:
+        old_input_cell = command_grid.get_cell(params["input_cell_row"], params["input_cell_column"])
+
     var input_row := command_grid.get_cell_coords(old_input_cell).y
 
     old_input_cell.grab_focus_without_entering_edit_mode()

@@ -121,6 +121,7 @@ func add_bottom_row() -> void:
     cell.placeholder_text = "Add Command…"
     cell.theme_type_variation = "CommandNameLineEdit"
     cell.changed.connect(_on_add_command_cell_changed)
+    cell.add_row.connect(_on_add_row)
     add_cell(cell)
     # empty cells
     for i in range(1, _cols):
@@ -437,6 +438,9 @@ func _on_add_command_cell_changed(cell: TextCell, old_text: String, new_text: St
 
 
 func _on_add_row(cell: Control, add_above: bool) -> void:
+    if _rows == 0:
+        return
+
     var cell_coords := get_cell_coords(cell)
     var cell_row := cell_coords.y
     var next_focus_text_cell: TextCell = null
@@ -446,8 +450,9 @@ func _on_add_row(cell: Control, add_above: bool) -> void:
             insert_row_after(cell_row - 1)
             next_focus_text_cell = get_cell(cell_coords.y, cell_coords.x) as TextCell
     else:
-        insert_row_after(cell_row)
-        next_focus_text_cell = get_cell(cell_coords.y + 1, cell_coords.x) as TextCell
+        if cell != get_add_command_cell():
+            insert_row_after(cell_row)
+            next_focus_text_cell = get_cell(cell_coords.y + 1, cell_coords.x) as TextCell
 
     # move focus to cell in new row, if it's a TextCell
     if next_focus_text_cell:
