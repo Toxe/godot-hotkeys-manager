@@ -654,17 +654,30 @@ var test_add_row_actions_params := [
 func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actions_params)) -> void:
     @warning_ignore_start("unsafe_call_argument")
     var command_grid := create_command_grid(params["programgroup_id"])
-    var input_cell: TextCell = command_grid.get_cell(params["input_cell_row"], params["input_cell_column"])
+    var old_input_cell : TextCell = command_grid.get_cell(params["input_cell_row"], params["input_cell_column"])
     var old_num_rows := command_grid._rows
     var old_num_children := command_grid.get_child_count()
     var old_command_table_row_count := command_grid._db.count_rows("command")
-    var added_row_offset := 0 if params["action"] == "add_row_above" else 1
+    var input_row := command_grid.get_cell_coords(old_input_cell).y
 
-    input_cell.grab_focus_without_entering_edit_mode()
+    old_input_cell.grab_focus_without_entering_edit_mode()
     _input_sender.action_down(params["action"])
     _input_sender.action_up(params["action"])
     await wait_idle_frames(1)
 
+    var old_row := input_row # row index of the previous input row
+    var new_row := input_row # row index of the newly added row
+
+    if params["expect_to_add_a_new_grid_row"]:
+        if params["action"] == "add_row_above":
+            old_row += 1
+        else:
+            new_row += 1
+
+    # make sure the previous input cell has moved to "old_row" (if it has moved at all)
+    assert_eq(command_grid.get_cell_coords(old_input_cell).y, old_row)
+
+    # check if cells have been added
     if params["expect_to_add_a_new_grid_row"]:
         assert_eq(command_grid._rows, old_num_rows + 1)
         assert_eq(command_grid.get_child_count(), old_num_children + command_grid._cols)
@@ -675,10 +688,11 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
     # no new row has been added to the "command" database table yet
     assert_eq(command_grid._db.count_rows("command"), old_command_table_row_count)
 
-    # check the new, added empty command row cells
+    # check the new, added command row cells
     if params["expect_to_add_a_new_grid_row"]:
-        var command_name_control: Control = command_grid.get_cell(params["input_cell_row"] + added_row_offset, 0)
-        var user_hotkey_control: Control = command_grid.get_cell(params["input_cell_row"] + added_row_offset, command_grid._num_programs + 1)
+        # the command name and user hotkey cells are just empty Controls
+        var command_name_control: Control = command_grid.get_cell(new_row, 0)
+        var user_hotkey_control: Control = command_grid.get_cell(new_row, command_grid._num_programs + 1)
         assert_not_null(command_name_control)
         assert_not_null(user_hotkey_control)
         assert_true(command_name_control is Control)
@@ -686,25 +700,20 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
         assert_true(user_hotkey_control is Control)
         assert_true(user_hotkey_control is not UserHotkeyTextCell)
 
+        var above_row := new_row - 1 # index of the row above the newly added row
+
         for col in range(1, command_grid._num_programs + 1):
-            # the command_id and program_id of the added row cells
-            var added_row_command_id := 0
-            var added_row_program_id := 0
+            # get the program hotkey cell from the row above
+            var program_hotkey_cell_above: ProgramHotkeyTextCell = command_grid.get_cell(above_row, col)
+            assert_not_null(program_hotkey_cell_above)
 
-            # get the program hotkey cell of the row above/below the input cell
-            var program_hotkey_cell_above_or_below: ProgramHotkeyTextCell = command_grid.get_cell(params["input_cell_row"] + added_row_offset, col)
-            assert_not_null(program_hotkey_cell_above_or_below)
-            if program_hotkey_cell_above_or_below != null:
-                added_row_command_id = program_hotkey_cell_above_or_below.command_id
-                added_row_program_id = program_hotkey_cell_above_or_below.program_id
-
-            var cell: ProgramHotkeyTextCell = command_grid.get_cell(params["input_cell_row"], col)
+            var cell: ProgramHotkeyTextCell = command_grid.get_cell(new_row, col)
             assert_not_null(cell)
-            assert_eq(cell.command_id, added_row_command_id)
-            assert_eq(cell.program_id, added_row_program_id)
+            assert_eq(cell.command_id, program_hotkey_cell_above.command_id)
+            assert_eq(cell.program_id, program_hotkey_cell_above.program_id)
 
         for col in range(command_grid._num_programs + 2, command_grid._num_programs + 2 + command_grid._num_programs):
-            var control: Control = command_grid.get_cell(params["input_cell_row"] + added_row_offset, col)
+            var control: Control = command_grid.get_cell(new_row, col)
             assert_not_null(control)
             assert_true(control is Control)
             assert_true(control is not UserHotkeyProgramCheckbox)
