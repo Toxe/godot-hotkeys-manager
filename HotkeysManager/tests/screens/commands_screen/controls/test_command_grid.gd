@@ -660,6 +660,22 @@ var test_add_row_actions_params := [
         "focus_AddCommand_input_field": true,
         "expect_to_add_a_new_grid_row": false,
     },
+    {
+        "_": "can add row above when on a UserHotkeyProgramCheckbox",
+        "action": "add_row_above",
+        "programgroup_id": 3,
+        "input_cell_row": 1,
+        "input_cell_column": 8,
+        "expect_to_add_a_new_grid_row": true,
+    },
+    {
+        "_": "can add row below when on a UserHotkeyProgramCheckbox",
+        "action": "add_row_below",
+        "programgroup_id": 3,
+        "input_cell_row": 1,
+        "input_cell_column": 8,
+        "expect_to_add_a_new_grid_row": true,
+    },
 ]
 
 
@@ -670,15 +686,22 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
     var old_num_children := command_grid.get_child_count()
     var old_command_table_row_count := command_grid._db.count_rows("command")
 
-    var old_input_cell: TextCell
+    # get input cell and row
+    var old_input_cell: Control
     if params.get("focus_AddCommand_input_field", false):
         old_input_cell = command_grid.get_add_command_cell()
     else:
         old_input_cell = command_grid.get_cell(params["input_cell_row"], params["input_cell_column"])
-
     var input_row := command_grid.get_cell_coords(old_input_cell).y
 
-    old_input_cell.grab_focus_without_entering_edit_mode()
+    # input cell grabs focus
+    var old_input_cell_text_cell: TextCell = old_input_cell as TextCell
+    var old_input_cell_checkbox: UserHotkeyProgramCheckbox = old_input_cell as UserHotkeyProgramCheckbox
+    if old_input_cell_text_cell:
+        old_input_cell_text_cell.grab_focus_without_entering_edit_mode()
+    if old_input_cell_checkbox:
+        old_input_cell_checkbox.grab_focus()
+
     _input_sender.action_down(params["action"])
     _input_sender.action_up(params["action"])
     await wait_idle_frames(1)

@@ -220,6 +220,7 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
         if row == 0:
             var checkbox := UserHotkeyProgramCheckbox.new(program_id) # automatically disabled
             checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
+            checkbox.add_row.connect(_on_add_row)
             if command_id in user_hotkeys:
                 checkbox.user_hotkey_id = user_hotkeys[command_id]["user_hotkey_id"]
                 var hotkeys: Array = user_hotkey_programs[command_id].get("hotkeys") if command_id in user_hotkey_programs else []
@@ -274,6 +275,7 @@ func add_command_row(command_name: String) -> void:
         var checkbox := UserHotkeyProgramCheckbox.new(program_id, user_hotkey_id)
         checkbox.button_pressed = program_id in assigned_programs
         checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
+        checkbox.add_row.connect(_on_add_row)
         sibling = add_sibling_cell(sibling, checkbox)
 
     _rows += 1
