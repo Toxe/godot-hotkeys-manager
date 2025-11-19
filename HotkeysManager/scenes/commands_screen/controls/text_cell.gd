@@ -46,6 +46,7 @@ func _gui_input(event: InputEvent) -> void:
         if begin_editing:
             accept_event()
             edit();
+            caret_column = text.length()
             editing_toggled.emit(true)
 
         if finish_editing:

@@ -117,6 +117,15 @@ func test_action_BeginEditingCell_is_ignored_for_cells_in_edit_mode() -> void:
     assert_eq(cell.text, "some previous text")
 
 
+func test_action_BeginEditingCell_puts_the_caret_at_the_end_of_the_text(text: String = use_parameters(["", ".", "???", "longer text"])) -> void:
+    var cell := create_text_cell(text)
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("begin_editing_cell")
+    _input_sender.action_up("begin_editing_cell")
+    await wait_idle_frames(1)
+    assert_eq(cell.caret_column, text.length())
+
+
 func test_action_FinishEditingCell_stops_editing_cell_in_edit_mode() -> void:
     var cell := create_text_cell("some previous text")
     cell.grab_focus_and_enter_edit_mode()
