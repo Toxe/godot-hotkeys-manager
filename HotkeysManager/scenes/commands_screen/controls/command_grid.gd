@@ -2,7 +2,7 @@ class_name CommandGrid extends GridContainer
 
 var _db: Database = null
 var _programgroup_id: int = -1
-var _num_programs := 0
+var _programs: Dictionary[int, String]
 var _rows := 0 # number of table rows, not including the header and bottom row
 var _cols := 0 # number of table columns, including the first command name column
 
@@ -14,7 +14,7 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
 
     _db = db
     _programgroup_id = programgroup_id
-    _num_programs = programs.size()
+    _programs = programs
     _cols = 1 + programs.size() + 1 + programs.size()
     columns = _cols
 
@@ -96,7 +96,8 @@ func get_add_command_cell() -> TextCell:
 
 
 func number_of_programs() -> int:
-    return _num_programs
+    assert(_programs != null)
+    return _programs.size()
 
 
 func find_command_row(command_name: String) -> int:
@@ -234,7 +235,7 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
             add_empty_cell()
 
 
-func add_command_row(command_name: String) -> void:
+func add_command_row(command_name: String, programs: Dictionary[int, String]) -> void:
     var command_id: int = _db.select_value("command", "name='%s'" % command_name, "command_id")
     var user_hotkey_id := 0
     var user_hotkey := ""
@@ -243,15 +244,8 @@ func add_command_row(command_name: String) -> void:
         user_hotkey_id = row["user_hotkey_id"]
         user_hotkey = row["hotkey"]
 
-    var programs: Array[int]
-    if _db.select("SELECT p.program_id FROM program p INNER JOIN programgroup_program pp USING (program_id) WHERE pp.programgroup_id = ?;", [_programgroup_id]):
-        for d: Dictionary in _db.query_result():
-            var program_id: int = d["program_id"]
-            programs.append(program_id)
-
-    var sibling: Control = get_child((_rows + 1) * _cols - 1)
-
     # add command name cell
+    var sibling: Control = get_child((_rows + 1) * _cols - 1)
     sibling = add_sibling_cell(sibling, create_command_name_cell(command_id, command_name))
 
     # add program hotkey cells
@@ -285,7 +279,7 @@ func add_command_row(command_name: String) -> void:
     _rows += 1
 
 
-func insert_row_after(previous_row: int) -> void:
+func insert_row_after(previous_row: int, programs: Dictionary[int, String]) -> void:
     assert(previous_row >= 0)
 
     # get the first program hotkey cell of the previous_row
@@ -294,12 +288,6 @@ func insert_row_after(previous_row: int) -> void:
 
     # the command_id of the added row
     var command_id := previous_row_program_hotkey_cell.command_id
-
-    var programs: Array[int]
-    if _db.select("SELECT p.program_id FROM program p INNER JOIN programgroup_program pp USING (program_id) WHERE pp.programgroup_id = ?;", [_programgroup_id]):
-        for d: Dictionary in _db.query_result():
-            var program_id: int = d["program_id"]
-            programs.append(program_id)
 
     # add empty command name cell
     var sibling: Control = get_cell(previous_row, _cols - 1).get_parent_control()
@@ -357,11 +345,11 @@ func update_user_hotkey_program_checkboxes(user_hotkey_id: int, button_pressed: 
 
     # find row of the user hotkey cell user_hotkey_id
     for row in range(0, _rows):
-        var cell: UserHotkeyTextCell = get_cell(row, _num_programs + 1) as UserHotkeyTextCell
+        var cell: UserHotkeyTextCell = get_cell(row, number_of_programs() + 1) as UserHotkeyTextCell
         if cell:
             if cell.user_hotkey_id == user_hotkey_id:
                 # update checkboxes of this row
-                for col in range(_num_programs + 2, _cols):
+                for col in range(number_of_programs() + 2, _cols):
                     var checkbox: UserHotkeyProgramCheckbox = get_cell(row, col)
                     checkbox.user_hotkey_id = new_id
                     checkbox.set_pressed_no_signal(button_pressed)
@@ -427,7 +415,7 @@ func _on_add_command_cell_changed(cell: TextCell, old_text: String, new_text: St
         else:
             if !_db.insert_row("command", {"name": command_name}):
                 return
-        add_command_row(command_name)
+        add_command_row(command_name, _programs)
 
 
 func _on_add_row(cell: Control, add_above: bool) -> void:
@@ -440,11 +428,11 @@ func _on_add_row(cell: Control, add_above: bool) -> void:
 
     if add_above:
         if cell_row > 0:
-            insert_row_after(cell_row - 1)
+            insert_row_after(cell_row - 1, _programs)
             next_focus_text_cell = get_cell(cell_coords.y, cell_coords.x) as TextCell
     else:
         if cell != get_add_command_cell():
-            insert_row_after(cell_row)
+            insert_row_after(cell_row, _programs)
             next_focus_text_cell = get_cell(cell_coords.y + 1, cell_coords.x) as TextCell
 
     # move focus to cell in new row, if it's a TextCell
