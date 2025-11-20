@@ -95,6 +95,10 @@ func get_add_command_cell() -> TextCell:
     return panel_container.get_child(0)
 
 
+func number_of_programs() -> int:
+    return _num_programs
+
+
 func find_command_row(command_name: String) -> int:
     for row in _rows:
         var cell: TextCell = get_cell(row, 0) as TextCell
