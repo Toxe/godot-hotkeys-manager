@@ -1,8 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://de72ge75p8811"]
+[gd_scene load_steps=5 format=3 uid="uid://de72ge75p8811"]
 
 [ext_resource type="Script" uid="uid://deewaifdo7jag" path="res://scenes/commands_screen/commands_screen.gd" id="1_w4fef"]
 [ext_resource type="Theme" uid="uid://dths6kqrpshni" path="res://scenes/commands_screen/theme.tres" id="1_yirhg"]
 [ext_resource type="PackedScene" uid="uid://tu6qv3ixq5us" path="res://scenes/commands_screen/controls/command_grid.tscn" id="2_1uboc"]
+
+[sub_resource type="SystemFont" id="SystemFont_uuaxk"]
+font_names = PackedStringArray("Courier New")
+hinting = 2
 
 [node name="CommandsScreen" type="Control"]
 layout_mode = 3
@@ -36,6 +40,13 @@ size_flags_vertical = 3
 
 [node name="CommandGrid" parent="VBoxContainer/ScrollContainer" instance=ExtResource("2_1uboc")]
 layout_mode = 2
+
+[node name="ActionsLabel" type="RichTextLabel" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/mono_font = SubResource("SystemFont_uuaxk")
+theme_override_font_sizes/mono_font_size = 18
+bbcode_enabled = true
+fit_content = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

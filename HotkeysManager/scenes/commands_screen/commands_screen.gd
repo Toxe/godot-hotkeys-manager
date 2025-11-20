@@ -14,6 +14,8 @@ func setup(db: Database, programgroup_id: int) -> void:
 
 
 func _ready() -> void:
+    prepare_actions_label()
+
     var programgroup_name: Variant = _db.select_value("programgroup", "programgroup_id=%d" % _programgroup_id, "name")
     if programgroup_name != null:
         ($VBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
@@ -235,6 +237,20 @@ ORDER BY name;"
             commands[command_id] = command_name
     return commands
 
+
+func prepare_actions_label() -> void:
+    var lines: Array[String]
+    for action in InputMap.get_actions():
+        if !action.begins_with("ui_"):
+            var parts: Array[String]
+            for event in InputMap.action_get_events(action):
+                var text := event.as_text()
+                var pos := text.find(" (Physical)")
+                if pos > 0:
+                    text = text.substr(0, pos)
+                parts.append(text)
+            lines.append("%s: [code]%s[/code]" % [action.capitalize(), ", ".join(parts)])
+    ($VBoxContainer/ActionsLabel as RichTextLabel).text = "\n".join(lines)
 
 func _on_back_button_pressed() -> void:
     Events.switch_to_main_screen.emit()
