@@ -42,15 +42,6 @@ CREATE TABLE command_category (
     FOREIGN KEY (category_id) REFERENCES category (category_id) ON DELETE CASCADE
 ) WITHOUT ROWID;
 
-CREATE TABLE program_command (
-    program_id integer NOT NULL,
-    command_id integer NOT NULL,
-    name varchar(255),
-    PRIMARY KEY (program_id, command_id),
-    FOREIGN KEY (program_id) REFERENCES program (program_id) ON DELETE CASCADE,
-    FOREIGN KEY (command_id) REFERENCES command (command_id) ON DELETE CASCADE
-);
-
 CREATE TABLE program_command_hotkey (
     program_id integer NOT NULL,
     command_id integer NOT NULL,

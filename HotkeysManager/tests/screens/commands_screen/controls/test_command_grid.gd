@@ -10,7 +10,6 @@ func create_command_grid(programgroup_id: int) -> CommandGrid:
     var programs := CommandsScreen.query_programs(db, programgroup_id)
     var program_abbreviations := CommandsScreen.query_program_abbreviations(db, programgroup_id)
     var commands := CommandsScreen.query_commands(db, programgroup_id)
-    var program_command_names := CommandsScreen.query_program_command_names(db, programgroup_id)
     var program_command_hotkeys := CommandsScreen.query_program_command_hotkeys(db, programgroup_id)
     var user_hotkeys_by_commands := CommandsScreen.query_user_hotkeys_by_commands(db, programgroup_id)
     var user_hotkeys_by_programs := CommandsScreen.query_user_hotkeys_by_programs(db, programgroup_id)
@@ -31,7 +30,7 @@ func create_command_grid(programgroup_id: int) -> CommandGrid:
         combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
 
     var command_grid := CommandGrid.new()
-    command_grid.setup(db, programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(db, programgroup_id, programs, program_abbreviations, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
     return add_child_autofree(command_grid)
 
 
@@ -228,9 +227,7 @@ func test_can_create_a_new_program_command_hotkey_by_entering_text_into_an_empty
     var command_grid := create_command_grid(3)
     var cell: ProgramHotkeyTextCell = command_grid.get_cell(3, 4)
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
-    # new proggram command was added
-    assert_true(command_grid._db.rows_exist("program_command", "program_id=%d AND command_id=%d" % [cell.program_id, cell.command_id]))
-    # new hotkey was added
+    # new proggram command hotkey was added
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, "Ctrl+F4"]))
 
 
@@ -240,9 +237,7 @@ func test_can_add_a_second_hotkey_after_creating_a_new_program_command_hotkey() 
     var cell2: ProgramHotkeyTextCell = command_grid.get_cell(2, 1)
     enter_text_and_emit_changed_signal(cell1, "Shift+1")
     enter_text_and_emit_changed_signal(cell2, "Shift+2")
-    # new proggram command was added
-    assert_true(command_grid._db.rows_exist("program_command", "program_id=%d AND command_id=%d" % [cell1.program_id, cell1.command_id]))
-    # new hotkeys were added
+    # new proggram command hotkeys were added
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell1.program_id, cell1.command_id, "Shift+1"]))
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell2.program_id, cell2.command_id, "Shift+2"]))
 

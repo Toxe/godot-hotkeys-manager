@@ -7,7 +7,7 @@ var _rows := 0 # number of table rows, not including the header and bottom row
 var _cols := 0 # number of table columns, including the first command name column
 
 
-func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
+func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
     assert(db != null)
     assert(db.is_open())
     assert(programgroup_id > 0)
@@ -21,7 +21,7 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     add_header_row(programs, program_abbreviations)
 
     for command_id in commands:
-        _rows += add_command_cells(command_id, programs, commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+        _rows += add_command_cells(command_id, programs, commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
     add_bottom_row()
 
@@ -128,12 +128,12 @@ func add_bottom_row() -> void:
         add_empty_cell()
 
 
-func add_command_cells(command_id: int, programs: Dictionary[int, String], commands: Dictionary[int, String], program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> int:
+func add_command_cells(command_id: int, programs: Dictionary[int, String], commands: Dictionary[int, String], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> int:
     var necessary_rows := count_necessary_command_hotkey_rows(command_id, program_command_hotkeys)
 
     var program_hotkey_cells: Dictionary = {}
     for program_id in programs:
-        program_hotkey_cells[program_id] = create_program_command_hotkey_cells(necessary_rows, command_id, program_id, program_command_names, program_command_hotkeys)
+        program_hotkey_cells[program_id] = create_program_command_hotkey_cells(necessary_rows, command_id, program_id, program_command_hotkeys)
 
     for row in necessary_rows:
         add_command_name_cell(row, command_id, commands[command_id])
@@ -318,15 +318,14 @@ func insert_row_after(previous_row: int) -> void:
     _rows += 1
 
 
-func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, program_id: int, program_command_names: Dictionary[int, Dictionary], program_command_hotkeys: Dictionary[int, Dictionary]) -> Array[ProgramHotkeyTextCell]:
+func create_program_command_hotkey_cells(necessary_rows: int, command_id: int, program_id: int, program_command_hotkeys: Dictionary[int, Dictionary]) -> Array[ProgramHotkeyTextCell]:
     var cells: Array[ProgramHotkeyTextCell] = []
 
-    if command_id in program_command_names and program_id in program_command_names[command_id]:
-        if command_id in program_command_hotkeys and program_id in program_command_hotkeys[command_id]:
-            for hotkey: String in program_command_hotkeys[command_id][program_id]:
-                var cell := ProgramHotkeyTextCell.new(command_id, program_id)
-                cell.text = hotkey
-                cells.append(cell)
+    if command_id in program_command_hotkeys and program_id in program_command_hotkeys[command_id]:
+        for hotkey: String in program_command_hotkeys[command_id][program_id]:
+            var cell := ProgramHotkeyTextCell.new(command_id, program_id)
+            cell.text = hotkey
+            cells.append(cell)
         if cells.size() < necessary_rows:
             for i in necessary_rows - cells.size():
                 cells.append(ProgramHotkeyTextCell.new(command_id, program_id))
@@ -385,24 +384,12 @@ func _on_command_name_cell_changed(cell: TextCell, old_name: String, new_name: S
 
 func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
     var success := true
-    var program_command_exists := _db.rows_exist("program_command", "program_id=%d AND command_id=%d" % [cell.program_id, cell.command_id])
-
-    if program_command_exists:
-        if old_hotkey != "" && new_hotkey != "":
-            success = _db.update_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey], {"hotkey": new_hotkey})
-        elif old_hotkey == "" && new_hotkey != "":
-            success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
-        elif old_hotkey != "" && new_hotkey == "":
-            success = _db.delete_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey])
-        else:
-            printerr("_on_program_command_hotkey_cell_changed error %d: '%s', '%s' (c: %d, p: %d)" % [1, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
-    else:
-        if old_hotkey == "" && new_hotkey != "":
-            success = _db.insert_row("program_command", {"program_id": cell.program_id, "command_id": cell.command_id})
-            if success:
-                success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
-        else:
-            printerr("_on_program_command_hotkey_cell_changed error %d: '%s', '%s' (c: %d, p: %d)" % [2, old_hotkey, new_hotkey, cell.command_id, cell.program_id])
+    if old_hotkey == "" && new_hotkey != "":
+        success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
+    elif old_hotkey != "" && new_hotkey != "":
+        success = _db.update_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey], {"hotkey": new_hotkey})
+    elif old_hotkey != "" && new_hotkey == "":
+        success = _db.delete_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey])
     if !success:
         cell.text = old_hotkey
 

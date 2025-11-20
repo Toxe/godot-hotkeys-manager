@@ -23,7 +23,6 @@ func _ready() -> void:
     var programs := query_programs(_db, _programgroup_id)
     var program_abbreviations := query_program_abbreviations(_db, _programgroup_id)
     var commands := query_commands(_db, _programgroup_id)
-    var program_command_names := query_program_command_names(_db, _programgroup_id)
     var program_command_hotkeys := query_program_command_hotkeys(_db, _programgroup_id)
     var user_hotkeys_by_commands := query_user_hotkeys_by_commands(_db, _programgroup_id)
     var user_hotkeys_by_programs := query_user_hotkeys_by_programs(_db, _programgroup_id)
@@ -44,7 +43,7 @@ func _ready() -> void:
         combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
 
     var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/CommandGrid
-    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 static func query_all_commands(db: Database) -> Dictionary[int, String]:
@@ -94,7 +93,7 @@ static func query_commands(db: Database, programgroup_id: int) -> Dictionary[int
     var commands: Dictionary[int, String] = {}
     var sql := "SELECT c.command_id, c.name AS command_name
 FROM command c
-INNER JOIN program_command pc USING (command_id)
+INNER JOIN program_command_hotkey pch USING (command_id)
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?
 GROUP BY c.command_id;"
@@ -108,30 +107,10 @@ GROUP BY c.command_id;"
     return commands
 
 
-static func query_program_command_names(db: Database, programgroup_id: int) -> Dictionary[int, Dictionary]:
-    var program_commands: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT pc.program_id, pc.command_id, pc.name
-FROM program_command pc
-INNER JOIN programgroup_program pp USING (program_id)
-WHERE pp.programgroup_id = ?;"
-
-    if db.select(sql, [programgroup_id]):
-        var rows := db.query_result()
-        for row: Dictionary in rows:
-            var program_id: int = row["program_id"]
-            var command_id: int = row["command_id"]
-            var program_command_name: Variant = row["name"] # name can be null
-
-            var command_data: Dictionary = program_commands.get_or_add(command_id, {})
-            command_data[program_id] = program_command_name
-    return program_commands
-
-
 static func query_program_command_hotkeys(db: Database, programgroup_id: int) -> Dictionary[int, Dictionary]:
     var program_command_hotkeys: Dictionary[int, Dictionary] = {}
-    var sql := "SELECT pc.program_id, pc.command_id, pch.hotkey AS program_command_hotkey
-FROM program_command pc
-INNER JOIN program_command_hotkey pch USING (program_id, command_id)
+    var sql := "SELECT pch.program_id, pch.command_id, pch.hotkey AS program_command_hotkey
+FROM program_command_hotkey pch
 INNER JOIN programgroup_program pp USING (program_id)
 WHERE pp.programgroup_id = ?;"
 
@@ -155,7 +134,7 @@ FROM user_hotkey uh
 INNER JOIN (
 	SELECT c.command_id, c.name AS command_name
 	FROM command c
-	INNER JOIN program_command pc USING (command_id)
+	INNER JOIN program_command_hotkey pch USING (command_id)
 	INNER JOIN programgroup_program pp USING (program_id)
 	WHERE pp.programgroup_id = ?
 	GROUP BY c.command_id
@@ -222,11 +201,12 @@ static func query_available_commands(db: Database, programgroup_id: int) -> Dict
     var sql := "SELECT command_id, name AS command_name
 FROM command
 WHERE command_id NOT IN (
-    SELECT pc.command_id
-    FROM program_command pc
-    INNER JOIN programgroup_program pp USING (program_id)
-    WHERE pp.programgroup_id = ?
-    GROUP BY pc.command_id)
+	SELECT pch.command_id
+	FROM program_command_hotkey pch
+	INNER JOIN programgroup_program pp USING (program_id)
+	WHERE pp.programgroup_id = ?
+	GROUP BY pch.command_id
+)
 ORDER BY name;"
 
     if db.select(sql, [programgroup_id]):

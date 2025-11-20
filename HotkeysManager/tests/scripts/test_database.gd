@@ -19,20 +19,20 @@ func test_insert_row() -> void:
 
 
 func test_update_rows() -> void:
-    assert_true(db.update_rows("program_command", "name='Go to File'", {"name": "test"}))
+    assert_true(db.update_rows("command", "name='Go to File'", {"name": "test"}))
 
 
 func test_delete_rows() -> void:
-    assert_true(db.delete_rows("program_command", "name='Go to File'"))
-    assert_true(db.delete_rows("program_command", "*"))
+    assert_true(db.delete_rows("command", "name='Go to File'"))
+    assert_true(db.delete_rows("command", "*"))
 
 
 func test_select_rows() -> void:
-    var rows: Variant = db.select_rows("program_command", "name='Go to File'", ["program_id", "command_id", "name"])
+    var rows: Variant = db.select_rows("program_command_hotkey", "hotkey='Ctrl+W'", ["program_id", "command_id", "hotkey"])
     @warning_ignore("unsafe_call_argument")
     assert_eq_deep(rows, [
-        {"program_id": 1, "command_id": 1, "name": "Go to File"},
-        {"program_id": 3, "command_id": 1, "name": "Go to File"},
+        {"program_id": 9, "command_id": 5, "hotkey": "Ctrl+W"},
+        {"program_id": 10, "command_id": 5, "hotkey": "Ctrl+W"},
     ])
 
 
@@ -56,12 +56,12 @@ func test_select_row_returns_false_on_database_error() -> void:
 
 func test_select_row_returns_false_if_there_is_more_than_one_result_row() -> void:
     @warning_ignore("unsafe_call_argument")
-    assert_false(db.select_row("program_command", "program_id=1", ["name"]))
+    assert_false(db.select_row("program_command_hotkey", "program_id=1", ["hotkey"]))
 
 
 func test_select_row_returns_null_if_the_row_doesnt_exist() -> void:
     @warning_ignore("unsafe_call_argument")
-    assert_null(db.select_row("program_command", "program_id=99", ["program_id", "name"]))
+    assert_null(db.select_row("program_command_hotkey", "program_id=99", ["program_id", "hotkey"]))
 
 
 func test_select_value() -> void:
@@ -78,29 +78,29 @@ func test_select_value_returns_false_on_database_error() -> void:
 
 func test_select_value_returns_false_if_there_is_more_than_one_result_row() -> void:
     @warning_ignore("unsafe_call_argument")
-    assert_false(db.select_value("program_command", "program_id=1", "name"))
+    assert_false(db.select_value("program_command_hotkey", "program_id=1", "hotkey"))
 
 
 func test_select_value_returns_null_if_the_row_doesnt_exist() -> void:
     @warning_ignore("unsafe_call_argument")
-    assert_null(db.select_value("program_command", "program_id=99", "name"))
+    assert_null(db.select_value("program_command_hotkey", "program_id=99", "hotkey"))
 
 
 func test_select_without_bindings() -> void:
-    var rows: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name='Go to File';")
+    var rows: Variant = db.select("SELECT program_id, command_id, hotkey FROM program_command_hotkey WHERE hotkey='Ctrl+W';")
     @warning_ignore("unsafe_call_argument")
     assert_eq_deep(rows, [
-        {"program_id": 1, "command_id": 1, "name": "Go to File"},
-        {"program_id": 3, "command_id": 1, "name": "Go to File"},
+        {"program_id": 9, "command_id": 5, "hotkey": "Ctrl+W"},
+        {"program_id": 10, "command_id": 5, "hotkey": "Ctrl+W"},
     ])
 
 
 func test_select_with_bindings() -> void:
-    var rows: Variant = db.select("SELECT program_id, command_id, name FROM program_command WHERE name=?;", ["Go to File"])
+    var rows: Variant = db.select("SELECT program_id, command_id, hotkey FROM program_command_hotkey WHERE hotkey=?;", ["Ctrl+W"])
     @warning_ignore("unsafe_call_argument")
     assert_eq_deep(rows, [
-        {"program_id": 1, "command_id": 1, "name": "Go to File"},
-        {"program_id": 3, "command_id": 1, "name": "Go to File"},
+        {"program_id": 9, "command_id": 5, "hotkey": "Ctrl+W"},
+        {"program_id": 10, "command_id": 5, "hotkey": "Ctrl+W"},
     ])
 
 
@@ -109,7 +109,7 @@ func test_rows_exist_returns_true_if_a_condition_returns_one_row() -> void:
 
 
 func test_rows_exist_returns_true_if_a_condition_returns_multiple_rows() -> void:
-    assert_true(db.rows_exist("program_command", "command_id=2"))
+    assert_true(db.rows_exist("program_command_hotkey", "command_id=2"))
 
 
 func test_rows_exist_returns_false_if_a_condition_returns_no_rows() -> void:
@@ -119,7 +119,7 @@ func test_rows_exist_returns_false_if_a_condition_returns_no_rows() -> void:
 func test_count_rows_returns_the_number_of_rows() -> void:
     assert_eq(db.count_rows("command"), 7)
     assert_eq(db.count_rows("program"), 10)
-    assert_eq(db.count_rows("program_command"), 12)
+    assert_eq(db.count_rows("program_command_hotkey"), 17)
 
 
 func test_count_rows_returns_zero_if_a_table_is_empty() -> void:

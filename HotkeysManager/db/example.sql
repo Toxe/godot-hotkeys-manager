@@ -52,20 +52,6 @@ INSERT INTO command_category (command_id, category_id) VALUES
 (1, 2),
 (2, 3);
 
-INSERT INTO program_command (program_id, command_id, name) VALUES
-(1, 1, 'Go to File'),
-(2, 1, 'Go To File'),
-(3, 1, 'Go to File'),
-(4, 1, 'Open quick switcher'),
-(1, 2, 'Select Next Tab'),
-(2, 2, 'Window.NextTab'),
-(3, 2, 'View: Open Next Editor'),
-(4, 2, 'Go to next tab'),
-(8, 3, 'New Tab'),
-(8, 5, NULL),
-(9, 5, 'Close Tab'),
-(10, 5, 'Close Tab');
-
 INSERT INTO program_command_hotkey (program_id, command_id, hotkey) VALUES
 (1, 1, 'Ctrl+Shift+N'),
 (2, 1, 'Ctrl+1 F'),

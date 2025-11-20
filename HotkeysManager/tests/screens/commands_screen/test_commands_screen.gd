@@ -48,19 +48,6 @@ class TestStaticFunctions extends GutTest:
             5: "Close Tab",
         })
 
-    func test_query_program_command_names() -> void:
-        var program_commands := CommandsScreen.query_program_command_names(db, programgroup_id)
-        assert_eq_deep(program_commands, {
-            3: {
-                8: "New Tab",
-            },
-            5: {
-                8: null,
-                9: "Close Tab",
-                10: "Close Tab",
-            },
-        })
-
     func test_query_program_command_hotkeys() -> void:
         var program_command_hotkeys := CommandsScreen.query_program_command_hotkeys(db, programgroup_id)
         assert_eq_deep(program_command_hotkeys, {
