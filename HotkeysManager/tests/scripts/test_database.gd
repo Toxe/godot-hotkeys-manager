@@ -119,7 +119,9 @@ func test_rows_exist_returns_false_if_a_condition_returns_no_rows() -> void:
 func test_count_rows_returns_the_number_of_rows() -> void:
     assert_eq(db.count_rows("command"), 7)
     assert_eq(db.count_rows("program"), 10)
-    assert_eq(db.count_rows("program_command_hotkey"), 17)
+    assert_eq(db.count_rows("program_command_hotkey", "program_id=3"), 4)
+    assert_eq(db.count_rows("program_command_hotkey", "program_id=3 AND command_id=1"), 3)
+    assert_eq(db.count_rows("program_command_hotkey", "program_id=101 AND command_id=102"), 0)
 
 
 func test_count_rows_returns_zero_if_a_table_is_empty() -> void:
@@ -127,6 +129,7 @@ func test_count_rows_returns_zero_if_a_table_is_empty() -> void:
     db.delete_rows("command_comment", "*")
     assert_eq(db.count_rows("properties"), 0)
     assert_eq(db.count_rows("command_comment"), 0)
+    assert_eq(db.count_rows("command_comment", "command_id=1"), 0)
 
 
 func test_query() -> void:

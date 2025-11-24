@@ -151,9 +151,8 @@ func rows_exist(table: String, conditions: String) -> bool:
     return result[0].values().get(0) == 1
 
 
-func count_rows(table: String) -> int:
-    var result: Array[Dictionary] = select("SELECT COUNT(*) FROM `%s`;" % [table])
-    return result[0].values().get(0)
+func count_rows(table: String, conditions: String = "") -> int:
+    return select_value(table, conditions, "COUNT(*)")
 
 
 ## A general query function, when there is no better fit.
