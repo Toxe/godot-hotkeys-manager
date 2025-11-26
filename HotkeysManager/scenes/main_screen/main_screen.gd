@@ -29,7 +29,7 @@ func add_programgroup(programgroup_id: int, programgroup_name: String, programs:
 
 func query_programs() -> Dictionary[int, String]:
     var programs: Dictionary[int, String] = {}
-    var rows: Variant = _db.select_rows("program", "", ["program_id", "name"])
+    var rows: Variant = _db.select_rows("program", ["program_id", "name"])
     if rows:
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
@@ -40,7 +40,7 @@ func query_programs() -> Dictionary[int, String]:
 
 func query_programgroups() -> Dictionary[int, String]:
     var programgroups: Dictionary[int, String] = {}
-    var rows: Variant = _db.select_rows("programgroup", "", ["programgroup_id", "name"])
+    var rows: Variant = _db.select_rows("programgroup", ["programgroup_id", "name"])
     if rows:
         for row: Dictionary in rows:
             var programgroup_id: int = row["programgroup_id"]
@@ -90,7 +90,7 @@ func _on_new_program_dialog_submitted(_dialog: EnterTextDialog, values: Dictiona
 func _on_delete_program_dialog_submitted(_dialog: SelectionDialog, selection: Array) -> void:
     for id: Variant in selection:
         var program_id: int = id
-        if !_db.delete_rows("program", "program_id=%d" % program_id):
+        if !_db.delete_rows("program", "program_id=?", [program_id]):
             return
     Events.switch_to_main_screen.emit.call_deferred()
 

@@ -236,10 +236,10 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
 
 
 func add_command_row(command_name: String, programs: Dictionary[int, String]) -> void:
-    var command_id: int = _db.select_value("command", "name='%s'" % command_name, "command_id")
+    var command_id: int = _db.select_value("command", "command_id", "name=?", [command_name])
     var user_hotkey_id := 0
     var user_hotkey := ""
-    var row: Variant = _db.select_row("user_hotkey", "command_id=%d" % command_id, ["user_hotkey_id", "hotkey"])
+    var row: Variant = _db.select_row("user_hotkey", ["user_hotkey_id", "hotkey"], "command_id=?", [command_id])
     if row:
         user_hotkey_id = row["user_hotkey_id"]
         user_hotkey = row["hotkey"]
@@ -264,7 +264,7 @@ func add_command_row(command_name: String, programs: Dictionary[int, String]) ->
 
     # add user hotkey program assignment checkboxes
     var assigned_programs: Array[int]
-    if _db.select_rows("user_hotkey_program", "user_hotkey_id=%d" % user_hotkey_id, ["program_id"]):
+    if _db.select_rows("user_hotkey_program", ["program_id"], "user_hotkey_id=?", [user_hotkey_id]):
         for d: Dictionary in _db.query_result():
             var program_id: int = d["program_id"]
             assigned_programs.append(program_id)
@@ -361,14 +361,14 @@ func _on_user_hotkey_program_checkbox_toggled(toggled_on: bool, checkbox: UserHo
     if toggled_on:
         success = _db.insert_row("user_hotkey_program", {"user_hotkey_id": checkbox.user_hotkey_id, "program_id": checkbox.program_id})
     else:
-        success = _db.delete_rows("user_hotkey_program", "user_hotkey_id=%d AND program_id=%d" % [checkbox.user_hotkey_id, checkbox.program_id])
+        success = _db.delete_rows("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [checkbox.user_hotkey_id, checkbox.program_id])
     if !success:
         checkbox.set_pressed_no_signal(!toggled_on)
 
 
 func _on_command_name_cell_changed(cell: TextCell, old_name: String, new_name: String, command_id: int) -> void:
     if new_name != "":
-        _db.update_rows("command", "command_id=%d" % command_id, {"name": new_name})
+        _db.update_rows("command", "command_id=?", [command_id], {"name": new_name})
     else:
         cell.text = old_name
         printerr("Command name must not be empty!")
@@ -379,22 +379,22 @@ func _on_program_command_hotkey_cell_changed(cell: ProgramHotkeyTextCell, old_ho
     if old_hotkey == "" && new_hotkey != "":
         success = _db.insert_row("program_command_hotkey", {"program_id": cell.program_id, "command_id": cell.command_id, "hotkey": new_hotkey})
     elif old_hotkey != "" && new_hotkey != "":
-        success = _db.update_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey], {"hotkey": new_hotkey})
+        success = _db.update_rows("program_command_hotkey", "program_id=? AND command_id=? AND hotkey=?", [cell.program_id, cell.command_id, old_hotkey], {"hotkey": new_hotkey})
     elif old_hotkey != "" && new_hotkey == "":
-        success = _db.delete_rows("program_command_hotkey", "program_id=%d AND command_id=%d AND hotkey='%s'" % [cell.program_id, cell.command_id, old_hotkey])
+        success = _db.delete_rows("program_command_hotkey", "program_id=? AND command_id=? AND hotkey=?", [cell.program_id, cell.command_id, old_hotkey])
     if !success:
         cell.text = old_hotkey
 
 
 func _on_user_hotkey_cell_changed(cell: UserHotkeyTextCell, old_hotkey: String, new_hotkey: String) -> void:
     if old_hotkey != "" && new_hotkey != "":
-        _db.update_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey], {"hotkey": new_hotkey})
+        _db.update_rows("user_hotkey", "command_id=? AND hotkey=?", [cell.command_id, old_hotkey], {"hotkey": new_hotkey})
     elif old_hotkey == "" && new_hotkey != "":
         if _db.insert_row("user_hotkey", {"command_id": cell.command_id, "hotkey": new_hotkey}):
             cell.user_hotkey_id = _db.last_insert_rowid()
             update_user_hotkey_program_checkboxes(cell.user_hotkey_id, false, cell.user_hotkey_id)
     elif old_hotkey != "" && new_hotkey == "":
-        if _db.delete_rows("user_hotkey", "command_id=%d AND hotkey='%s'" % [cell.command_id, old_hotkey]):
+        if _db.delete_rows("user_hotkey", "command_id=? AND hotkey=?", [cell.command_id, old_hotkey]):
             update_user_hotkey_program_checkboxes(cell.user_hotkey_id, false, 0)
             cell.user_hotkey_id = 0
     else:
@@ -409,7 +409,7 @@ func _on_add_command_cell_changed(cell: TextCell, old_text: String, new_text: St
             return # command already in the table
         # create a new command if it doesn't already exist in the database
         var command_name := new_text
-        var result: Variant = _db.select_value("command", "name='%s'" % new_text, "name")
+        var result: Variant = _db.select_value("command", "name", "name=?", [new_text])
         if result:
             command_name = result
         else:

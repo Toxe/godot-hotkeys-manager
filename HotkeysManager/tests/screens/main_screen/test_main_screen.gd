@@ -86,7 +86,7 @@ func test_can_remove_programgroup() -> void:
 func test_can_create_new_program() -> void:
     main_screen._on_new_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"})
     @warning_ignore("unsafe_call_argument")
-    assert_gt(main_screen._db.select_value("program", "name='New Program' AND abbreviation='newp'", "program_id"), 0)
+    assert_gt(main_screen._db.select_value("program", "program_id", "name=? AND abbreviation=?", ["New Program", "newp"]), 0)
 
 
 func test_can_delete_program() -> void:

@@ -98,25 +98,40 @@ func insert_row(table: String, values: Dictionary) -> bool:
     return exec_call(&"INSERT", func() -> void: _db.insert_row(table, values))
 
 
-func update_rows(table: String, conditions: String, values: Dictionary) -> bool:
-    return exec_call(&"UPDATE", func() -> void: _db.update_rows(table, conditions, values))
+func update_rows(table: String, conditions: String, conditions_params: Array[Variant], values: Dictionary[String, Variant]) -> bool:
+    var bindings: Array[Variant]
+    var sets: Array[String]
+    for field in values:
+        bindings.append(values[field])
+        sets.append("%s=?" % field)
+    bindings.append_array(conditions_params)
+    var sql := "UPDATE %s SET %s WHERE %s;" % [table, ", ".join(sets), conditions]
+    return exec_call(&"UPDATE", func() -> void: _db.query_with_bindings(sql, bindings))
 
 
-func delete_rows(table: String, conditions: String) -> bool:
-    return exec_call(&"DELETE", func() -> void: _db.delete_rows(table, conditions))
+func delete_rows(table: String, conditions: String, conditions_params: Array[Variant]) -> bool:
+    var sql := "DELETE FROM %s WHERE %s;" % [table, conditions]
+    return exec_call(&"DELETE", func() -> void: _db.query_with_bindings(sql, conditions_params))
+
+
+func delete_all_rows(table: String) -> bool:
+    var sql := "DELETE FROM %s;" % table
+    return exec_call(&"DELETE", func() -> void: _db.query(sql))
 
 
 ## Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
-func select_rows(table: String, conditions: String, fields: Array) -> Variant:
-    if exec_call(&"SELECT", func() -> void: _db.select_rows(table, conditions, fields)):
+func select_rows(table: String, fields: Array[String], conditions: String = "", conditions_params: Array[Variant] = []) -> Variant:
+    var where := "" if conditions.is_empty() else " WHERE " + conditions
+    var sql := "SELECT %s FROM %s%s;" % [", ".join(fields), table, where]
+    if exec_call(&"SELECT", func() -> void: _db.query_with_bindings(sql, conditions_params)):
         return query_result()
     else:
         return false
 
 
 ## Returns [code]false[/code] on a database error or a Dictionary with row values or [code]null[/code] (if the row doesn't exist).
-func select_row(table: String, conditions: String, fields: Array) -> Variant:
-    var result: Variant = select_rows(table, conditions, fields)
+func select_row(table: String, fields: Array[String], conditions: String, conditions_params: Array[Variant]) -> Variant:
+    var result: Variant = select_rows(table, fields, conditions, conditions_params)
     if result is not Array:
         return false
     var rows: Array = result
@@ -130,8 +145,8 @@ func select_row(table: String, conditions: String, fields: Array) -> Variant:
 
 
 ## Returns [code]false[/code] on a database error or the value or [code]null[/code] (if the row doesn't exist).
-func select_value(table: String, conditions: String, field: String) -> Variant:
-    var result: Variant = select_row(table, conditions, [field])
+func select_value(table: String, field: String, conditions: String, conditions_params: Array[Variant]) -> Variant:
+    var result: Variant = select_row(table, [field], conditions, conditions_params)
     if !result:
         return result # can be false or null
     var values: Dictionary = result
@@ -139,22 +154,22 @@ func select_value(table: String, conditions: String, field: String) -> Variant:
 
 
 ## For complex SELECT queries that fit no other function. Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
-func select(sql: String, bindings: Array = []) -> Variant:
+func select(sql: String, bindings: Array[Variant] = []) -> Variant:
     if exec_call(&"SELECT", func() -> void: _db.query_with_bindings(sql, bindings)):
         return query_result()
     else:
         return false
 
 
-func rows_exist(table: String, conditions: String) -> bool:
-    var result: Array[Dictionary] = select("SELECT EXISTS (SELECT 1 FROM `%s` WHERE %s);" % [table, conditions])
+func rows_exist(table: String, conditions: String, conditions_params: Array[Variant]) -> bool:
+    var result: Array[Dictionary] = select("SELECT EXISTS (SELECT 1 FROM %s WHERE %s);" % [table, conditions], conditions_params)
     return result[0].values().get(0) == 1
 
 
-func count_rows(table: String, conditions: String = "") -> int:
-    return select_value(table, conditions, "COUNT(*)")
+func count_rows(table: String, conditions: String = "", conditions_params: Array[Variant] = []) -> int:
+    return select_value(table, "COUNT(*)", conditions, conditions_params)
 
 
 ## A general query function, when there is no better fit.
-func query(sql: String, bindings: Array = []) -> bool:
+func query(sql: String, bindings: Array[Variant] = []) -> bool:
     return exec_call(&"QUERY", func() -> void: _db.query_with_bindings(sql, bindings))

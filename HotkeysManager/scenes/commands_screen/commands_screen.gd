@@ -16,7 +16,7 @@ func setup(db: Database, programgroup_id: int) -> void:
 func _ready() -> void:
     prepare_actions_label()
 
-    var programgroup_name: Variant = _db.select_value("programgroup", "programgroup_id=%d" % _programgroup_id, "name")
+    var programgroup_name: Variant = _db.select_value("programgroup", "name", "programgroup_id=?", [_programgroup_id])
     if programgroup_name != null:
         ($VBoxContainer/ProgramgroupTitleLabel as Label).text = programgroup_name
 
@@ -48,7 +48,7 @@ func _ready() -> void:
 
 static func query_all_commands(db: Database) -> Dictionary[int, String]:
     var commands: Dictionary[int, String] = {}
-    var rows: Variant = db.select_rows("command", "", ["command_id", "name"])
+    var rows: Variant = db.select_rows("command", ["command_id", "name"])
     if rows:
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
@@ -256,6 +256,6 @@ func _on_new_command_dialog_submitted(_dialog: EnterTextDialog, values: Dictiona
 func _on_delete_command_dialog_submitted(_dialog: SelectionDialog, selection: Array) -> void:
     for id: Variant in selection:
         var command_id: int = id
-        if !_db.delete_rows("command", "command_id=%d" % command_id):
+        if !_db.delete_rows("command", "command_id=?", [command_id]):
             return
     Events.switch_to_commands_screen.emit.call_deferred(_programgroup_id)

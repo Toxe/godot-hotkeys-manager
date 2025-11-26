@@ -125,18 +125,18 @@ func _on_remove_program_button_pressed() -> void:
     var index := get_selected_program_list_item()
     assert(index >= 0 && index < get_program_list().item_count)
     var program_id: int = get_program_list().get_item_metadata(index)
-    if _db.delete_rows("programgroup_program", "programgroup_id=%d AND program_id=%d" % [_programgroup_id, program_id]):
+    if _db.delete_rows("programgroup_program", "programgroup_id=? AND program_id=?", [_programgroup_id, program_id]):
         update_program_list(query_programs())
         select_program_list_item(mini(index, get_program_list().item_count - 1))
 
 
 func _on_rename_group_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
-    if _db.update_rows("programgroup", "programgroup_id=%d" % _programgroup_id, {"name": values["programgroup_name"]}):
+    if _db.update_rows("programgroup", "programgroup_id=?", [_programgroup_id], {"name": values["programgroup_name"]}):
         programgroup_name = values["programgroup_name"]
 
 
 func _on_delete_group_dialog_confirmed(_dialog: VerificationDialog) -> void:
-    if _db.delete_rows("programgroup", "programgroup_id=%d" % _programgroup_id):
+    if _db.delete_rows("programgroup", "programgroup_id=?", [_programgroup_id]):
         programgroup_deleted.emit(_programgroup_id)
 
 
