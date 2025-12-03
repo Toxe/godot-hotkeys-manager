@@ -1,6 +1,6 @@
 class_name EnterTextDialog extends BaseDialog
 
-signal submitted(dialog: EnterTextDialog, values: Dictionary[String, String])
+signal submitted(dialog: EnterTextDialog, values: Dictionary[String, Variant])
 
 const dialog_scene: PackedScene = preload("uid://pmsm6nuojugq")
 
@@ -93,7 +93,7 @@ func update_submit_button(text: String) -> void:
 
 
 func _on_submit_button_pressed() -> void:
-    var values: Dictionary[String, String]
+    var values: Dictionary[String, Variant]
     for text_field: LineEdit in $VBoxContainer/InputFieldsGridContainer.find_children("LineEdit_*", "LineEdit", true, false):
         var field_name := text_field.name.trim_prefix("LineEdit_")
         values[field_name] = text_field.text
