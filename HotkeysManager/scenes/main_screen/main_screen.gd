@@ -11,20 +11,29 @@ func setup(db: Database) -> void:
 
     _db = db
 
+    ($VBoxContainer/ScrollContainer/HBoxContainer/ProgramList as ProgramList).setup(_db)
+    rebuild_programgroups()
+
+
+func rebuild_programgroups() -> void:
+    var programgroup_list := $VBoxContainer/ScrollContainer/HBoxContainer/ProgramgroupList
+    for programgroup: Programgroup in programgroup_list.find_children("*", "Programgroup", true, false):
+        programgroup_list.remove_child(programgroup)
+        programgroup.queue_free()
+
     var programgroups := query_programgroups()
     var programgroup_programs := query_programgroup_programs()
-
     for programgroup_id in programgroups:
         var programgroup_name: String = programgroups[programgroup_id]
         var programs: Dictionary = programgroup_programs.get(programgroup_id, {})
-        add_programgroup(programgroup_id, programgroup_name, programs)
+        add_programgroup(programgroup_list, programgroup_id, programgroup_name, programs)
 
 
-func add_programgroup(programgroup_id: int, programgroup_name: String, programs: Dictionary) -> void:
+func add_programgroup(programgroup_list: Node, programgroup_id: int, programgroup_name: String, programs: Dictionary) -> void:
         var programgroup: Programgroup = programgroup_scene.instantiate()
         programgroup.setup(_db, programgroup_id, programgroup_name, programs)
         programgroup.programgroup_deleted.connect(_on_programgroup_deleted)
-        $VBoxContainer/ScrollContainer/ProgramgroupList.add_child(programgroup)
+        programgroup_list.add_child(programgroup)
 
 
 func query_programs() -> Dictionary[int, String]:
@@ -71,40 +80,28 @@ func _on_quit_button_pressed() -> void:
     get_tree().quit()
 
 
-func _on_new_program_button_pressed() -> void:
-    EnterTextDialog.open_dialog(self, "New Program", "Please enter the name and abbreviation of the new Program.", {"name": "Name", "abbreviation": "Abbreviation"}, _on_new_program_dialog_submitted)
-
-
-func _on_delete_program_button_pressed() -> void:
-    SelectionDialog.open_dialog(self, "Delete Program", "Select the Programs that you want to delete.\n\nNote: This will delete the Programs from all Program Groups and also delete all associated Commands and Hotkeys!", _on_delete_program_dialog_submitted, query_programs())
-
-
 func _on_new_group_button_pressed() -> void:
     EnterTextDialog.open_dialog(self, "New Program Group", "Please enter the name of the new Program Group.", {"programgroup_name": "Program Group Name"}, _on_new_group_dialog_submitted)
-
-
-func _on_new_program_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
-    _db.insert_row("program", values)
-
-
-func _on_delete_program_dialog_submitted(_dialog: SelectionDialog, selection: Array) -> void:
-    for id: Variant in selection:
-        var program_id: int = id
-        if !_db.delete_rows("program", "program_id=?", [program_id]):
-            return
-    Events.switch_to_main_screen.emit.call_deferred()
 
 
 func _on_new_group_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
     if _db.insert_row("programgroup", {"name": values["programgroup_name"]}):
         var programgroup_id := _db.last_insert_rowid()
         var programs := {} # new group is empty
-        add_programgroup(programgroup_id, values["programgroup_name"], programs)
+        add_programgroup($VBoxContainer/ScrollContainer/HBoxContainer/ProgramgroupList, programgroup_id, values["programgroup_name"], programs)
 
 
 func _on_programgroup_deleted(programgroup_id: int) -> void:
-    for programgroup: Programgroup in $VBoxContainer/ScrollContainer/ProgramgroupList.find_children("*", "Programgroup", true, false):
+    for programgroup: Programgroup in $VBoxContainer/ScrollContainer/HBoxContainer/ProgramgroupList.find_children("*", "Programgroup", true, false):
         if programgroup._programgroup_id == programgroup_id:
-            $VBoxContainer/ScrollContainer/ProgramgroupList.remove_child(programgroup)
+            $VBoxContainer/ScrollContainer/HBoxContainer/ProgramgroupList.remove_child(programgroup)
             programgroup.queue_free()
             break
+
+
+func _on_program_list_program_edited(_program_id: int) -> void:
+    rebuild_programgroups()
+
+
+func _on_program_list_program_deleted(_program_id: int) -> void:
+    rebuild_programgroups()

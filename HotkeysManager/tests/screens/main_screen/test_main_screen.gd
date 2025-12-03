@@ -20,6 +20,12 @@ func check_has_all_programgroups(expected_names: Array[String]) -> void:
         assert_has(expected_names, pg.programgroup_name)
 
 
+func check_programgroup_has_all_programs(programgroup: Programgroup, expected_programs: Array[String]) -> void:
+    assert_eq(programgroup.get_program_list().item_count, expected_programs.size())
+    for index in programgroup.get_program_list().item_count:
+        assert_has(expected_programs, programgroup.get_program_list().get_item_text(index))
+
+
 func test_query_programs() -> void:
     var programs := main_screen.query_programs()
     assert_eq_deep(programs, {
@@ -77,23 +83,12 @@ func test_main_screen_shows_programgroups() -> void:
     check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Group 3", "Group 4", "Group 5"])
 
 
-func test_can_remove_programgroup() -> void:
-    main_screen._on_programgroup_deleted(2)
-    check_has_all_programgroups(["Texteditoren", "Group 3", "Group 4", "Group 5"])
-    await wait_process_frames(1) # wait 1 frame to free the node, so that GUT won't report orphans
-
-
-func test_can_create_new_program() -> void:
-    main_screen._on_new_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"})
-    @warning_ignore("unsafe_call_argument")
-    assert_gt(main_screen._db.select_value("program", "program_id", "name=? AND abbreviation=?", ["New Program", "newp"]), 0)
-
-
-func test_can_delete_program() -> void:
-    var old_count := main_screen.query_programs().size()
-    main_screen._on_delete_program_dialog_submitted(null, [1, 3, 5])
-    var new_count := main_screen.query_programs().size()
-    assert_eq(new_count, old_count - 3)
+func test_can_open_New_Program_Group_dialog() -> void:
+    main_screen._on_new_group_button_pressed()
+    var dialog: EnterTextDialog = main_screen.find_child("EnterTextDialog", true, false)
+    assert_not_null(dialog)
+    assert_eq(dialog.title, "New Program Group")
+    dialog.close()
 
 
 func test_can_create_new_programgroup() -> void:
@@ -101,25 +96,29 @@ func test_can_create_new_programgroup() -> void:
     check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Group 3", "Group 4", "Group 5", "New Group"])
 
 
-func test_can_open_New_Program_dialog() -> void:
-    main_screen._on_new_program_button_pressed()
-    var dialog: EnterTextDialog = main_screen.find_child("EnterTextDialog", true, false)
-    assert_not_null(dialog)
-    assert_eq(dialog.title, "New Program")
-    dialog.close()
+func test_can_remove_programgroup() -> void:
+    main_screen._on_programgroup_deleted(2)
+    check_has_all_programgroups(["Texteditoren", "Group 3", "Group 4", "Group 5"])
+    await wait_idle_frames(1) # wait 1 frame to free the node, so that GUT won't report orphans
 
 
-func test_can_open_Delete_Program_dialog() -> void:
-    main_screen._on_delete_program_button_pressed()
-    var dialog: SelectionDialog = main_screen.find_child("SelectionDialog", true, false)
-    assert_not_null(dialog)
-    assert_eq(dialog.title, "Delete Program")
-    dialog.close()
+func test_update_programgroups_after_a_program_has_been_edited() -> void:
+    var program_list: ProgramList = main_screen.find_child("ProgramList", true, false)
+    program_list._on_edit_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"}, 6, 7)
+    var programgroups := main_screen.find_children("*", "Programgroup", true, false)
+    var programgroup1: Programgroup = programgroups[1]
+    var programgroup2: Programgroup = programgroups[2]
+    check_programgroup_has_all_programs(programgroup1, ["Photoshop", "Illustrator", "New Program"])
+    check_programgroup_has_all_programs(programgroup2, ["New Program", "Firefox", "Vivaldi", "Chrome"])
+    await wait_idle_frames(1) # wait 1 frame, so that GUT won't report orphans
 
 
-func test_can_open_New_Program_Group_dialog() -> void:
-    main_screen._on_new_group_button_pressed()
-    var dialog: EnterTextDialog = main_screen.find_child("EnterTextDialog", true, false)
-    assert_not_null(dialog)
-    assert_eq(dialog.title, "New Program Group")
-    dialog.close()
+func test_update_programgroups_after_a_program_has_been_deleted() -> void:
+    var program_list: ProgramList = main_screen.find_child("ProgramList", true, false)
+    program_list._on_delete_program_dialog_confirmed(null, 6, 7)
+    var programgroups := main_screen.find_children("*", "Programgroup", true, false)
+    var programgroup1: Programgroup = programgroups[1]
+    var programgroup2: Programgroup = programgroups[2]
+    check_programgroup_has_all_programs(programgroup1, ["Photoshop", "Illustrator"])
+    check_programgroup_has_all_programs(programgroup2, ["Firefox", "Vivaldi", "Chrome"])
+    await wait_idle_frames(1) # wait 1 frame, so that GUT won't report orphans
