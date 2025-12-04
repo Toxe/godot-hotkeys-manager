@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://b2csr7tbxjl3k"]
+[gd_scene load_steps=4 format=3 uid="uid://b2csr7tbxjl3k"]
 
 [ext_resource type="Script" uid="uid://bwew2enselr51" path="res://scenes/main_screen/main_screen.gd" id="1_eu54w"]
+[ext_resource type="Theme" uid="uid://dt5ffhw0kd0q" path="res://scenes/main_screen/theme.tres" id="1_ojtip"]
 [ext_resource type="PackedScene" uid="uid://bb0sf1lk22oy1" path="res://scenes/main_screen/controls/program_list.tscn" id="2_sr0hp"]
 
 [node name="MainScreen" type="Control"]
@@ -10,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_ojtip")
 script = ExtResource("1_eu54w")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
@@ -26,6 +28,7 @@ size_flags_vertical = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ScrollContainer"]
 layout_mode = 2
+theme_override_constants/separation = 30
 
 [node name="ProgramList" parent="VBoxContainer/ScrollContainer/HBoxContainer" instance=ExtResource("2_sr0hp")]
 layout_mode = 2

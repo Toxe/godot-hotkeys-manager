@@ -1,4 +1,4 @@
-class_name Programgroup extends Control
+class_name Programgroup extends PanelContainer
 
 signal programgroup_deleted(programgroup_id: int)
 
