@@ -1,4 +1,4 @@
-class_name ProgramList extends VBoxContainer
+class_name ProgramList extends PanelContainer
 
 signal program_edited(program_id: int)
 signal program_deleted(program_id: int)
@@ -16,7 +16,7 @@ func setup(db: Database) -> void:
 
 
 func get_list() -> ItemList:
-    return $ItemList
+    return $VBoxContainer/ItemList
 
 
 func update_list() -> void:
@@ -37,8 +37,8 @@ func update_list() -> void:
 
 func update_button_states() -> void:
     var list := get_list()
-    ($HBoxContainer/EditButton as Button).disabled = !list.is_anything_selected()
-    ($HBoxContainer/DeleteButton as Button).disabled = !list.is_anything_selected()
+    ($VBoxContainer/HBoxContainer/EditButton as Button).disabled = !list.is_anything_selected()
+    ($VBoxContainer/HBoxContainer/DeleteButton as Button).disabled = !list.is_anything_selected()
 
 
 func get_selected_program_list_item() -> int:
