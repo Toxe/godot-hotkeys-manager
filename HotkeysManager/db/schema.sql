@@ -12,8 +12,14 @@ CREATE TABLE programgroup (
 CREATE TABLE program (
     program_id INTEGER PRIMARY KEY NOT NULL,
     name TEXT COLLATE nocase,
-    abbreviation TEXT COLLATE nocase,
-    icon BLOB
+    abbreviation TEXT COLLATE nocase
+);
+
+CREATE TABLE program_icon (
+    program_id INTEGER NOT NULL,
+    icon BLOB,
+    PRIMARY KEY (program_id),
+    FOREIGN KEY (program_id) REFERENCES program (program_id) ON DELETE CASCADE
 );
 
 CREATE TABLE programgroup_program (
