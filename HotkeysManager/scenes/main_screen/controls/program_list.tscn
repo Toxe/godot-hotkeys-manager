@@ -19,6 +19,7 @@ text = "Programs"
 layout_mode = 2
 auto_width = true
 auto_height = true
+fixed_icon_size = Vector2i(32, 32)
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

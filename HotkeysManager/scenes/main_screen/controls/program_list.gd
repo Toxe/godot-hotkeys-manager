@@ -3,6 +3,8 @@ class_name ProgramList extends PanelContainer
 signal program_edited(program_id: int)
 signal program_deleted(program_id: int)
 
+const default_program_icon: Texture2D = preload("uid://deijg5gn6lg3o")
+
 var _db: Database = null
 
 
@@ -21,6 +23,7 @@ func get_list() -> ItemList:
 
 func update_list() -> void:
     var programs := query_programs()
+    var program_icons := query_program_icons()
     var list := get_list()
     list.clear()
 
@@ -29,8 +32,10 @@ func update_list() -> void:
         var program_name: String = program_data["name"]
         var program_abbreviation: String = program_data["abbreviation"]
         var item_text := "%s (%s)" % [program_name, program_abbreviation]
+        var item_icon: Texture2D = program_icons.get(program_id, default_program_icon)
         var index := list.add_item(item_text)
         list.set_item_metadata(index, program_data)
+        list.set_item_icon(index, item_icon)
 
     update_button_states()
 
@@ -60,6 +65,20 @@ func query_programs() -> Dictionary[int, Dictionary]:
             var program_id: int = row["program_id"]
             programs[program_id] = row
     return programs
+
+
+func query_program_icons() -> Dictionary[int, Texture2D]:
+    var program_icons: Dictionary[int, Texture2D] = {}
+    var rows: Variant = _db.select_rows("program_icon", ["program_id", "icon"])
+    if rows:
+        for row: Dictionary in rows:
+            var program_id: int = row["program_id"]
+            var icon_data: PackedByteArray = row["icon"]
+            var image := Image.new()
+            image.load_png_from_buffer(icon_data)
+            var texture := ImageTexture.create_from_image(image)
+            program_icons[program_id] = texture
+    return program_icons
 
 
 func _on_item_list_item_selected(index: int) -> void:
