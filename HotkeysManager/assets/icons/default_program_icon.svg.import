@@ -1,0 +1,20 @@
+[remap]
+
+importer="svg"
+type="DPITexture"
+uid="uid://deijg5gn6lg3o"
+path="res://.godot/imported/default_program_icon.svg-3d527d21db59f4740b41b8291a49f566.dpitex"
+
+[deps]
+
+source_file="res://assets/icons/default_program_icon.svg"
+dest_files=["res://.godot/imported/default_program_icon.svg-3d527d21db59f4740b41b8291a49f566.dpitex"]
+
+[params]
+
+base_scale=0.08
+saturation=1.0
+color_map={
+Color(0, 0, 0, 1): Color(0.6, 0.6, 0.6, 1)
+}
+compress=true
