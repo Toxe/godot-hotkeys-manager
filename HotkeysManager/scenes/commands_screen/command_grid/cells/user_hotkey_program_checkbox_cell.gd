@@ -1,4 +1,4 @@
-class_name UserHotkeyProgramCheckbox extends CheckBox
+class_name UserHotkeyProgramCheckboxCell extends CheckBox
 
 signal add_row(cell: TextCell, add_above: bool)
 

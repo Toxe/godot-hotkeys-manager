@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ctfylvylgevof"]
 
-[ext_resource type="Script" uid="uid://dh2wwarhajmlw" path="res://scenes/main_screen/controls/programgroup.gd" id="1_756ef"]
+[ext_resource type="Script" uid="uid://dh2wwarhajmlw" path="res://scenes/main_screen/programgroup/programgroup.gd" id="1_756ef"]
 
 [node name="Programgroup" type="PanelContainer"]
 offset_right = 259.0

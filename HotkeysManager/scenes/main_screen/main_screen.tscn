@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bwew2enselr51" path="res://scenes/main_screen/main_screen.gd" id="1_eu54w"]
 [ext_resource type="Theme" uid="uid://dt5ffhw0kd0q" path="res://scenes/main_screen/theme.tres" id="1_ojtip"]
-[ext_resource type="PackedScene" uid="uid://bb0sf1lk22oy1" path="res://scenes/main_screen/controls/program_list.tscn" id="2_sr0hp"]
+[ext_resource type="PackedScene" uid="uid://bb0sf1lk22oy1" path="res://scenes/main_screen/program_list/program_list.tscn" id="2_sr0hp"]
 
 [node name="MainScreen" type="Control"]
 layout_mode = 3

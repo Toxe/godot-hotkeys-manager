@@ -76,10 +76,10 @@ func test_get_cell_returns_grid_controls() -> void:
     assert_is(command_grid.get_cell(1, 0), TextCell)
     assert_is(command_grid.get_cell(2, 0), Control)
     assert_is(command_grid.get_cell(3, 0), TextCell)
-    assert_is(command_grid.get_cell(0, 9), UserHotkeyProgramCheckbox)
-    assert_is(command_grid.get_cell(1, 9), UserHotkeyProgramCheckbox)
+    assert_is(command_grid.get_cell(0, 9), UserHotkeyProgramCheckboxCell)
+    assert_is(command_grid.get_cell(1, 9), UserHotkeyProgramCheckboxCell)
     assert_is(command_grid.get_cell(2, 9), Control)
-    assert_is(command_grid.get_cell(3, 9), UserHotkeyProgramCheckbox)
+    assert_is(command_grid.get_cell(3, 9), UserHotkeyProgramCheckboxCell)
 
 
 func test_get_cell_returns_null_for_non_existing_cells() -> void:
@@ -138,7 +138,7 @@ func test_get_focus_cell() -> void:
     user_hotkey_text_cell.grab_focus()
     assert_eq(command_grid.get_focus_cell(), user_hotkey_text_cell)
 
-    var user_hotkey_program_checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(3, 6)
+    var user_hotkey_program_checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(3, 6)
     user_hotkey_program_checkbox.grab_focus()
     assert_eq(command_grid.get_focus_cell(), user_hotkey_program_checkbox)
 
@@ -293,7 +293,7 @@ func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void
 
 func test_can_assign_user_hotkey_program() -> void:
     var command_grid := create_command_grid(3)
-    var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, 8)
+    var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, 8)
     checkbox.button_pressed = true
     assert_true(checkbox.button_pressed)
     assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [checkbox.user_hotkey_id, checkbox.program_id]))
@@ -301,7 +301,7 @@ func test_can_assign_user_hotkey_program() -> void:
 
 func test_can_unassign_user_hotkey_program() -> void:
     var command_grid := create_command_grid(3)
-    var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, 7)
+    var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, 7)
     checkbox.button_pressed = false
     assert_false(checkbox.button_pressed)
     assert_false(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [checkbox.user_hotkey_id, checkbox.program_id]))
@@ -312,7 +312,7 @@ func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_are
     var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(0, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, col)
         assert_eq(checkbox.user_hotkey_id, cell.user_hotkey_id)
         assert_false(checkbox.disabled)
         assert_false(checkbox.button_pressed)
@@ -323,7 +323,7 @@ func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_wor
     var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(0, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, col)
         checkbox.button_pressed = true
         assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [checkbox.user_hotkey_id, checkbox.program_id]))
 
@@ -333,7 +333,7 @@ func test_after_deleting_a_user_hotkey_the_program_assignment_checkboxes_are_dis
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
     enter_text_and_emit_changed_signal(cell, "")
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, col)
         assert_eq(checkbox.user_hotkey_id, 0)
         assert_true(checkbox.disabled)
         assert_false(checkbox.button_pressed)
@@ -345,11 +345,11 @@ func test_after_changing_a_user_hotkey_the_program_assignment_checkboxes_dont_ch
     var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
     var old_state: Dictionary[int, Dictionary]
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, col)
         old_state[col] = {"user_hotkey_id": checkbox.user_hotkey_id, "disabled": checkbox.disabled, "button_pressed": checkbox.button_pressed}
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(1, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, col)
         assert_eq(checkbox.user_hotkey_id, old_state[col]["user_hotkey_id"])
         assert_eq(checkbox.disabled, old_state[col]["disabled"])
         assert_eq(checkbox.button_pressed, old_state[col]["button_pressed"])
@@ -458,7 +458,7 @@ func test_entering_a_command_into_the_add_command_cell(params: Dictionary = use_
         assert_gt(cell.program_id, 0)
 
     for col in range(command_grid.number_of_programs() + 2, command_grid.number_of_programs() + 2 + command_grid.number_of_programs()):
-        var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(command_grid_row, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(command_grid_row, col)
         assert_not_null(checkbox)
         assert_gt(checkbox.program_id, 0)
         assert_eq(checkbox.user_hotkey_id, params["expected_user_hotkey_id"])
@@ -512,7 +512,7 @@ func test_can_use_the_newly_added_command_cells_after_adding_a_command() -> void
     assert_true(command_grid._db.rows_exist("user_hotkey", "command_id=? AND hotkey=?", [command_id, "Ctrl+Space"]))
     assert_false(command_grid._db.rows_exist("user_hotkey", "command_id=? AND hotkey=?", [command_id, "Ctrl+P"]))
 
-    var checkbox: UserHotkeyProgramCheckbox = command_grid.get_cell(row, 6)
+    var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(row, 6)
     checkbox.button_pressed = true
     assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [user_hotkey_id, 7]))
     checkbox.button_pressed = false
@@ -652,7 +652,7 @@ var test_add_row_actions_params := [
         "expect_to_add_a_new_grid_row": false,
     },
     {
-        "_": "can add row above when on a UserHotkeyProgramCheckbox",
+        "_": "can add row above when on a UserHotkeyProgramCheckboxCell",
         "action": "add_row_above",
         "programgroup_id": 3,
         "input_cell_row": 1,
@@ -660,7 +660,7 @@ var test_add_row_actions_params := [
         "expect_to_add_a_new_grid_row": true,
     },
     {
-        "_": "can add row below when on a UserHotkeyProgramCheckbox",
+        "_": "can add row below when on a UserHotkeyProgramCheckboxCell",
         "action": "add_row_below",
         "programgroup_id": 3,
         "input_cell_row": 1,
@@ -687,7 +687,7 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
 
     # input cell grabs focus
     var old_input_cell_text_cell: TextCell = old_input_cell as TextCell
-    var old_input_cell_checkbox: UserHotkeyProgramCheckbox = old_input_cell as UserHotkeyProgramCheckbox
+    var old_input_cell_checkbox: UserHotkeyProgramCheckboxCell = old_input_cell as UserHotkeyProgramCheckboxCell
     if old_input_cell_text_cell:
         old_input_cell_text_cell.grab_focus_without_entering_edit_mode()
     if old_input_cell_checkbox:
@@ -748,7 +748,7 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
             var control: Control = command_grid.get_cell(new_row, col)
             assert_not_null(control)
             assert_true(control is Control)
-            assert_true(control is not UserHotkeyProgramCheckbox)
+            assert_true(control is not UserHotkeyProgramCheckboxCell)
     @warning_ignore_restore("unsafe_call_argument")
 
 

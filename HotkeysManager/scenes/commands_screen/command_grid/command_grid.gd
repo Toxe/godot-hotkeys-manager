@@ -223,7 +223,7 @@ func add_user_hotkey_cell(row: int, command_id: int, user_hotkeys: Dictionary[in
 func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int, String], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary], row: int) -> void:
     for program_id in programs:
         if row == 0:
-            var checkbox := UserHotkeyProgramCheckbox.new(program_id) # automatically disabled
+            var checkbox := UserHotkeyProgramCheckboxCell.new(program_id) # automatically disabled
             checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
             checkbox.add_row.connect(_on_add_row)
             if command_id in user_hotkeys:
@@ -270,7 +270,7 @@ func add_command_row(command_name: String, programs: Dictionary[int, String]) ->
             assigned_programs.append(program_id)
 
     for program_id in programs:
-        var checkbox := UserHotkeyProgramCheckbox.new(program_id, user_hotkey_id)
+        var checkbox := UserHotkeyProgramCheckboxCell.new(program_id, user_hotkey_id)
         checkbox.button_pressed = program_id in assigned_programs
         checkbox.toggled.connect(_on_user_hotkey_program_checkbox_toggled.bind(checkbox))
         checkbox.add_row.connect(_on_add_row)
@@ -350,13 +350,13 @@ func update_user_hotkey_program_checkboxes(user_hotkey_id: int, button_pressed: 
             if cell.user_hotkey_id == user_hotkey_id:
                 # update checkboxes of this row
                 for col in range(number_of_programs() + 2, _cols):
-                    var checkbox: UserHotkeyProgramCheckbox = get_cell(row, col)
+                    var checkbox: UserHotkeyProgramCheckboxCell = get_cell(row, col)
                     checkbox.user_hotkey_id = new_id
                     checkbox.set_pressed_no_signal(button_pressed)
                 return
 
 
-func _on_user_hotkey_program_checkbox_toggled(toggled_on: bool, checkbox: UserHotkeyProgramCheckbox) -> void:
+func _on_user_hotkey_program_checkbox_toggled(toggled_on: bool, checkbox: UserHotkeyProgramCheckboxCell) -> void:
     var success := true
     if toggled_on:
         success = _db.insert_row("user_hotkey_program", {"user_hotkey_id": checkbox.user_hotkey_id, "program_id": checkbox.program_id})
