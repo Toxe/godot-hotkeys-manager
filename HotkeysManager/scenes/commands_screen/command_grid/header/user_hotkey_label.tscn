@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://cb5pwsvxmxh33"]
+
+[ext_resource type="Theme" uid="uid://b1wpqq1dakyrj" path="res://scenes/commands_screen/command_grid/header/theme.tres" id="1_jpnsu"]
+
+[node name="UserHotkeyLabel" type="MarginContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme = ExtResource("1_jpnsu")
+
+[node name="Label" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"UserHotkeyLabel"
+text = "Text"
+horizontal_alignment = 1

@@ -1,5 +1,8 @@
 class_name CommandGrid extends GridContainer
 
+const command_label_scene: PackedScene = preload("uid://b14stqo0vtq6l")
+const user_hotkey_label_scene: PackedScene = preload("uid://cb5pwsvxmxh33")
+
 var _db: Database = null
 var _programgroup_id: int = -1
 var _programs: Dictionary[int, String]
@@ -162,12 +165,18 @@ func add_header_label(text: String, label_theme_type_variation: String, label_ho
     return label
 
 
-func add_header_command_label(text: String) -> Label:
-    return add_header_label(text, "HeaderCommandLabel", HORIZONTAL_ALIGNMENT_LEFT)
+func add_header_command_label(text: String) -> void:
+    var control: Control = command_label_scene.instantiate()
+    var label: Label = control.get_node("%Label")
+    label.text = text
+    add_cell(control)
 
 
-func add_header_user_hotkey_label(text: String) -> Label:
-    return add_header_label(text, "HeaderUserHotkeyLabel", HORIZONTAL_ALIGNMENT_CENTER)
+func add_header_user_hotkey_label(text: String) -> void:
+    var control: Control = user_hotkey_label_scene.instantiate()
+    var label: Label = control.get_node("%Label")
+    label.text = text
+    add_cell(control)
 
 
 func add_header_program_label(text: String) -> Label:

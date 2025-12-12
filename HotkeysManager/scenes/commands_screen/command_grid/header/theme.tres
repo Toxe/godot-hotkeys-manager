@@ -1,0 +1,10 @@
+[gd_resource type="Theme" format=3 uid="uid://b1wpqq1dakyrj"]
+
+[resource]
+CommandLabel/base_type = &"Label"
+CommandLabel/font_sizes/font_size = 24
+MarginContainer/constants/margin_left = 10
+MarginContainer/constants/margin_right = 10
+UserHotkeyLabel/base_type = &"Label"
+UserHotkeyLabel/colors/font_color = Color(0.36152095, 0.55944246, 1, 1)
+UserHotkeyLabel/font_sizes/font_size = 24
