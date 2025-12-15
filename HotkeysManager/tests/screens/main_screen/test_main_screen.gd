@@ -104,7 +104,7 @@ func test_can_remove_programgroup() -> void:
 
 func test_update_programgroups_after_a_program_has_been_edited() -> void:
     var program_list: ProgramList = main_screen.find_child("ProgramList", true, false)
-    program_list._on_edit_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"}, 6, 7)
+    program_list._on_edit_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"}, 6)
     var programgroups := main_screen.find_children("*", "Programgroup", true, false)
     var programgroup1: Programgroup = programgroups[1]
     var programgroup2: Programgroup = programgroups[2]
@@ -115,7 +115,7 @@ func test_update_programgroups_after_a_program_has_been_edited() -> void:
 
 func test_update_programgroups_after_a_program_has_been_deleted() -> void:
     var program_list: ProgramList = main_screen.find_child("ProgramList", true, false)
-    program_list._on_delete_program_dialog_confirmed(null, 6, 7)
+    program_list._on_delete_program_dialog_confirmed(null, 6)
     var programgroups := main_screen.find_children("*", "Programgroup", true, false)
     var programgroup1: Programgroup = programgroups[1]
     var programgroup2: Programgroup = programgroups[2]

@@ -79,7 +79,7 @@ func test_can_edit_a_program() -> void:
     var program_data: Dictionary = list.get_item_metadata(2)
     var program_id: int = program_data["program_id"]
     watch_signals(_program_list)
-    _program_list._on_edit_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"}, 2, program_id)
+    _program_list._on_edit_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"}, 2)
     assert_true(_program_list._db.rows_exist("program", "program_id=? AND name=? AND abbreviation=?", [program_id, "New Program", "newp"]))
     assert_signal_emitted_with_parameters(_program_list.program_edited, [program_id])
     assert_eq(list.item_count, old_item_count)
@@ -93,7 +93,7 @@ func test_can_delete_a_program() -> void:
     var program_data: Dictionary = list.get_item_metadata(2)
     var program_id: int = program_data["program_id"]
     watch_signals(_program_list)
-    _program_list._on_delete_program_dialog_confirmed(null, 2, program_id)
+    _program_list._on_delete_program_dialog_confirmed(null, 2)
     assert_false(_program_list._db.rows_exist("program", "program_id=?", [program_id]))
     assert_signal_emitted_with_parameters(_program_list.program_deleted, [program_id])
     assert_eq(list.item_count, old_item_count - 1)
