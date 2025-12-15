@@ -1,5 +1,7 @@
 class_name CommandsScreen extends Control
 
+const default_program_icon: DPITexture = preload("uid://deijg5gn6lg3o")
+
 var _db: Database = null
 var _programgroup_id: int = -1
 
@@ -22,6 +24,7 @@ func _ready() -> void:
 
     var programs := query_programs(_db, _programgroup_id)
     var program_abbreviations := query_program_abbreviations(_db, _programgroup_id)
+    var program_icons := query_program_icons(_db, _programgroup_id)
     var commands := query_commands(_db, _programgroup_id)
     var program_command_hotkeys := query_program_command_hotkeys(_db, _programgroup_id)
     var user_hotkeys_by_commands := query_user_hotkeys_by_commands(_db, _programgroup_id)
@@ -43,7 +46,7 @@ func _ready() -> void:
         combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
 
     var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/CommandGrid
-    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, program_icons, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 static func query_all_commands(db: Database) -> Dictionary[int, String]:
@@ -87,6 +90,36 @@ WHERE pp.programgroup_id = ?;"
             var program_abbr: String = row["abbreviation"]
             program_abbreviations[program_id] = program_abbr
     return program_abbreviations
+
+
+static func query_program_icons(db: Database, programgroup_id: int) -> Dictionary[int, Dictionary]:
+    var program_icons: Dictionary[int, Dictionary]
+    const sql := "SELECT program_id, icon
+FROM program p
+INNER JOIN programgroup_program pp USING (program_id)
+LEFT JOIN program_icon pi USING (program_id)
+WHERE pp.programgroup_id = ?;"
+
+    var default_texture64: DPITexture = default_program_icon
+    var default_texture32: DPITexture = default_program_icon.duplicate()
+    default_texture32.set_size_override(Vector2i(32, 32))
+
+    if db.select(sql, [programgroup_id]):
+        var rows := db.query_result()
+        for row: Dictionary in rows:
+            var program_id: int = row["program_id"]
+
+            if row["icon"] != null:
+                var icon_data: PackedByteArray = row["icon"]
+                var image: Image = Image.new()
+                image.load_png_from_buffer(icon_data)
+                var texture64: ImageTexture = ImageTexture.create_from_image(image)
+                var texture32: ImageTexture = texture64.duplicate()
+                texture32.set_size_override(Vector2i(32, 32))
+                program_icons[program_id] = {32: texture32, 64: texture64}
+            else:
+                program_icons[program_id] = {32: default_texture32, 64: default_texture64}
+    return program_icons
 
 
 static func query_commands(db: Database, programgroup_id: int) -> Dictionary[int, String]:

@@ -9,6 +9,7 @@ func create_command_grid(programgroup_id: int) -> CommandGrid:
 
     var programs := CommandsScreen.query_programs(db, programgroup_id)
     var program_abbreviations := CommandsScreen.query_program_abbreviations(db, programgroup_id)
+    var program_icons := CommandsScreen.query_program_icons(db, programgroup_id)
     var commands := CommandsScreen.query_commands(db, programgroup_id)
     var program_command_hotkeys := CommandsScreen.query_program_command_hotkeys(db, programgroup_id)
     var user_hotkeys_by_commands := CommandsScreen.query_user_hotkeys_by_commands(db, programgroup_id)
@@ -30,7 +31,7 @@ func create_command_grid(programgroup_id: int) -> CommandGrid:
         combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
 
     var command_grid := CommandGrid.new()
-    command_grid.setup(db, programgroup_id, programs, program_abbreviations, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(db, programgroup_id, programs, program_abbreviations, program_icons, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
     return add_child_autofree(command_grid)
 
 

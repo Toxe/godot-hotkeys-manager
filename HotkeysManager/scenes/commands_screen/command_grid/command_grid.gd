@@ -2,6 +2,7 @@ class_name CommandGrid extends GridContainer
 
 const command_label_scene: PackedScene = preload("uid://b14stqo0vtq6l")
 const user_hotkey_label_scene: PackedScene = preload("uid://cb5pwsvxmxh33")
+const icon_label_scene: PackedScene = preload("uid://cdjuh5d5w4a3y")
 
 var _db: Database = null
 var _programgroup_id: int = -1
@@ -10,7 +11,7 @@ var _rows := 0 # number of table rows, not including the header and bottom row
 var _cols := 0 # number of table columns, including the first command name column
 
 
-func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], commands: Dictionary[int, String], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
+func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], program_icons: Dictionary[int, Dictionary], commands: Dictionary[int, String], program_command_hotkeys: Dictionary[int, Dictionary], user_hotkeys: Dictionary[int, Dictionary], user_hotkey_programs: Dictionary[int, Dictionary]) -> void:
     assert(db != null)
     assert(db.is_open())
     assert(programgroup_id > 0)
@@ -21,7 +22,7 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     _cols = 1 + programs.size() + 1 + programs.size()
     columns = _cols
 
-    add_header_row(programs, program_abbreviations)
+    add_header_row(programs, program_abbreviations, program_icons)
 
     for command_id in commands:
         _rows += add_command_cells(command_id, programs, commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
@@ -111,16 +112,16 @@ func find_command_row(command_name: String) -> int:
     return -1
 
 
-func add_header_row(programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String]) -> void:
+func add_header_row(programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], program_icons: Dictionary[int, Dictionary]) -> void:
     add_header_command_label("Commands")
 
     for program_id: int in programs:
-        add_header_program_label(programs[program_id])
+        add_header_program_label(program_id, programs, program_icons)
 
     add_header_user_hotkey_label("User Hotkey")
 
     for program_id: int in programs:
-        add_header_program_abbreviation_label(programs[program_id], program_abbreviations[program_id])
+        add_header_program_abbreviation_label(program_id, programs, program_abbreviations, program_icons)
 
 
 func add_bottom_row() -> void:
@@ -179,15 +180,30 @@ func add_header_user_hotkey_label(text: String) -> void:
     add_cell(control)
 
 
-func add_header_program_label(text: String) -> Label:
-    return add_header_label(text, "HeaderProgramLabel", HORIZONTAL_ALIGNMENT_CENTER)
+func add_header_icon_label(program_id: int, program_icons: Dictionary[int, Dictionary], icon_size: int, label_text: String, tooltip: String, label_theme_type_variation: String) -> void:
+    var control: Control = icon_label_scene.instantiate()
+    control.tooltip_text = tooltip
+
+    var label: Label = control.get_node("%Label")
+    label.text = label_text
+    label.theme_type_variation = label_theme_type_variation
+
+    var texture_rect: TextureRect = control.get_node("%TextureRect")
+    var program_icon: Texture2D = program_icons[program_id][icon_size]
+    texture_rect.texture = program_icon
+
+    add_cell(control)
 
 
-func add_header_program_abbreviation_label(program_name: String, program_abbr: String) -> Label:
-    var label := add_header_label(program_abbr, "HeaderProgramAbbreviation", HORIZONTAL_ALIGNMENT_CENTER)
-    label.tooltip_text = program_name
-    label.mouse_filter = MOUSE_FILTER_PASS
-    return label
+func add_header_program_label(program_id: int, programs: Dictionary[int, String], program_icons: Dictionary[int, Dictionary]) -> void:
+    var program_name := programs[program_id]
+    add_header_icon_label(program_id, program_icons, 64, program_name, program_name, "ProgramLabel")
+
+
+func add_header_program_abbreviation_label(program_id: int, programs: Dictionary[int, String], program_abbreviations: Dictionary[int, String], program_icons: Dictionary[int, Dictionary]) -> void:
+    var program_name := programs[program_id]
+    var program_abbreviation := program_abbreviations[program_id]
+    add_header_icon_label(program_id, program_icons, 32, program_abbreviation, program_name, "ProgramAbbreviationLabel")
 
 
 func create_command_name_cell(command_id: int, command_name: String) -> TextCell:

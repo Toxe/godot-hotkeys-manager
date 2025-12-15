@@ -41,6 +41,10 @@ class TestStaticFunctions extends GutTest:
             10: "Chr",
         })
 
+    func test_query_query_program_icons() -> void:
+        var program_icons := CommandsScreen.query_program_icons(db, programgroup_id)
+        assert_eq(program_icons.size(), 4)
+
     func test_query_commands() -> void:
         var commands := CommandsScreen.query_commands(db, programgroup_id)
         assert_eq_deep(commands, {
