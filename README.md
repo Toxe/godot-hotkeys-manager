@@ -1,4 +1,8 @@
-# Hotkeys Manager
+# Hotkeys Manager (WIP)
+
+A tool to organize and build a common set of hotkeys & shortcuts across multiple programs.
+
+<img src="screenshots/screenshot01.webp" alt="Screenshot 01" width="360" /> <img src="screenshots/screenshot02.webp" alt="Screenshot 02" width="360" />
 
 ## Credits
 
