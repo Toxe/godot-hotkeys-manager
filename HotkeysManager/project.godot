@@ -41,6 +41,10 @@ window/size/viewport_height=810
 
 enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/gut/plugin.cfg")
 
+[gui]
+
+theme/custom_font="uid://i3on1qxt5qjg"
+
 [input]
 
 clear_cell={
