@@ -68,7 +68,8 @@ func query_programs() -> Dictionary[int, String]:
     var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
 INNER JOIN programgroup_program pp USING (program_id)
-WHERE pp.programgroup_id = ?;"
+WHERE pp.programgroup_id = ?
+ORDER BY p.name;"
 
     if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
@@ -84,7 +85,8 @@ func query_available_programs() -> Dictionary[int, String]:
     var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
 LEFT JOIN programgroup_program pp ON p.program_id = pp.program_id AND pp.programgroup_id = ?
-WHERE pp.program_id IS NULL;"
+WHERE pp.program_id IS NULL
+ORDER BY p.name;"
 
     if _db.select(sql, [_programgroup_id]):
         var rows := _db.query_result()
