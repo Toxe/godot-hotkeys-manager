@@ -1,6 +1,7 @@
 class_name Programgroup extends PanelContainer
 
 signal programgroup_deleted(programgroup_id: int)
+signal programgroup_renamed(programgroup_id: int)
 
 var _db: Database = null
 var _programgroup_id: int = -1
@@ -135,6 +136,7 @@ func _on_remove_program_button_pressed() -> void:
 func _on_rename_group_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
     if _db.update_rows("programgroup", "programgroup_id=?", [_programgroup_id], {"name": values["programgroup_name"]}):
         programgroup_name = values["programgroup_name"]
+        programgroup_renamed.emit(_programgroup_id)
 
 
 func _on_delete_group_dialog_confirmed(_dialog: VerificationDialog) -> void:

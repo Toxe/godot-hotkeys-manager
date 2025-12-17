@@ -106,7 +106,9 @@ func test_programgroup_has_name() -> void:
 
 
 func test_can_rename_programgroup() -> void:
+    watch_signals(programgroup)
     programgroup._on_rename_group_dialog_submitted(null, {"programgroup_name": "New Name"})
+    assert_signal_emitted(programgroup.programgroup_renamed)
     assert_eq(programgroup.programgroup_name, "New Name")
     @warning_ignore("unsafe_call_argument")
     assert_eq(programgroup._db.select_value("programgroup", "name", "programgroup_id=?", [programgroup._programgroup_id]), "New Name")

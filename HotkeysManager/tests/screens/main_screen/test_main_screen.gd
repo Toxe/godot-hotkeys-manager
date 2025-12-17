@@ -16,8 +16,10 @@ func before_each() -> void:
 func check_has_all_programgroups(expected_names: Array[String]) -> void:
     var programgroups := main_screen.find_children("*", "Programgroup", true, false)
     assert_eq(programgroups.size(), expected_names.size())
-    for pg: Programgroup in programgroups:
-        assert_has(expected_names, pg.programgroup_name)
+    if programgroups.size() == expected_names.size():
+        for i in programgroups.size():
+            var programgroup: Programgroup = programgroups[i]
+            assert_eq(programgroup.programgroup_name, expected_names[i])
 
 
 func check_programgroup_has_all_programs(programgroup: Programgroup, expected_programs: Array[String]) -> void:
@@ -80,7 +82,7 @@ func test_query_programgroup_programs() -> void:
 
 
 func test_main_screen_shows_programgroups() -> void:
-    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Group 3", "Group 4", "Group 5"])
+    check_has_all_programgroups(["Grafikprogramme", "Group 3", "Group 4", "Group 5", "Texteditoren"])
 
 
 func test_can_open_New_Program_Group_dialog() -> void:
@@ -93,21 +95,29 @@ func test_can_open_New_Program_Group_dialog() -> void:
 
 func test_can_create_new_programgroup() -> void:
     main_screen._on_new_group_dialog_submitted(null, {"programgroup_name": "New Group"})
-    check_has_all_programgroups(["Grafikprogramme", "Texteditoren", "Group 3", "Group 4", "Group 5", "New Group"])
+    check_has_all_programgroups(["Grafikprogramme", "Group 3", "Group 4", "Group 5", "New Group", "Texteditoren"])
 
 
-func test_can_remove_programgroup() -> void:
-    main_screen._on_programgroup_deleted(2)
-    check_has_all_programgroups(["Texteditoren", "Group 3", "Group 4", "Group 5"])
+func test_can_delete_programgroup() -> void:
+    main_screen._on_programgroup_deleted(4)
+    check_has_all_programgroups(["Grafikprogramme", "Group 3", "Group 5", "Texteditoren"])
+    await wait_idle_frames(1) # wait 1 frame to free the node, so that GUT won't report orphans
+
+
+func test_can_rename_programgroup() -> void:
+    var programgroups := main_screen.find_children("*", "Programgroup", true, false)
+    var programgroup: Programgroup = programgroups[2]
+    programgroup._on_rename_group_dialog_submitted(null, {"programgroup_name": "AAA"})
+    check_has_all_programgroups(["AAA", "Grafikprogramme", "Group 3", "Group 5", "Texteditoren"])
     await wait_idle_frames(1) # wait 1 frame to free the node, so that GUT won't report orphans
 
 
 func test_update_programgroups_after_a_program_has_been_edited() -> void:
     var program_list: ProgramList = main_screen.find_child("ProgramList", true, false)
-    program_list._on_edit_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"}, 6)
+    program_list._on_edit_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"}, 4)
     var programgroups := main_screen.find_children("*", "Programgroup", true, false)
-    var programgroup1: Programgroup = programgroups[1]
-    var programgroup2: Programgroup = programgroups[2]
+    var programgroup1: Programgroup = programgroups[0]
+    var programgroup2: Programgroup = programgroups[1]
     check_programgroup_has_all_programs(programgroup1, ["Photoshop", "Illustrator", "New Program"])
     check_programgroup_has_all_programs(programgroup2, ["New Program", "Firefox", "Vivaldi", "Chrome"])
     await wait_idle_frames(1) # wait 1 frame, so that GUT won't report orphans
@@ -115,10 +125,10 @@ func test_update_programgroups_after_a_program_has_been_edited() -> void:
 
 func test_update_programgroups_after_a_program_has_been_deleted() -> void:
     var program_list: ProgramList = main_screen.find_child("ProgramList", true, false)
-    program_list._on_delete_program_dialog_confirmed(null, 6)
+    program_list._on_delete_program_dialog_confirmed(null, 4)
     var programgroups := main_screen.find_children("*", "Programgroup", true, false)
-    var programgroup1: Programgroup = programgroups[1]
-    var programgroup2: Programgroup = programgroups[2]
+    var programgroup1: Programgroup = programgroups[0]
+    var programgroup2: Programgroup = programgroups[1]
     check_programgroup_has_all_programs(programgroup1, ["Photoshop", "Illustrator"])
     check_programgroup_has_all_programs(programgroup2, ["Firefox", "Vivaldi", "Chrome"])
     await wait_idle_frames(1) # wait 1 frame, so that GUT won't report orphans

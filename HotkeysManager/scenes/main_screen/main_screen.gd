@@ -33,6 +33,7 @@ func add_programgroup(programgroup_list: Node, programgroup_id: int, programgrou
         var programgroup: Programgroup = programgroup_scene.instantiate()
         programgroup.setup(_db, programgroup_id, programgroup_name, programs)
         programgroup.programgroup_deleted.connect(_on_programgroup_deleted)
+        programgroup.programgroup_renamed.connect(_on_programgroup_renamed)
         programgroup_list.add_child(programgroup)
 
 
@@ -49,7 +50,7 @@ func query_programs() -> Dictionary[int, String]:
 
 func query_programgroups() -> Dictionary[int, String]:
     var programgroups: Dictionary[int, String] = {}
-    var rows: Variant = _db.select_rows("programgroup", ["programgroup_id", "name"])
+    var rows: Variant = _db.select_rows("programgroup", ["programgroup_id", "name"], "", [], "name")
     if rows:
         for row: Dictionary in rows:
             var programgroup_id: int = row["programgroup_id"]
@@ -87,9 +88,7 @@ func _on_new_group_button_pressed() -> void:
 
 func _on_new_group_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
     if _db.insert_row("programgroup", {"name": values["programgroup_name"]}):
-        var programgroup_id := _db.last_insert_rowid()
-        var programs := {} # new group is empty
-        add_programgroup($VBoxContainer/ScrollContainer/HBoxContainer/ProgramgroupList, programgroup_id, values["programgroup_name"], programs)
+        rebuild_programgroups()
 
 
 func _on_programgroup_deleted(programgroup_id: int) -> void:
@@ -98,6 +97,10 @@ func _on_programgroup_deleted(programgroup_id: int) -> void:
             $VBoxContainer/ScrollContainer/HBoxContainer/ProgramgroupList.remove_child(programgroup)
             programgroup.queue_free()
             break
+
+
+func _on_programgroup_renamed(_programgroup_id: int) -> void:
+    rebuild_programgroups()
 
 
 func _on_program_list_program_edited(_program_id: int) -> void:
