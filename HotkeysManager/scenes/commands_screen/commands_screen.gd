@@ -37,16 +37,26 @@ func _ready() -> void:
     for command_id in user_hotkeys_by_programs:
         user_hotkeys[command_id] = user_hotkeys_by_programs[command_id]
 
-    var combined_commands: Dictionary[int, String] = {}
+    var combined_command_names: Dictionary[int, String] = {}
     for command_id in commands:
-        combined_commands[command_id] = commands[command_id]
+        combined_command_names[command_id] = commands[command_id]
     for command_id in user_hotkeys_by_commands:
-        combined_commands[command_id] = user_hotkeys_by_commands[command_id]["command_name"]
+        combined_command_names[command_id] = user_hotkeys_by_commands[command_id]["command_name"]
     for command_id in user_hotkeys_by_programs:
-        combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
+        combined_command_names[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
+
+    var sorted_command_names: Array[Dictionary] = []
+    for command_id in combined_command_names:
+        sorted_command_names.append({"command_id": command_id, "command_name": combined_command_names[command_id]})
+
+    sorted_command_names.sort_custom(func(c1: Dictionary, c2: Dictionary) -> bool:
+        var name1: String = c1["command_name"]
+        var name2: String = c2["command_name"]
+        return name1.naturalnocasecmp_to(name2) < 0
+    )
 
     var command_grid: CommandGrid = $VBoxContainer/ScrollContainer/CommandGrid
-    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, program_icons, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(_db, _programgroup_id, programs, program_abbreviations, program_icons, sorted_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
 
 
 static func query_all_commands(db: Database) -> Dictionary[int, String]:
@@ -65,7 +75,8 @@ static func query_programs(db: Database, programgroup_id: int) -> Dictionary[int
     var sql := "SELECT p.program_id, p.name AS program_name
 FROM program p
 INNER JOIN programgroup_program pp USING (program_id)
-WHERE pp.programgroup_id = ?;"
+WHERE pp.programgroup_id = ?
+ORDER BY p.name;"
 
     if db.select(sql, [programgroup_id]):
         var rows := db.query_result()

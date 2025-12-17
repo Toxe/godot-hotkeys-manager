@@ -22,16 +22,26 @@ func create_command_grid(programgroup_id: int) -> CommandGrid:
     for command_id in user_hotkeys_by_programs:
         user_hotkeys[command_id] = user_hotkeys_by_programs[command_id]
 
-    var combined_commands: Dictionary[int, String] = {}
+    var combined_command_names: Dictionary[int, String] = {}
     for command_id in commands:
-        combined_commands[command_id] = commands[command_id]
+        combined_command_names[command_id] = commands[command_id]
     for command_id in user_hotkeys_by_commands:
-        combined_commands[command_id] = user_hotkeys_by_commands[command_id]["command_name"]
+        combined_command_names[command_id] = user_hotkeys_by_commands[command_id]["command_name"]
     for command_id in user_hotkeys_by_programs:
-        combined_commands[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
+        combined_command_names[command_id] = user_hotkeys_by_programs[command_id]["command_name"]
+
+    var sorted_command_names: Array[Dictionary] = []
+    for command_id in combined_command_names:
+        sorted_command_names.append({"command_id": command_id, "command_name": combined_command_names[command_id]})
+
+    sorted_command_names.sort_custom(func(c1: Dictionary, c2: Dictionary) -> bool:
+        var name1: String = c1["command_name"]
+        var name2: String = c2["command_name"]
+        return name1.naturalnocasecmp_to(name2) < 0
+    )
 
     var command_grid := CommandGrid.new()
-    command_grid.setup(db, programgroup_id, programs, program_abbreviations, program_icons, combined_commands, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
+    command_grid.setup(db, programgroup_id, programs, program_abbreviations, program_icons, sorted_command_names, program_command_hotkeys, user_hotkeys, user_hotkey_programs)
     return add_child_autofree(command_grid)
 
 
@@ -74,12 +84,12 @@ func test_number_of_programs() -> void:
 func test_get_cell_returns_grid_controls() -> void:
     var command_grid := create_command_grid(3)
     assert_is(command_grid.get_cell(0, 0), TextCell)
-    assert_is(command_grid.get_cell(1, 0), TextCell)
-    assert_is(command_grid.get_cell(2, 0), Control)
+    assert_is(command_grid.get_cell(1, 0), Control)
+    assert_is(command_grid.get_cell(2, 0), TextCell)
     assert_is(command_grid.get_cell(3, 0), TextCell)
     assert_is(command_grid.get_cell(0, 9), UserHotkeyProgramCheckboxCell)
-    assert_is(command_grid.get_cell(1, 9), UserHotkeyProgramCheckboxCell)
-    assert_is(command_grid.get_cell(2, 9), Control)
+    assert_is(command_grid.get_cell(1, 9), Control)
+    assert_is(command_grid.get_cell(2, 9), UserHotkeyProgramCheckboxCell)
     assert_is(command_grid.get_cell(3, 9), UserHotkeyProgramCheckboxCell)
 
 
@@ -103,7 +113,7 @@ func test_get_add_command_cell() -> void:
 
 func test_command_name_cell_titles() -> void:
     var command_grid := create_command_grid(3)
-    var expected_titles: Array[String] = ["New Tab", "Close Tab", "New Window"]
+    var expected_titles: Array[String] = ["Close Tab", "New Tab", "New Window"]
     var command_name_cell_titles: Array[String] = []
 
     for row in command_grid._rows:
@@ -116,10 +126,10 @@ func test_command_name_cell_titles() -> void:
 
 func test_find_command_row() -> void:
     var command_grid := create_command_grid(3)
-    assert_eq(command_grid.find_command_row("New Tab"), 0)
-    assert_eq(command_grid.find_command_row("new tab"), 0)
-    assert_eq(command_grid.find_command_row("Close Tab"), 1)
-    assert_eq(command_grid.find_command_row("close tab"), 1)
+    assert_eq(command_grid.find_command_row("Close Tab"), 0)
+    assert_eq(command_grid.find_command_row("close tab"), 0)
+    assert_eq(command_grid.find_command_row("New Tab"), 2)
+    assert_eq(command_grid.find_command_row("new tab"), 2)
     assert_eq(command_grid.find_command_row("New Window"), 3)
     assert_eq(command_grid.find_command_row("new window"), 3)
     assert_lt(command_grid.find_command_row("unknown command"), 0)
@@ -162,30 +172,30 @@ func test_get_cell_coords() -> void:
 
 func test_can_enter_and_save_a_new_command_name() -> void:
     var command_grid := create_command_grid(3)
-    var cell: TextCell = command_grid.get_cell(1, 0)
+    var cell: TextCell = command_grid.get_cell(2, 0)
     enter_text_and_emit_changed_signal(cell, "New Command Name")
     @warning_ignore("unsafe_call_argument")
-    assert_eq(command_grid._db.select_value("command", "name", "command_id=?", [5]), "New Command Name")
+    assert_eq(command_grid._db.select_value("command", "name", "command_id=?", [3]), "New Command Name")
 
 
 func test_cannot_save_an_empty_command_name() -> void:
     var command_grid := create_command_grid(3)
-    var cell: TextCell = command_grid.get_cell(1, 0)
+    var cell: TextCell = command_grid.get_cell(2, 0)
     enter_text_and_emit_changed_signal(cell, "")
     @warning_ignore("unsafe_call_argument")
-    assert_eq(command_grid._db.select_value("command", "name", "command_id=?", [5]), "Close Tab")
+    assert_eq(command_grid._db.select_value("command", "name", "command_id=?", [3]), "New Tab")
 
 
 func test_entering_an_empty_command_name_will_change_the_cell_text_back_to_the_old_name() -> void:
     var command_grid := create_command_grid(3)
-    var cell: TextCell = command_grid.get_cell(1, 0)
+    var cell: TextCell = command_grid.get_cell(2, 0)
     enter_text_and_emit_changed_signal(cell, "")
-    assert_eq(cell.text, "Close Tab")
+    assert_eq(cell.text, "New Tab")
 
 
 func test_can_change_and_save_a_program_command_hotkey() -> void:
     var command_grid := create_command_grid(3)
-    var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 4)
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(0, 1)
     enter_text_and_emit_changed_signal(cell, "Ctrl+F4")
     # new, saved hotkey
     assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=? AND command_id=? AND hotkey=?", [cell.program_id, cell.command_id, "Ctrl+F4"]))
@@ -195,7 +205,7 @@ func test_can_change_and_save_a_program_command_hotkey() -> void:
 
 func test_cannot_change_a_program_command_hotkey_to_an_already_existing_one() -> void:
     var command_grid := create_command_grid(3)
-    var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 3)
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(0, 4)
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
     # database error
     assert_engine_error("UNIQUE constraint failed")
@@ -245,7 +255,7 @@ func test_can_add_a_second_hotkey_after_creating_a_new_program_command_hotkey() 
 
 func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_this_program_command() -> void:
     var command_grid := create_command_grid(3)
-    var cell: ProgramHotkeyTextCell = command_grid.get_cell(2, 4)
+    var cell: ProgramHotkeyTextCell = command_grid.get_cell(1, 1)
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
     # database error
     assert_engine_error("UNIQUE constraint failed")
@@ -258,7 +268,7 @@ func test_cannot_create_a_new_program_command_hotkey_if_it_already_exists_for_th
 
 func test_can_change_a_user_hotkey() -> void:
     var command_grid := create_command_grid(3)
-    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     var old_user_hotkey_id := cell.user_hotkey_id
     enter_text_and_emit_changed_signal(cell, "Ctrl+W")
     # user_hotkey_id of the cell has not changed
@@ -272,7 +282,7 @@ func test_can_change_a_user_hotkey() -> void:
 
 func test_can_delete_a_user_hotkey_by_clearing_the_cell() -> void:
     var command_grid := create_command_grid(3)
-    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "")
     # user_hotkey_id of the cell is now zero
     assert_eq(cell.user_hotkey_id, 0)
@@ -284,7 +294,7 @@ func test_can_delete_a_user_hotkey_by_clearing_the_cell() -> void:
 
 func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void:
     var command_grid := create_command_grid(3)
-    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
+    var cell: UserHotkeyTextCell = command_grid.get_cell(2, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+T")
     # assign new user_hotkey_id to cell
     assert_gt(cell.user_hotkey_id, 0)
@@ -294,7 +304,7 @@ func test_can_create_a_user_hotkey_by_entering_text_into_an_empty_cell() -> void
 
 func test_can_assign_user_hotkey_program() -> void:
     var command_grid := create_command_grid(3)
-    var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, 8)
+    var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, 9)
     checkbox.button_pressed = true
     assert_true(checkbox.button_pressed)
     assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [checkbox.user_hotkey_id, checkbox.program_id]))
@@ -302,7 +312,7 @@ func test_can_assign_user_hotkey_program() -> void:
 
 func test_can_unassign_user_hotkey_program() -> void:
     var command_grid := create_command_grid(3)
-    var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, 7)
+    var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, 7)
     checkbox.button_pressed = false
     assert_false(checkbox.button_pressed)
     assert_false(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [checkbox.user_hotkey_id, checkbox.program_id]))
@@ -310,10 +320,10 @@ func test_can_unassign_user_hotkey_program() -> void:
 
 func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_are_enabled_and_unchecked() -> void:
     var command_grid := create_command_grid(3)
-    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
+    var cell: UserHotkeyTextCell = command_grid.get_cell(2, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(2, col)
         assert_eq(checkbox.user_hotkey_id, cell.user_hotkey_id)
         assert_false(checkbox.disabled)
         assert_false(checkbox.button_pressed)
@@ -321,7 +331,7 @@ func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_are
 
 func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_work() -> void:
     var command_grid := create_command_grid(3)
-    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
+    var cell: UserHotkeyTextCell = command_grid.get_cell(2, 5)
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
         var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, col)
@@ -331,10 +341,10 @@ func test_after_creating_a_new_user_hotkey_the_program_assignment_checkboxes_wor
 
 func test_after_deleting_a_user_hotkey_the_program_assignment_checkboxes_are_disabled_and_unchecked() -> void:
     var command_grid := create_command_grid(3)
-    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     enter_text_and_emit_changed_signal(cell, "")
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, col)
         assert_eq(checkbox.user_hotkey_id, 0)
         assert_true(checkbox.disabled)
         assert_false(checkbox.button_pressed)
@@ -343,14 +353,14 @@ func test_after_deleting_a_user_hotkey_the_program_assignment_checkboxes_are_dis
 func test_after_changing_a_user_hotkey_the_program_assignment_checkboxes_dont_change() -> void:
     var command_grid := create_command_grid(3)
     @warning_ignore_start("unsafe_call_argument")
-    var cell: UserHotkeyTextCell = command_grid.get_cell(1, 5)
+    var cell: UserHotkeyTextCell = command_grid.get_cell(0, 5)
     var old_state: Dictionary[int, Dictionary]
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, col)
         old_state[col] = {"user_hotkey_id": checkbox.user_hotkey_id, "disabled": checkbox.disabled, "button_pressed": checkbox.button_pressed}
     enter_text_and_emit_changed_signal(cell, "Ctrl+Space")
     for col in range(6, 10):
-        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(1, col)
+        var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(0, col)
         assert_eq(checkbox.user_hotkey_id, old_state[col]["user_hotkey_id"])
         assert_eq(checkbox.disabled, old_state[col]["disabled"])
         assert_eq(checkbox.button_pressed, old_state[col]["button_pressed"])
@@ -504,9 +514,9 @@ func test_can_use_the_newly_added_command_cells_after_adding_a_command() -> void
 
     var program_hotkey_cell: ProgramHotkeyTextCell = command_grid.get_cell(row, 1)
     enter_text_and_emit_changed_signal(program_hotkey_cell, "Shift+1")
-    assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=? AND command_id=? AND hotkey=?", [7, command_id, "Shift+1"]))
+    assert_true(command_grid._db.rows_exist("program_command_hotkey", "program_id=? AND command_id=? AND hotkey=?", [10, command_id, "Shift+1"]))
     enter_text_and_emit_changed_signal(program_hotkey_cell, "")
-    assert_false(command_grid._db.rows_exist("program_command_hotkey", "program_id=? AND command_id=? AND hotkey=?", [7, command_id, "Shift+1"]))
+    assert_false(command_grid._db.rows_exist("program_command_hotkey", "program_id=? AND command_id=? AND hotkey=?", [10, command_id, "Shift+1"]))
 
     var user_hotkey_cell: UserHotkeyTextCell = command_grid.get_cell(row, 5)
     enter_text_and_emit_changed_signal(user_hotkey_cell, "Ctrl+Space")
@@ -515,9 +525,9 @@ func test_can_use_the_newly_added_command_cells_after_adding_a_command() -> void
 
     var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(row, 6)
     checkbox.button_pressed = true
-    assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [user_hotkey_id, 7]))
+    assert_true(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [user_hotkey_id, 10]))
     checkbox.button_pressed = false
-    assert_false(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [user_hotkey_id, 7]))
+    assert_false(command_grid._db.rows_exist("user_hotkey_program", "user_hotkey_id=? AND program_id=?", [user_hotkey_id, 10]))
 
     checkbox = command_grid.get_cell(row, 7)
     checkbox.button_pressed = false
@@ -656,7 +666,7 @@ var test_add_row_actions_params := [
         "_": "can add row above when on a UserHotkeyProgramCheckboxCell",
         "action": "add_row_above",
         "programgroup_id": 3,
-        "input_cell_row": 1,
+        "input_cell_row": 3,
         "input_cell_column": 8,
         "expect_to_add_a_new_grid_row": true,
     },
@@ -664,7 +674,7 @@ var test_add_row_actions_params := [
         "_": "can add row below when on a UserHotkeyProgramCheckboxCell",
         "action": "add_row_below",
         "programgroup_id": 3,
-        "input_cell_row": 1,
+        "input_cell_row": 3,
         "input_cell_column": 8,
         "expect_to_add_a_new_grid_row": true,
     },
@@ -758,7 +768,7 @@ var test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params := 
         "_": "focus moves to the ProgramHotkeyTextCell in the added row above",
         "action": "add_row_above",
         "programgroup_id": 3,
-        "input_cell_row": 2,
+        "input_cell_row": 1,
         "input_cell_column": 3,
         "should_move_focus_to_new_row": true,
     },
@@ -766,7 +776,7 @@ var test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params := 
         "_": "focus moves to the ProgramHotkeyTextCell in the added row below",
         "action": "add_row_below",
         "programgroup_id": 3,
-        "input_cell_row": 2,
+        "input_cell_row": 1,
         "input_cell_column": 3,
         "should_move_focus_to_new_row": true,
     },
@@ -774,7 +784,7 @@ var test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params := 
         "_": "focus cannot move because the new cell above is empty (Control instead of ProgramHotkeyTextCell)",
         "action": "add_row_above",
         "programgroup_id": 3,
-        "input_cell_row": 3,
+        "input_cell_row": 2,
         "input_cell_column": 5,
         "should_move_focus_to_new_row": false,
     },
@@ -782,7 +792,7 @@ var test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params := 
         "_": "focus cannot move because the new cell below is empty (Control instead of ProgramHotkeyTextCell)",
         "action": "add_row_below",
         "programgroup_id": 3,
-        "input_cell_row": 1,
+        "input_cell_row": 0,
         "input_cell_column": 5,
         "should_move_focus_to_new_row": false,
     },
@@ -821,7 +831,7 @@ var test_after_adding_a_new_row_focus_text_cells_are_not_in_edit_mode_params := 
 
 func test_after_adding_a_new_row_focus_text_cells_are_not_in_edit_mode(action: String = use_parameters(test_after_adding_a_new_row_focus_text_cells_are_not_in_edit_mode_params)) -> void:
     var command_grid := create_command_grid(3)
-    var input_cell: TextCell = command_grid.get_cell(2, 3)
+    var input_cell: TextCell = command_grid.get_cell(1, 4)
     input_cell.grab_focus_without_entering_edit_mode()
     _input_sender.action_down(action)
     _input_sender.action_up(action)
