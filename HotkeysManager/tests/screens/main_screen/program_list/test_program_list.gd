@@ -45,7 +45,7 @@ func test_clicking_the_Add_button_opens_the_Add_Program_dialog() -> void:
 
 
 func test_clicking_the_Edit_button_opens_the_Edit_Program_dialog() -> void:
-    _program_list.select_program_list_item(2)
+    _program_list.select_program_list_item(8)
     _program_list._on_edit_button_pressed()
     var dialog: EnterTextDialog = _program_list.find_child("EnterTextDialog", false, false)
     assert_not_null(dialog)
@@ -70,7 +70,7 @@ func test_can_add_a_program() -> void:
     _program_list._on_add_program_dialog_submitted(null, {"name": "New Program", "abbreviation": "newp"})
     assert_true(_program_list._db.rows_exist("program", "name=? AND abbreviation=?", ["New Program", "newp"]))
     assert_eq(list.item_count, old_item_count + 1)
-    assert_eq(list.get_item_text(list.item_count - 1), "New Program (newp)")
+    assert_eq(list.get_item_text(5), "New Program (newp)")
 
 
 func test_can_edit_a_program() -> void:
@@ -83,7 +83,7 @@ func test_can_edit_a_program() -> void:
     assert_true(_program_list._db.rows_exist("program", "program_id=? AND name=? AND abbreviation=?", [program_id, "New Program", "newp"]))
     assert_signal_emitted_with_parameters(_program_list.program_edited, [program_id])
     assert_eq(list.item_count, old_item_count)
-    assert_eq(list.get_item_text(2), "New Program (newp)")
+    assert_eq(list.get_item_text(4), "New Program (newp)")
 
 
 func test_can_delete_a_program() -> void:

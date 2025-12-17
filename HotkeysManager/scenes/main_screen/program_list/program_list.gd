@@ -59,7 +59,7 @@ func select_program_list_item(index: int) -> void:
 
 func query_programs() -> Dictionary[int, Dictionary]:
     var programs: Dictionary[int, Dictionary] = {}
-    var rows: Variant = _db.select_rows("program", ["program_id", "name", "abbreviation"])
+    var rows: Variant = _db.select_rows("program", ["program_id", "name", "abbreviation"], "", [], "name")
     if rows:
         for row: Dictionary in rows:
             var program_id: int = row["program_id"]
@@ -107,14 +107,7 @@ func _on_delete_button_pressed() -> void:
 
 func _on_add_program_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, Variant]) -> void:
     if _db.insert_row("program", values):
-        var program_id := _db.last_insert_rowid()
-        var program_name: String = values["name"]
-        var program_abbreviation: String = values["abbreviation"]
-        var program_data: Dictionary = {"program_id": program_id, "name": program_name, "abbreviation": program_abbreviation}
-        var item_text := "%s (%s)" % [program_name, program_abbreviation]
-        var index := get_list().add_item(item_text)
-        get_list().set_item_metadata(index, program_data)
-        select_program_list_item(index)
+        update_list()
 
 
 func _on_edit_program_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, Variant], index: int) -> void:
@@ -122,12 +115,7 @@ func _on_edit_program_dialog_submitted(_dialog: EnterTextDialog, values: Diction
     var program_data: Dictionary = get_list().get_item_metadata(index)
     var program_id: int = program_data["program_id"]
     if _db.update_rows("program", "program_id=?", [program_id], values):
-        program_data["name"] = values["name"]
-        program_data["abbreviation"] = values["abbreviation"]
-        var item_text := "%s (%s)" % [program_data["name"], program_data["abbreviation"]]
-        get_list().set_item_text(index, item_text)
-        get_list().set_item_metadata(index, program_data)
-        update_button_states()
+        update_list()
         program_edited.emit(program_id)
 
 
