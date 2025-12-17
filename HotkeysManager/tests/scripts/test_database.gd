@@ -79,12 +79,60 @@ func test_select_rows() -> void:
     assert_eq_deep(db.select_rows("program_command_hotkey", ["program_id", "command_id", "hotkey"], "hotkey=? AND program_id=?", ["Ctrl+W", 9]), [
         {"program_id": 9, "command_id": 5, "hotkey": "Ctrl+W"},
     ])
+
+
+func test_select_rows_and_return_all_fields() -> void:
     var rows1: Array = db.select_rows("program_command_hotkey", ["*"])
     assert_eq(rows1.size(), 17)
     var rows2: Array = db.select_rows("program_command_hotkey", ["*"], "command_id=?", [1])
     assert_eq(rows2.size(), 8)
     var rows3: Array = db.select_rows("program_command_hotkey", ["*"], "command_id=?", [99])
     assert_eq(rows3.size(), 0)
+
+
+func test_select_rows_and_sort_rows() -> void:
+    assert_eq_deep(db.select_rows("program", ["name"], "", [], "name"), [
+        {"name": "Chrome"},
+        {"name": "CLion"},
+        {"name": "Firefox"},
+        {"name": "Illustrator"},
+        {"name": "Krita"},
+        {"name": "Obsidian"},
+        {"name": "Photoshop"},
+        {"name": "Visual Studio"},
+        {"name": "Visual Studio Code"},
+        {"name": "Vivaldi"},
+    ])
+    assert_eq_deep(db.select_rows("program", ["program_id", "name"], "name LIKE '%r%'", [], "name ASC"), [
+        {"program_id": 10, "name": "Chrome"},
+        {"program_id": 8, "name": "Firefox"},
+        {"program_id": 6, "name": "Illustrator"},
+        {"program_id": 7, "name": "Krita"},
+    ])
+    assert_eq_deep(db.select_rows("program", ["program_id", "name"], "name LIKE '%r%'", [], "name DESC"), [
+        {"program_id": 7, "name": "Krita"},
+        {"program_id": 6, "name": "Illustrator"},
+        {"program_id": 8, "name": "Firefox"},
+        {"program_id": 10, "name": "Chrome"},
+    ])
+    assert_eq_deep(db.select_rows("program", ["program_id", "name"], "name LIKE '%r%'", [], "program_id ASC"), [
+        {"program_id": 6, "name": "Illustrator"},
+        {"program_id": 7, "name": "Krita"},
+        {"program_id": 8, "name": "Firefox"},
+        {"program_id": 10, "name": "Chrome"},
+    ])
+    assert_eq_deep(db.select_rows("program", ["program_id", "name"], "name LIKE '%r%'", [], "program_id DESC"), [
+        {"program_id": 10, "name": "Chrome"},
+        {"program_id": 8, "name": "Firefox"},
+        {"program_id": 7, "name": "Krita"},
+        {"program_id": 6, "name": "Illustrator"},
+    ])
+    assert_eq_deep(db.select_rows("program_command_hotkey", ["program_id", "command_id", "hotkey"], "program_id=?", [2], "command_id DESC, hotkey ASC"), [
+        {"program_id": 2, "command_id": 2, "hotkey": "Ctrl+Alt+PageDown"},
+        {"program_id": 2, "command_id": 1, "hotkey": "Ctrl+1 Ctrl+F"},
+        {"program_id": 2, "command_id": 1, "hotkey": "Ctrl+1 F"},
+        {"program_id": 2, "command_id": 1, "hotkey": "Ctrl+Shift+T"},
+    ])
 
 
 func test_select_rows_returns_false_on_database_error() -> void:

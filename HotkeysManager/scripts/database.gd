@@ -120,9 +120,10 @@ func delete_all_rows(table: String) -> bool:
 
 
 ## Returns [code]false[/code] on a database error or an Array of rows (which can be empty).
-func select_rows(table: String, fields: Array[String], conditions: String = "", conditions_params: Array[Variant] = []) -> Variant:
-    var where := "" if conditions.is_empty() else " WHERE " + conditions
-    var sql := "SELECT %s FROM %s%s;" % [", ".join(fields), table, where]
+func select_rows(table: String, fields: Array[String], conditions: String = "", conditions_params: Array[Variant] = [], order: String = "") -> Variant:
+    var sql_where := "" if conditions.is_empty() else " WHERE " + conditions
+    var sql_order := "" if order.is_empty() else " ORDER BY " + order
+    var sql := "SELECT %s FROM %s%s%s;" % [", ".join(fields), table, sql_where, sql_order]
     if exec_call(&"SELECT", func() -> void: _db.query_with_bindings(sql, conditions_params)):
         return query_result()
     else:
