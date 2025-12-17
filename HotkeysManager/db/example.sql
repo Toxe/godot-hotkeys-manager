@@ -75,19 +75,6 @@ INSERT INTO program_command_hotkey (program_id, command_id, hotkey) VALUES
 (9, 5, 'Ctrl+F4'),
 (10, 5, 'Ctrl+W');
 
-INSERT INTO comment (comment_text) VALUES
-('Öffnet ein Suchfeld, in dem man nach Dateinamen suchen kann.'),
-('Wechselt zum nächsten Tab.'),
-('Nur über Command Palette verfügbar, nicht über Menüs.'),
-('In Visual Studio in den allgemeinen Suchdialog integriert.');
-
-INSERT INTO command_comment (command_id, comment_id) VALUES
-(1, 1),
-(2, 2);
-
-INSERT INTO program_command_comment (program_id, command_id, comment_id) VALUES
-(4, 1, 3);
-
 INSERT INTO user_hotkey (command_id, hotkey) VALUES
 (1, 'Ctrl+P'),
 (2, 'Ctrl+PageDown'),
@@ -106,6 +93,3 @@ INSERT INTO user_hotkey_program (user_hotkey_id, program_id) VALUES
 (3, 7),
 (3, 8),
 (4, 9);
-
-INSERT INTO user_hotkey_comment (user_hotkey_id, comment_id) VALUES
-(2, 4);

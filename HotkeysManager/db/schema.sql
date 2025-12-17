@@ -57,31 +57,6 @@ CREATE TABLE program_command_hotkey (
     FOREIGN KEY (command_id) REFERENCES command (command_id) ON DELETE CASCADE
 );
 
-CREATE TABLE comment (
-    comment_id INTEGER PRIMARY KEY NOT NULL,
-    comment_text TEXT,
-    time_created DATETIME DEFAULT (datetime()),
-    time_changed DATETIME DEFAULT (datetime())
-);
-
-CREATE TABLE command_comment (
-    command_id INTEGER NOT NULL,
-    comment_id INTEGER NOT NULL,
-    PRIMARY KEY (command_id, comment_id),
-    FOREIGN KEY (command_id) REFERENCES command (command_id) ON DELETE CASCADE,
-    FOREIGN KEY (comment_id) REFERENCES comment (comment_id) ON DELETE CASCADE
-) WITHOUT ROWID;
-
-CREATE TABLE program_command_comment (
-    program_id INTEGER NOT NULL,
-    command_id INTEGER NOT NULL,
-    comment_id INTEGER NOT NULL,
-    PRIMARY KEY (program_id, command_id, comment_id),
-    FOREIGN KEY (program_id) REFERENCES program (program_id) ON DELETE CASCADE,
-    FOREIGN KEY (command_id) REFERENCES command (command_id) ON DELETE CASCADE,
-    FOREIGN KEY (comment_id) REFERENCES comment (comment_id) ON DELETE CASCADE
-) WITHOUT ROWID;
-
 CREATE TABLE user_hotkey (
     user_hotkey_id INTEGER PRIMARY KEY NOT NULL,
     command_id INTEGER NOT NULL,
@@ -95,14 +70,6 @@ CREATE TABLE user_hotkey_program (
     PRIMARY KEY (user_hotkey_id, program_id),
     FOREIGN KEY (user_hotkey_id) REFERENCES user_hotkey (user_hotkey_id) ON DELETE CASCADE,
     FOREIGN KEY (program_id) REFERENCES program (program_id) ON DELETE CASCADE
-) WITHOUT ROWID;
-
-CREATE TABLE user_hotkey_comment (
-    user_hotkey_id INTEGER NOT NULL,
-    comment_id INTEGER NOT NULL,
-    PRIMARY KEY (user_hotkey_id, comment_id),
-    FOREIGN KEY (user_hotkey_id) REFERENCES user_hotkey (user_hotkey_id) ON DELETE CASCADE,
-    FOREIGN KEY (comment_id) REFERENCES comment (comment_id) ON DELETE CASCADE
 ) WITHOUT ROWID;
 
 INSERT INTO properties (version) VALUES (1);

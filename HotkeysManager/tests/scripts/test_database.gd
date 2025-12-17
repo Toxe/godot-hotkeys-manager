@@ -239,10 +239,10 @@ func test_count_rows_returns_the_number_of_rows() -> void:
 
 func test_count_rows_returns_zero_if_a_table_is_empty() -> void:
     db.delete_all_rows("properties")
-    db.delete_all_rows("command_comment")
+    db.delete_all_rows("programgroup_program")
     assert_eq(db.count_rows("properties"), 0)
-    assert_eq(db.count_rows("command_comment"), 0)
-    assert_eq(db.count_rows("command_comment", "command_id=?", [1]), 0)
+    assert_eq(db.count_rows("programgroup_program"), 0)
+    assert_eq(db.count_rows("programgroup_program", "program_id=?", [1]), 0)
 
 
 func test_count_rows_sql_injection() -> void:
