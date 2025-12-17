@@ -96,6 +96,7 @@ func test_can_open_New_Program_Group_dialog() -> void:
 func test_can_create_new_programgroup() -> void:
     main_screen._on_new_group_dialog_submitted(null, {"programgroup_name": "New Group"})
     check_has_all_programgroups(["Grafikprogramme", "Group 3", "Group 4", "Group 5", "New Group", "Texteditoren"])
+    await wait_idle_frames(1) # wait 1 frame to free the node, so that GUT won't report orphans
 
 
 func test_can_delete_programgroup() -> void:
