@@ -262,7 +262,7 @@ func prepare_actions_label() -> void:
                 if pos > 0:
                     text = text.substr(0, pos)
                 parts.append(text)
-            lines.append("%s: [code]%s[/code]" % [action.capitalize(), ", ".join(parts)])
+            lines.append("[b]%s:[/b] [code]%s[/code]" % [action.capitalize(), ", ".join(parts)])
     ($VBoxContainer/ActionsLabel as RichTextLabel).text = "\n".join(lines)
 
 func _on_back_button_pressed() -> void:

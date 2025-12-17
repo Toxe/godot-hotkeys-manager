@@ -1,14 +1,24 @@
-[gd_resource type="Theme" load_steps=7 format=3 uid="uid://dpqsa2k1ma2sl"]
+[gd_resource type="Theme" load_steps=9 format=3 uid="uid://dpqsa2k1ma2sl"]
 
 [ext_resource type="Texture2D" uid="uid://bxp1yqs0lcpps" path="res://assets/icons/checkbox_checked.svg" id="1_3ia3y"]
 [ext_resource type="Texture2D" uid="uid://550ejqbmt7x6" path="res://assets/icons/checkbox_unchecked.svg" id="2_3ia3y"]
 [ext_resource type="Texture2D" uid="uid://cg16rbld7tabu" path="res://assets/icons/checkbox_disabled.svg" id="3_rgkhk"]
+[ext_resource type="FontFile" uid="uid://b3ro1sq18uojt" path="res://assets/fonts/NotoSansMono.ttf" id="4_5y4u4"]
+[ext_resource type="FontFile" uid="uid://i3on1qxt5qjg" path="res://assets/fonts/NotoSans.ttf" id="4_rml02"]
 
-[sub_resource type="SystemFont" id="SystemFont_sifa0"]
+[sub_resource type="FontVariation" id="FontVariation_iyxls"]
+base_font = ExtResource("4_rml02")
+variation_opentype = {
+2003072104: 75,
+2003265652: 400
+}
 
-[sub_resource type="SystemFont" id="SystemFont_g3hx5"]
-font_names = PackedStringArray("Courier New")
-font_weight = 700
+[sub_resource type="FontVariation" id="FontVariation_rml02"]
+base_font = ExtResource("4_5y4u4")
+variation_opentype = {
+2003072104: 75,
+2003265652: 500
+}
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g3hx5"]
 draw_center = false
@@ -27,9 +37,9 @@ CheckBox/icons/unchecked_disabled = ExtResource("3_rgkhk")
 CommandNameLineEdit/base_type = &"LineEdit"
 CommandNameLineEdit/colors/font_color = Color(1, 1, 0, 1)
 CommandNameLineEdit/font_sizes/font_size = 24
-CommandNameLineEdit/fonts/font = SubResource("SystemFont_sifa0")
+CommandNameLineEdit/fonts/font = SubResource("FontVariation_iyxls")
 GridContainer/constants/h_separation = 0
 GridContainer/constants/v_separation = 0
-LineEdit/font_sizes/font_size = 18
-LineEdit/fonts/font = SubResource("SystemFont_g3hx5")
+LineEdit/font_sizes/font_size = 20
+LineEdit/fonts/font = SubResource("FontVariation_rml02")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_g3hx5")

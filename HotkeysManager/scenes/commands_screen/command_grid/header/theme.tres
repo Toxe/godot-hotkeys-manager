@@ -1,4 +1,13 @@
-[gd_resource type="Theme" format=3 uid="uid://b1wpqq1dakyrj"]
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://b1wpqq1dakyrj"]
+
+[ext_resource type="FontFile" uid="uid://i3on1qxt5qjg" path="res://assets/fonts/NotoSans.ttf" id="1_ggaij"]
+
+[sub_resource type="FontVariation" id="FontVariation_ggaij"]
+base_font = ExtResource("1_ggaij")
+variation_opentype = {
+2003072104: 75,
+2003265652: 400
+}
 
 [resource]
 Label/font_sizes/font_size = 24
@@ -6,7 +15,8 @@ MarginContainer/constants/margin_left = 10
 MarginContainer/constants/margin_right = 10
 ProgramAbbreviationLabel/base_type = &"Label"
 ProgramAbbreviationLabel/colors/font_color = Color(1, 0.65882355, 0, 1)
-ProgramAbbreviationLabel/font_sizes/font_size = 18
+ProgramAbbreviationLabel/font_sizes/font_size = 20
+ProgramAbbreviationLabel/fonts/font = SubResource("FontVariation_ggaij")
 ProgramLabel/base_type = &"Label"
 ProgramLabel/colors/font_color = Color(0, 1, 1, 1)
 UserHotkeyLabel/base_type = &"Label"
