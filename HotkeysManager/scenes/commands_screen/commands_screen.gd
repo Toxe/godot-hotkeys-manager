@@ -61,7 +61,7 @@ func _ready() -> void:
 
 static func query_all_commands(db: Database) -> Dictionary[int, String]:
     var commands: Dictionary[int, String] = {}
-    var rows: Variant = db.select_rows("command", ["command_id", "name"])
+    var rows: Variant = db.select_rows("command", ["command_id", "name"], "", [], "name")
     if rows:
         for row: Dictionary in rows:
             var command_id: int = row["command_id"]
