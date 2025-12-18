@@ -19,7 +19,7 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     _db = db
     _programgroup_id = programgroup_id
     _programs = programs
-    _cols = 1 + programs.size() + 1 + programs.size()
+    _cols = 1 + programs.size() + 1 + 1 + programs.size()
     columns = _cols
 
     add_header_row(programs, program_abbreviations, program_icons)
@@ -32,18 +32,22 @@ func setup(db: Database, programgroup_id: int, programs: Dictionary[int, String]
     add_bottom_row()
 
 
-func add_cell(cell: Control) -> void:
+func create_panel_container(cell: Control, panel_container_theme_type_variation: String = "") -> PanelContainer:
     assert(cell != null)
     var panel_container := PanelContainer.new()
     panel_container.add_child(cell)
-    add_child(panel_container)
+    if panel_container_theme_type_variation != "":
+        panel_container.theme_type_variation = panel_container_theme_type_variation
+    return panel_container
 
 
-func add_sibling_cell(sibling: Control, cell: Control) -> Control:
+func add_cell(cell: Control, panel_container_theme_type_variation: String = "") -> void:
+    add_child(create_panel_container(cell, panel_container_theme_type_variation))
+
+
+func add_sibling_cell(sibling: Control, cell: Control, panel_container_theme_type_variation: String = "") -> Control:
     assert(sibling != null)
-    assert(cell != null)
-    var panel_container := PanelContainer.new()
-    panel_container.add_child(cell)
+    var panel_container := create_panel_container(cell, panel_container_theme_type_variation)
     sibling.add_sibling(panel_container)
     return panel_container
 
@@ -59,7 +63,7 @@ func add_empty_sibling_cell(sibling: Control) -> Control:
 func get_cell(row: int, col: int) -> Control:
     if row < 0 || col < 0 || row >= _rows || col >= _cols:
         return null
-    assert(get_child_count() == (_rows + 2) * _cols) # +2 == header + bottom row
+    assert(get_child_count() == (_rows + 2) * _cols) # rows +2 == header + bottom row
     var panel_container: PanelContainer = get_child((row + 1) * _cols + col)
     return panel_container.get_child(0)
 
@@ -132,6 +136,7 @@ func add_header_row(programs: Dictionary[int, String], program_abbreviations: Di
     for program_id: int in programs:
         add_header_program_label(program_id, programs, program_icons)
 
+    add_spacer_cell()
     add_header_user_hotkey_label("User Hotkey")
 
     for program_id: int in programs:
@@ -147,7 +152,10 @@ func add_bottom_row() -> void:
     cell.add_row.connect(_on_add_row)
     add_cell(cell)
     # empty cells
-    for i in range(1, _cols):
+    for i in get_number_of_programs():
+        add_empty_cell()
+    add_spacer_cell()
+    for i in get_number_of_programs() + 1:
         add_empty_cell()
 
 
@@ -161,6 +169,7 @@ func add_command_cells(command_id: int, command_name: String, programs: Dictiona
     for row in necessary_rows:
         add_command_name_cell(row, command_id, command_name)
         add_program_command_hotkey_cells(row, programs, program_hotkey_cells)
+        add_spacer_cell()
         add_user_hotkey_cell(row, command_id, user_hotkeys)
         add_user_hotkey_program_controls(command_id, programs, user_hotkeys, user_hotkey_programs, row)
 
@@ -274,6 +283,16 @@ func add_user_hotkey_program_controls(command_id: int, programs: Dictionary[int,
             add_empty_cell()
 
 
+func create_spacer_cell() -> Control:
+    var control := Control.new()
+    control.custom_minimum_size = Vector2(80, 0)
+    return control
+
+
+func add_spacer_cell() -> void:
+    add_cell(create_spacer_cell(), "Spacer")
+
+
 func add_command_row(command_name: String, programs: Dictionary[int, String]) -> void:
     var command_id: int = _db.select_value("command", "command_id", "name=?", [command_name])
     var user_hotkey_id := 0
@@ -293,6 +312,9 @@ func add_command_row(command_name: String, programs: Dictionary[int, String]) ->
         program_hotkey_cell.changed.connect(_on_program_command_hotkey_cell_changed)
         program_hotkey_cell.add_row.connect(_on_add_row)
         sibling = add_sibling_cell(sibling, program_hotkey_cell)
+
+    # add spacer
+    sibling = add_sibling_cell(sibling, create_spacer_cell(), "Spacer")
 
     # add user hotkey cell
     var user_hotkey_cell := UserHotkeyTextCell.new(command_id, user_hotkey_id)
@@ -338,6 +360,9 @@ func insert_row_after(previous_row: int, programs: Dictionary[int, String]) -> v
         program_hotkey_cell.changed.connect(_on_program_command_hotkey_cell_changed)
         program_hotkey_cell.add_row.connect(_on_add_row)
         sibling = add_sibling_cell(sibling, program_hotkey_cell)
+
+    # add spacer
+    sibling = add_sibling_cell(sibling, create_spacer_cell(), "Spacer")
 
     # add empty user hotkey cell
     sibling = add_empty_sibling_cell(sibling)

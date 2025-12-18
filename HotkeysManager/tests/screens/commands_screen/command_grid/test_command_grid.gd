@@ -63,7 +63,7 @@ func test_no_cell_has_input_focus_by_default() -> void:
 
 func test_grid_child_count() -> void:
     var command_grid := create_command_grid(3)
-    assert_eq(command_grid.get_child_count(), (4 + 2) * 10) # 4 cell rows + header + bottom
+    assert_eq(command_grid.get_child_count(), (4 + 2) * 11) # 4 cell rows + header + bottom
 
 
 func test_number_of_rows() -> void:
@@ -73,7 +73,7 @@ func test_number_of_rows() -> void:
 
 func test_number_of_columns() -> void:
     var command_grid := create_command_grid(3)
-    assert_eq(command_grid._cols, 10)
+    assert_eq(command_grid._cols, 11)
 
 
 func test_get_number_of_programs() -> void:
@@ -98,14 +98,23 @@ func test_get_first_user_hotkey_program_checkbox_column() -> void:
 
 func test_get_cell_returns_grid_controls() -> void:
     var command_grid := create_command_grid(3)
-    assert_is(command_grid.get_cell(0, 0), TextCell)
-    assert_is(command_grid.get_cell(1, 0), Control)
-    assert_is(command_grid.get_cell(2, 0), TextCell)
-    assert_is(command_grid.get_cell(3, 0), TextCell)
-    assert_is(command_grid.get_cell(0, 9), UserHotkeyProgramCheckboxCell)
-    assert_is(command_grid.get_cell(1, 9), Control)
-    assert_is(command_grid.get_cell(2, 9), UserHotkeyProgramCheckboxCell)
-    assert_is(command_grid.get_cell(3, 9), UserHotkeyProgramCheckboxCell)
+    assert_true(command_grid.get_cell(0, 0) is TextCell)
+    assert_true(command_grid.get_cell(0, command_grid.get_user_hotkey_column() - 1) is Control) # spacer
+    assert_true(command_grid.get_cell(0, command_grid.get_user_hotkey_column() - 1) is not TextCell)
+    assert_true(command_grid.get_cell(0, command_grid.get_user_hotkey_column()) is UserHotkeyTextCell)
+    assert_true(command_grid.get_cell(1, 0) is Control)
+    assert_true(command_grid.get_cell(1, 0) is not TextCell)
+    assert_true(command_grid.get_cell(1, command_grid.get_user_hotkey_column() - 1) is Control) # spacer
+    assert_true(command_grid.get_cell(1, command_grid.get_user_hotkey_column() - 1) is not TextCell)
+    assert_true(command_grid.get_cell(1, command_grid.get_user_hotkey_column()) is Control)
+    assert_true(command_grid.get_cell(1, command_grid.get_user_hotkey_column()) is not UserHotkeyTextCell)
+    assert_true(command_grid.get_cell(2, 0) is TextCell)
+    assert_true(command_grid.get_cell(3, 0) is TextCell)
+    assert_true(command_grid.get_cell(0, command_grid._cols - 1) is UserHotkeyProgramCheckboxCell)
+    assert_true(command_grid.get_cell(1, command_grid._cols - 1) is Control)
+    assert_true(command_grid.get_cell(1, command_grid._cols - 1) is not UserHotkeyProgramCheckboxCell)
+    assert_true(command_grid.get_cell(2, command_grid._cols - 1) is UserHotkeyProgramCheckboxCell)
+    assert_true(command_grid.get_cell(3, command_grid._cols - 1) is UserHotkeyProgramCheckboxCell)
 
 
 func test_get_cell_returns_null_for_non_existing_cells() -> void:
@@ -684,7 +693,7 @@ var test_add_row_actions_params := [
         "action": "add_row_above",
         "programgroup_id": 3,
         "input_cell_row": 3,
-        "input_cell_column": 8,
+        "input_cell_column": 9,
         "expect_to_add_a_new_grid_row": true,
     },
     {
@@ -692,7 +701,7 @@ var test_add_row_actions_params := [
         "action": "add_row_below",
         "programgroup_id": 3,
         "input_cell_row": 3,
-        "input_cell_column": 8,
+        "input_cell_column": 9,
         "expect_to_add_a_new_grid_row": true,
     },
 ]
@@ -803,7 +812,7 @@ var test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params := 
         "action": "add_row_above",
         "programgroup_id": 3,
         "input_cell_row": 2,
-        "input_cell_column": 5,
+        "input_cell_column": 6,
         "should_move_focus_to_new_row": false,
     },
     {
@@ -811,7 +820,7 @@ var test_adding_a_row_moves_the_focus_cell_to_the_new_row_if_possible_params := 
         "action": "add_row_below",
         "programgroup_id": 3,
         "input_cell_row": 0,
-        "input_cell_column": 5,
+        "input_cell_column": 6,
         "should_move_focus_to_new_row": false,
     },
 ]

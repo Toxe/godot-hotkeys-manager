@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=9 format=3 uid="uid://dpqsa2k1ma2sl"]
+[gd_resource type="Theme" load_steps=10 format=3 uid="uid://dpqsa2k1ma2sl"]
 
 [ext_resource type="Texture2D" uid="uid://bxp1yqs0lcpps" path="res://assets/icons/checkbox_checked.svg" id="1_3ia3y"]
 [ext_resource type="Texture2D" uid="uid://550ejqbmt7x6" path="res://assets/icons/checkbox_unchecked.svg" id="2_3ia3y"]
@@ -28,6 +28,12 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.15, 0.15, 0.15, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rml02"]
+draw_center = false
+border_width_left = 1
+border_width_right = 1
+border_color = Color(0.15, 0.15, 0.15, 1)
+
 [resource]
 CheckBox/colors/checkbox_checked_color = Color(0.5, 1, 0.5, 1)
 CheckBox/colors/checkbox_unchecked_color = Color(0.25, 0.25, 0.25, 1)
@@ -43,3 +49,5 @@ GridContainer/constants/v_separation = 0
 LineEdit/font_sizes/font_size = 20
 LineEdit/fonts/font = SubResource("FontVariation_rml02")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_g3hx5")
+Spacer/base_type = &"PanelContainer"
+Spacer/styles/panel = SubResource("StyleBoxFlat_rml02")
