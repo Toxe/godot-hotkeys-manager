@@ -106,6 +106,18 @@ func get_number_of_programs() -> int:
     return _programs.size()
 
 
+func get_user_hotkey_column() -> int:
+    return get_first_program_hotkey_column() + get_number_of_programs() + 1
+
+
+func get_first_program_hotkey_column() -> int:
+    return 1
+
+
+func get_first_user_hotkey_program_checkbox_column() -> int:
+    return get_user_hotkey_column() + 1
+
+
 func find_command_row(command_name: String) -> int:
     for row in _rows:
         var cell: TextCell = get_cell(row, 0) as TextCell
@@ -372,12 +384,12 @@ func update_user_hotkey_program_checkboxes(user_hotkey_id: int, button_pressed: 
 
     # find row of the user hotkey cell user_hotkey_id
     for row in range(0, _rows):
-        var cell: UserHotkeyTextCell = get_cell(row, get_number_of_programs() + 1) as UserHotkeyTextCell
+        var cell: UserHotkeyTextCell = get_cell(row, get_user_hotkey_column()) as UserHotkeyTextCell
         if cell:
             if cell.user_hotkey_id == user_hotkey_id:
                 # update checkboxes of this row
-                for col in range(get_number_of_programs() + 2, _cols):
-                    var checkbox: UserHotkeyProgramCheckboxCell = get_cell(row, col)
+                for i in get_number_of_programs():
+                    var checkbox: UserHotkeyProgramCheckboxCell = get_cell(row, get_first_user_hotkey_program_checkbox_column() + i)
                     checkbox.user_hotkey_id = new_id
                     checkbox.set_pressed_no_signal(button_pressed)
                 return
