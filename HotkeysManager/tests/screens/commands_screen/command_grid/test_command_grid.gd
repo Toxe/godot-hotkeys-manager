@@ -76,9 +76,9 @@ func test_number_of_columns() -> void:
     assert_eq(command_grid._cols, 10)
 
 
-func test_number_of_programs() -> void:
+func test_get_number_of_programs() -> void:
     var command_grid := create_command_grid(3)
-    assert_eq(command_grid.number_of_programs(), 4)
+    assert_eq(command_grid.get_number_of_programs(), 4)
 
 
 func test_get_cell_returns_grid_controls() -> void:
@@ -454,7 +454,7 @@ func test_entering_a_command_into_the_add_command_cell(params: Dictionary = use_
 
     # check the new, added command cells
     var command_name_cell: TextCell = command_grid.get_cell(command_grid_row, 0)
-    var user_hotkey_cell: UserHotkeyTextCell = command_grid.get_cell(command_grid_row, command_grid.number_of_programs() + 1)
+    var user_hotkey_cell: UserHotkeyTextCell = command_grid.get_cell(command_grid_row, command_grid.get_number_of_programs() + 1)
     assert_not_null(command_name_cell)
     assert_not_null(user_hotkey_cell)
     assert_eq(command_name_cell.text, command_name)
@@ -462,13 +462,13 @@ func test_entering_a_command_into_the_add_command_cell(params: Dictionary = use_
     assert_eq(user_hotkey_cell.user_hotkey_id, params["expected_user_hotkey_id"])
     assert_eq(user_hotkey_cell.text, params["expected_user_hotkey"])
 
-    for col in range(1, command_grid.number_of_programs() + 1):
+    for col in range(1, command_grid.get_number_of_programs() + 1):
         var cell: ProgramHotkeyTextCell = command_grid.get_cell(command_grid_row, col)
         assert_not_null(cell)
         assert_eq(cell.command_id, command_id)
         assert_gt(cell.program_id, 0)
 
-    for col in range(command_grid.number_of_programs() + 2, command_grid.number_of_programs() + 2 + command_grid.number_of_programs()):
+    for col in range(command_grid.get_number_of_programs() + 2, command_grid.get_number_of_programs() + 2 + command_grid.get_number_of_programs()):
         var checkbox: UserHotkeyProgramCheckboxCell = command_grid.get_cell(command_grid_row, col)
         assert_not_null(checkbox)
         assert_gt(checkbox.program_id, 0)
@@ -735,7 +735,7 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
     if params["expect_to_add_a_new_grid_row"]:
         # the command name and user hotkey cells are just empty Controls
         var command_name_control: Control = command_grid.get_cell(new_row, 0)
-        var user_hotkey_control: Control = command_grid.get_cell(new_row, command_grid.number_of_programs() + 1)
+        var user_hotkey_control: Control = command_grid.get_cell(new_row, command_grid.get_number_of_programs() + 1)
         assert_not_null(command_name_control)
         assert_not_null(user_hotkey_control)
         assert_true(command_name_control is Control)
@@ -745,7 +745,7 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
 
         var above_row := new_row - 1 # index of the row above the newly added row
 
-        for col in range(1, command_grid.number_of_programs() + 1):
+        for col in range(1, command_grid.get_number_of_programs() + 1):
             # get the program hotkey cell from the row above
             var program_hotkey_cell_above: ProgramHotkeyTextCell = command_grid.get_cell(above_row, col)
             assert_not_null(program_hotkey_cell_above)
@@ -755,7 +755,7 @@ func test_add_row_actions(params: Dictionary = use_parameters(test_add_row_actio
             assert_eq(cell.command_id, program_hotkey_cell_above.command_id)
             assert_eq(cell.program_id, program_hotkey_cell_above.program_id)
 
-        for col in range(command_grid.number_of_programs() + 2, command_grid.number_of_programs() + 2 + command_grid.number_of_programs()):
+        for col in range(command_grid.get_number_of_programs() + 2, command_grid.get_number_of_programs() + 2 + command_grid.get_number_of_programs()):
             var control: Control = command_grid.get_cell(new_row, col)
             assert_not_null(control)
             assert_true(control is Control)

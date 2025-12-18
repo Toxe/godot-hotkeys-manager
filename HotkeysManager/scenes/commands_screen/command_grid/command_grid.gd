@@ -101,7 +101,7 @@ func get_add_command_cell() -> TextCell:
     return panel_container.get_child(0)
 
 
-func number_of_programs() -> int:
+func get_number_of_programs() -> int:
     assert(_programs != null)
     return _programs.size()
 
@@ -372,11 +372,11 @@ func update_user_hotkey_program_checkboxes(user_hotkey_id: int, button_pressed: 
 
     # find row of the user hotkey cell user_hotkey_id
     for row in range(0, _rows):
-        var cell: UserHotkeyTextCell = get_cell(row, number_of_programs() + 1) as UserHotkeyTextCell
+        var cell: UserHotkeyTextCell = get_cell(row, get_number_of_programs() + 1) as UserHotkeyTextCell
         if cell:
             if cell.user_hotkey_id == user_hotkey_id:
                 # update checkboxes of this row
-                for col in range(number_of_programs() + 2, _cols):
+                for col in range(get_number_of_programs() + 2, _cols):
                     var checkbox: UserHotkeyProgramCheckboxCell = get_cell(row, col)
                     checkbox.user_hotkey_id = new_id
                     checkbox.set_pressed_no_signal(button_pressed)
