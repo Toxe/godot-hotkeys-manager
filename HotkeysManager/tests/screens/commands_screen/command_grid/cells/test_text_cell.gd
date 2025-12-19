@@ -209,3 +209,93 @@ func test_action_ClearCell_doesnt_send_changed_signal_if_no_text_has_been_delete
     _input_sender.action_up("clear_cell")
     await wait_idle_frames(1)
     assert_signal_not_emitted(cell.changed)
+
+
+var test_action_UI_Copy_params := [
+    {
+        "cell_text": "cell text",
+        "previous_clipboard_content": "clipboard text",
+        "expected_clipboard_content": "cell text",
+    },
+    {
+        "cell_text": "",
+        "previous_clipboard_content": "clipboard text",
+        "expected_clipboard_content": "clipboard text",
+    },
+]
+
+
+func test_action_UI_Copy(params: Dictionary = use_parameters(test_action_UI_Copy_params)) -> void:
+    var old_clipboard_text := DisplayServer.clipboard_get()
+    var cell_text: String = params["cell_text"]
+    var previous_clipboard_content: String = params["previous_clipboard_content"]
+    var expected_clipboard_content: String = params["expected_clipboard_content"]
+
+    DisplayServer.clipboard_set(previous_clipboard_content)
+    assert_eq(DisplayServer.clipboard_get(), previous_clipboard_content)
+
+    var cell := create_text_cell(cell_text)
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("ui_copy")
+    _input_sender.action_up("ui_copy")
+    await wait_idle_frames(1)
+    assert_eq(DisplayServer.clipboard_get(), expected_clipboard_content)
+
+    # restore previous clipboard content
+    if old_clipboard_text != "":
+        DisplayServer.clipboard_set(old_clipboard_text)
+
+
+var test_action_UI_Paste_params := [
+    {
+        "pasted_text": "clipboard text",
+        "previous_cell_content": "",
+        "expected_cell_content": "clipboard text",
+    },
+    {
+        "pasted_text": "clipboard text",
+        "previous_cell_content": "cell text",
+        "expected_cell_content": "clipboard text",
+    },
+    {
+        "pasted_text": "",
+        "previous_cell_content": "cell text",
+        "expected_cell_content": "",
+    },
+    {
+        "pasted_text": "",
+        "previous_cell_content": "",
+        "expected_cell_content": "",
+    },
+    {
+        "pasted_text": "  with whitespace  ",
+        "previous_cell_content": "",
+        "expected_cell_content": "with whitespace",
+    },
+    {
+        "pasted_text": "  with whitespace  ",
+        "previous_cell_content": "cell text",
+        "expected_cell_content": "with whitespace",
+    },
+]
+
+
+func test_action_UI_Paste(params: Dictionary = use_parameters(test_action_UI_Paste_params)) -> void:
+    var old_clipboard_text := DisplayServer.clipboard_get()
+    var pasted_text: String = params["pasted_text"]
+    var previous_cell_content: String = params["previous_cell_content"]
+    var expected_cell_content: String = params["expected_cell_content"]
+
+    DisplayServer.clipboard_set(pasted_text)
+    assert_eq(DisplayServer.clipboard_get(), pasted_text)
+
+    var cell := create_text_cell(previous_cell_content)
+    cell.grab_focus_without_entering_edit_mode()
+    _input_sender.action_down("ui_paste")
+    _input_sender.action_up("ui_paste")
+    await wait_idle_frames(1)
+    assert_eq(cell.text, expected_cell_content)
+
+    # restore previous clipboard content
+    if old_clipboard_text != "":
+        DisplayServer.clipboard_set(old_clipboard_text)
