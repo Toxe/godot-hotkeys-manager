@@ -12,6 +12,7 @@ var num_rows_counter := 0
 @onready var delete_counter_label: Label = $HBoxContainer/DeleteCounterLabel
 @onready var update_counter_label: Label = $HBoxContainer/UpdateCounterLabel
 @onready var error_counter_label: Label = $HBoxContainer/ErrorCounterLabel
+@onready var error_label: Label = $HBoxContainer/ErrorLabel
 
 
 func _ready() -> void:
@@ -22,8 +23,10 @@ func _ready() -> void:
     Events.database_query_failed.connect(_on_database_query_failed)
 
 
-func _on_error(_error_message: String) -> void:
+func _on_error(error_message: String) -> void:
     error_counter = increase_counter_and_update_label(error_counter, error_counter_label)
+    error_label.text = error_message
+    error_label.tooltip_text = error_message
 
 
 func _on_database_query_succeeded(query_type: StringName, _dur: float, num_rows: int) -> void:
@@ -34,8 +37,10 @@ func _on_database_query_succeeded(query_type: StringName, _dur: float, num_rows:
         &"UPDATE": update_counter = increase_counter_and_update_label(update_counter, update_counter_label)
 
 
-func _on_database_query_failed(_query_type: StringName, _dur: float, _error_message: String) -> void:
+func _on_database_query_failed(_query_type: StringName, _dur: float, error_message: String) -> void:
     error_counter = increase_counter_and_update_label(error_counter, error_counter_label)
+    error_label.text = error_message
+    error_label.tooltip_text = error_message
 
 
 func increase_counter_and_update_label(counter: int, label: Label) -> int:

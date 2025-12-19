@@ -1,0 +1,25 @@
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://xo42p6y04igb"]
+
+[ext_resource type="FontFile" uid="uid://i3on1qxt5qjg" path="res://assets/fonts/NotoSans.ttf" id="1_m6enk"]
+
+[sub_resource type="FontVariation" id="FontVariation_m6enk"]
+base_font = ExtResource("1_m6enk")
+variation_opentype = {
+2003072104: 100,
+2003265652: 600
+}
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_be378"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.1, 0.1, 0.1, 1)
+
+[resource]
+ErrorLabel/base_type = &"Label"
+ErrorLabel/colors/font_color = Color(1, 0.35000002, 0.35000002, 1)
+ErrorLabel/constants/outline_size = 5
+ErrorLabel/fonts/font = SubResource("FontVariation_m6enk")
+HBoxContainer/constants/separation = 20
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_be378")
