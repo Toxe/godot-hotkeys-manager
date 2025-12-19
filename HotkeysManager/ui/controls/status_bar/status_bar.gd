@@ -15,6 +15,8 @@ var num_rows_counter := 0
 
 
 func _ready() -> void:
+    ($HBoxContainer/VersionLabel as Label).text = "v%s (WIP)" % ProjectSettings.get_setting("application/config/version")
+
     Events.error.connect(_on_error)
     Events.database_query_succeeded.connect(_on_database_query_succeeded)
     Events.database_query_failed.connect(_on_database_query_failed)
