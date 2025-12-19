@@ -263,18 +263,22 @@ ORDER BY name;"
 
 
 func prepare_actions_label() -> void:
+    var actions: Array[StringName] = InputMap.get_actions().filter(func(action: StringName) -> bool: return !action.begins_with("ui_"))
+    actions.append("ui_copy")
+    actions.append("ui_paste")
+
     var lines: Array[String]
-    for action in InputMap.get_actions():
-        if !action.begins_with("ui_"):
-            var parts: Array[String]
-            for event in InputMap.action_get_events(action):
-                var text := event.as_text()
-                var pos := text.find(" (Physical)")
-                if pos > 0:
-                    text = text.substr(0, pos)
-                parts.append(text)
-            lines.append("[b]%s:[/b] [code]%s[/code]" % [action.capitalize(), ", ".join(parts)])
+    for action in actions:
+        var parts: Array[String]
+        for event in InputMap.action_get_events(action):
+            var text := event.as_text()
+            var pos := text.find(" (Physical)")
+            if pos > 0:
+                text = text.substr(0, pos)
+            parts.append(text)
+        lines.append("[b]%s:[/b] [code]%s[/code]" % [action.capitalize(), ", ".join(parts)])
     ($VBoxContainer/ActionsLabel as RichTextLabel).text = "\n".join(lines)
+
 
 func _on_back_button_pressed() -> void:
     Events.switch_to_main_screen.emit()
