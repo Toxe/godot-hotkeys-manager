@@ -45,6 +45,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "➕ New Group"
 
+[node name="StressTestButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔥 Stress Test"
+
 [node name="QuitButton" type="Button" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -53,4 +58,5 @@ text = "🚪 Quit"
 [connection signal="program_deleted" from="VBoxContainer/ScrollContainer/HBoxContainer/ProgramList" to="." method="_on_program_list_program_deleted"]
 [connection signal="program_edited" from="VBoxContainer/ScrollContainer/HBoxContainer/ProgramList" to="." method="_on_program_list_program_edited"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/NewGroupButton" to="." method="_on_new_group_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/StressTestButton" to="." method="_on_stress_test_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]

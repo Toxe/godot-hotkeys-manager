@@ -109,3 +109,12 @@ func _on_program_list_program_edited(_program_id: int) -> void:
 
 func _on_program_list_program_deleted(_program_id: int) -> void:
     rebuild_programgroups()
+
+
+func _on_stress_test_button_pressed() -> void:
+    EnterTextDialog.open_dialog(self, "Stress Test", "", {"num_programs": "Programs:", "num_programgroups": "Programgroups:", "num_commands": "Commands:", "random_seed": "Random Seed"}, _on_stress_test_dialog_submitted, {"num_programs": "20", "num_programgroups": "5", "num_commands": "100", "random_seed": "42"})
+
+
+func _on_stress_test_dialog_submitted(_dialog: EnterTextDialog, values: Dictionary[String, String]) -> void:
+    DatabaseStressTest.generate_data(_db, values["num_programs"].to_int(), values["num_programgroups"].to_int(), values["num_commands"].to_int(), values["random_seed"].to_int())
+    Events.switch_to_main_screen.emit()
